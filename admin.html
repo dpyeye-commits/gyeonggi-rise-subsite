@@ -351,16 +351,19 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
-const MEMBERS_KEY  = 'rise_members';
-const ADMIN_PW     = 'chiyu2025';
-let curFilter  = 'all';
-let curSearch  = '';
-let curId      = null;
+const { createClient } = window.supabase;
+const sb = createClient(
+  'https://mvbxcrxykyyshdwtuedl.supabase.co',
+  'sb_publishable_xyA4rNrKXrOK0Yy_qPgL5w_8UbP7Vaa'
+);
 
-/* ── 스토리지 ── */
-function load()      { try { return JSON.parse(localStorage.getItem(MEMBERS_KEY) || '[]'); } catch { return []; } }
-function store(arr)  { localStorage.setItem(MEMBERS_KEY, JSON.stringify(arr)); }
+const ADMIN_PW = 'chiyu2025';
+let curFilter = 'all';
+let curSearch = '';
+let curId = null;
+let _members = [];
 
 /* ── 인증 ── */
 const gateEl = document.getElementById('gate-overlay');
@@ -368,10 +371,10 @@ const appEl  = document.getElementById('app');
 
 if (sessionStorage.getItem('rise_admin') === '1') { unlock(); }
 
-function unlock() {
+async function unlock() {
   gateEl.style.display = 'none';
   appEl.style.display  = 'block';
-  renderAll();
+  await renderAll();
 }
 
 function tryLogin() {
@@ -408,23 +411,22 @@ function badgeHtml(status) {
 
 /* ── 통계 갱신 ── */
 function updateStats() {
-  const ms = load();
-  document.getElementById('s-total').textContent    = ms.length;
-  document.getElementById('s-pending').textContent  = ms.filter(m => m.status === 'pending').length;
-  document.getElementById('s-approved').textContent = ms.filter(m => m.status === 'approved').length;
-  document.getElementById('s-rejected').textContent = ms.filter(m => m.status === 'rejected').length;
+  document.getElementById('s-total').textContent    = _members.length;
+  document.getElementById('s-pending').textContent  = _members.filter(m => m.status === 'pending').length;
+  document.getElementById('s-approved').textContent = _members.filter(m => m.status === 'approved').length;
+  document.getElementById('s-rejected').textContent = _members.filter(m => m.status === 'rejected').length;
 }
 
 /* ── 테이블 렌더 ── */
 function renderTable() {
-  let ms = load();
+  let ms = _members;
   if (curFilter !== 'all') ms = ms.filter(m => m.status === curFilter);
   if (curSearch) {
     const q = curSearch.toLowerCase();
-    ms = ms.filter(m => m.name.includes(q) || m.email.toLowerCase().includes(q) || m.phone.includes(q));
+    ms = ms.filter(m => m.name.includes(q) || m.email.toLowerCase().includes(q) || (m.phone||'').includes(q));
   }
 
-  const tbody  = document.getElementById('main-tbody');
+  const tbody   = document.getElementById('main-tbody');
   const emptyEl = document.getElementById('empty-state');
 
   if (ms.length === 0) {
@@ -439,9 +441,9 @@ function renderTable() {
       <td class="td-mono">${m.id}</td>
       <td class="td-name">${m.name}</td>
       <td style="font-size:13px;color:#555;">${m.email}</td>
-      <td>${m.phone}</td>
-      <td>${m.region}</td>
-      <td class="td-date">${fmtDate(m.submittedAt)}</td>
+      <td>${m.phone||''}</td>
+      <td>${m.region||''}</td>
+      <td class="td-date">${fmtDate(m.submitted_at)}</td>
       <td>${badgeHtml(m.status)}</td>
       <td>
         <div class="td-actions">
@@ -459,64 +461,63 @@ function renderTable() {
   });
 }
 
-function renderAll() { updateStats(); renderTable(); }
+async function renderAll() {
+  const { data, error } = await sb.from('members').select('*').order('submitted_at', { ascending: false });
+  _members = error ? [] : (data || []);
+  updateStats();
+  renderTable();
+}
 
 /* ── 액션 ── */
-function doAction(action, id) {
-  const ms  = load();
-  const idx = ms.findIndex(m => m.id === id);
-  if (idx === -1) return;
+async function doAction(action, id) {
+  const m = _members.find(x => x.id === id);
+  if (!m) return;
 
   if (action === 'approve') {
-    ms[idx].status = 'approved';
-    ms[idx].reviewedAt = new Date().toISOString();
-    store(ms); renderAll();
+    await sb.from('members').update({ status: 'approved', reviewed_at: new Date().toISOString() }).eq('id', id);
+    await renderAll();
   } else if (action === 'reject') {
-    if (confirm(`${ms[idx].name}님의 신청을 거절하시겠습니까?`)) {
-      ms[idx].status = 'rejected';
-      ms[idx].reviewedAt = new Date().toISOString();
-      store(ms); renderAll();
+    if (confirm(`${m.name}님의 신청을 거절하시겠습니까?`)) {
+      await sb.from('members').update({ status: 'rejected', reviewed_at: new Date().toISOString() }).eq('id', id);
+      await renderAll();
     }
   } else if (action === 'delete') {
-    if (confirm(`${ms[idx].name}님 데이터를 완전히 삭제합니다.\n이 작업은 되돌릴 수 없습니다.`)) {
-      ms.splice(idx, 1);
-      store(ms); renderAll();
+    if (confirm(`${m.name}님 데이터를 완전히 삭제합니다.\n이 작업은 되돌릴 수 없습니다.`)) {
+      await sb.from('members').delete().eq('id', id);
+      await renderAll();
     }
   } else if (action === 'detail') {
-    openDetail(ms[idx]);
+    openDetail(m);
   }
 }
 
 /* ── 상세 모달 ── */
 function openDetail(m) {
   curId = m.id;
-  document.getElementById('modal-title').innerHTML = `${m.name} &nbsp; ${badgeHtml(m.status)}`;
-  document.getElementById('d-name').textContent     = m.name;
-  document.getElementById('d-birth').textContent    = m.birthdate;
-  document.getElementById('d-email').textContent    = m.email;
-  document.getElementById('d-phone').textContent    = m.phone;
-  document.getElementById('d-region').textContent   = m.region;
-  document.getElementById('d-joongbu').textContent  = m.joongbu || '—';
-  document.getElementById('d-id').textContent       = m.id;
-  document.getElementById('d-date').textContent     = fmtDate(m.submittedAt);
-  document.getElementById('d-motivation').textContent = m.motivation;
-  document.getElementById('d-note').value           = m.adminNote || '';
+  document.getElementById('modal-title').innerHTML  = `${m.name} &nbsp; ${badgeHtml(m.status)}`;
+  document.getElementById('d-name').textContent      = m.name;
+  document.getElementById('d-birth').textContent     = m.birthdate || '—';
+  document.getElementById('d-email').textContent     = m.email;
+  document.getElementById('d-phone').textContent     = m.phone || '—';
+  document.getElementById('d-region').textContent    = m.region || '—';
+  document.getElementById('d-joongbu').textContent   = m.joongbu || '—';
+  document.getElementById('d-id').textContent        = m.id;
+  document.getElementById('d-date').textContent      = fmtDate(m.submitted_at);
+  document.getElementById('d-motivation').textContent = m.motivation || '';
+  document.getElementById('d-note').value            = m.admin_note || '';
   document.getElementById('modal-approve').style.display = m.status !== 'approved' ? '' : 'none';
   document.getElementById('modal-reject').style.display  = m.status !== 'rejected' ? '' : 'none';
   document.getElementById('detail-modal').classList.remove('hidden');
 }
 
-function closeDetail() {
+async function closeDetail() {
   if (curId) {
-    const ms  = load();
-    const idx = ms.findIndex(m => m.id === curId);
-    if (idx !== -1) {
-      ms[idx].adminNote = document.getElementById('d-note').value;
-      store(ms);
-    }
+    const note = document.getElementById('d-note').value;
+    await sb.from('members').update({ admin_note: note }).eq('id', curId);
   }
   document.getElementById('detail-modal').classList.add('hidden');
   curId = null;
+  await renderAll();
 }
 
 document.getElementById('modal-x').addEventListener('click', closeDetail);
@@ -524,11 +525,11 @@ document.getElementById('modal-close').addEventListener('click', closeDetail);
 document.getElementById('detail-modal').addEventListener('click', e => {
   if (e.target === document.getElementById('detail-modal')) closeDetail();
 });
-document.getElementById('modal-approve').addEventListener('click', () => {
-  if (curId) { doAction('approve', curId); closeDetail(); }
+document.getElementById('modal-approve').addEventListener('click', async () => {
+  if (curId) { await doAction('approve', curId); closeDetail(); }
 });
-document.getElementById('modal-reject').addEventListener('click', () => {
-  if (curId) { doAction('reject', curId); closeDetail(); }
+document.getElementById('modal-reject').addEventListener('click', async () => {
+  if (curId) { await doAction('reject', curId); closeDetail(); }
 });
 
 /* ── 필터 / 검색 ── */
@@ -547,14 +548,14 @@ document.getElementById('search-box').addEventListener('input', e => {
 
 /* ── CSV 내보내기 ── */
 document.getElementById('btn-csv').addEventListener('click', () => {
-  const ms = load();
+  const ms = _members;
   const headers = ['ID','이름','생년월일','이메일','연락처','지역','재학/졸업','지원동기','상태','신청일','검토일','관리자메모'];
   const rows = ms.map(m => [
     m.id, m.name, m.birthdate, m.email, m.phone, m.region, m.joongbu,
     `"${(m.motivation||'').replace(/"/g,'""')}"`,
     m.status === 'pending' ? '대기중' : m.status === 'approved' ? '승인' : '거절',
-    fmtDate(m.submittedAt), fmtDate(m.reviewedAt),
-    `"${(m.adminNote||'').replace(/"/g,'""')}"`
+    fmtDate(m.submitted_at), fmtDate(m.reviewed_at),
+    `"${(m.admin_note||'').replace(/"/g,'""')}"`
   ]);
   const csv = '﻿' + [headers, ...rows].map(r => r.join(',')).join('\n');
   const a = document.createElement('a');

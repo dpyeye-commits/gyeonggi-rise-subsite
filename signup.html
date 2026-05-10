@@ -364,13 +364,13 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
-const MEMBERS_KEY = 'rise_members';
-
-function loadMembers() {
-  try { return JSON.parse(localStorage.getItem(MEMBERS_KEY) || '[]'); } catch { return []; }
-}
-function saveMembers(arr) { localStorage.setItem(MEMBERS_KEY, JSON.stringify(arr)); }
+const { createClient } = window.supabase;
+const sb = createClient(
+  'https://mvbxcrxykyyshdwtuedl.supabase.co',
+  'sb_publishable_xyA4rNrKXrOK0Yy_qPgL5w_8UbP7Vaa'
+);
 
 function genId() {
   return 'MEM-' + Math.random().toString(36).slice(2, 8).toUpperCase();
@@ -385,7 +385,7 @@ items.forEach(c => c.addEventListener('change', () => {
 }));
 
 /* 폼 제출 */
-document.getElementById('signup-form').addEventListener('submit', e => {
+document.getElementById('signup-form').addEventListener('submit', async e => {
   e.preventDefault();
 
   const name       = document.getElementById('f-name').value.trim();
@@ -396,62 +396,40 @@ document.getElementById('signup-form').addEventListener('submit', e => {
   const joongbu    = document.getElementById('f-joongbu').value;
   const motivation = document.getElementById('f-motivation').value.trim();
 
-  /* 필수 필드 검증 */
   let valid = true;
-  [
-    ['f-name', name],
-    ['f-birth', birth],
-    ['f-email', email],
-    ['f-phone', phone],
-    ['f-region', region],
-    ['f-motivation', motivation]
-  ].forEach(([id, val]) => {
+  [['f-name',name],['f-birth',birth],['f-email',email],['f-phone',phone],['f-region',region],['f-motivation',motivation]].forEach(([id,val]) => {
     const el = document.getElementById(id);
     if (!val) { el.style.borderColor = '#ef4444'; valid = false; }
     else el.style.borderColor = '';
   });
-
-  if (!valid) {
-    alert('필수 항목(*)을 모두 입력해 주세요.');
-    return;
-  }
-
-  /* 필수 동의 체크 */
+  if (!valid) { alert('필수 항목(*)을 모두 입력해 주세요.'); return; }
   if (!document.getElementById('agree-required').checked) {
-    alert('개인정보 수집·이용 동의(필수)에 체크해 주세요.');
+    alert('개인정보 수집·이용 동의(필수)에 체크해 주세요.'); return;
+  }
+
+  const submitBtn = document.getElementById('submit-btn');
+  submitBtn.disabled = true;
+  submitBtn.textContent = '처리 중…';
+
+  const { data, error } = await sb.from('members').insert([{
+    id: genId(), name, email, birthdate: birth, phone, region,
+    joongbu: joongbu || '해당 없음', motivation, status: 'pending'
+  }]).select().single();
+
+  submitBtn.disabled = false;
+  submitBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> 회원가입 신청하기';
+
+  if (error) {
+    if (error.code === '23505') {
+      document.getElementById('f-email').style.borderColor = '#ef4444';
+      alert('이미 신청된 이메일입니다.\n회원 홈페이지에서 이메일 + 이름으로 로그인해 보세요.');
+    } else {
+      alert('오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+    }
     return;
   }
 
-  /* 이메일 중복 체크 */
-  const members = loadMembers();
-  if (members.find(m => m.email.toLowerCase() === email.toLowerCase())) {
-    document.getElementById('f-email').style.borderColor = '#ef4444';
-    alert('이미 신청된 이메일입니다.\n회원 홈페이지에서 이메일 + 이름으로 로그인해 보세요.');
-    return;
-  }
-
-  /* 회원 데이터 생성 */
-  const id = genId();
-  const member = {
-    id,
-    name,
-    birthdate: birth,
-    email,
-    phone,
-    region,
-    joongbu: joongbu || '해당 없음',
-    motivation,
-    status: 'pending',
-    submittedAt: new Date().toISOString(),
-    reviewedAt: null,
-    adminNote: ''
-  };
-
-  members.push(member);
-  saveMembers(members);
-
-  /* 완료 화면 표시 */
-  document.getElementById('success-id').textContent = id;
+  document.getElementById('success-id').textContent = data.id;
   document.getElementById('signup-form').style.display = 'none';
   document.getElementById('success-screen').style.display = 'block';
 });

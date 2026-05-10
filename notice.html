@@ -332,6 +332,57 @@
     .bmodal-submit:hover { background: var(--navy-mid); }
     .bmodal-submit:disabled { opacity: .6; cursor: not-allowed; }
 
+    /* ── 댓글 ── */
+    .comment-section {
+      margin-top: 20px; padding-top: 20px;
+      border-top: 1px solid var(--border);
+    }
+    .comment-section-title {
+      font-size: 13px; font-weight: 800; color: var(--navy); margin-bottom: 12px;
+    }
+    .comment-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+    .comment-item {
+      background: #fff; border-radius: var(--r-sm);
+      padding: 12px 14px; border: 1px solid var(--border);
+      position: relative;
+    }
+    .comment-meta {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 5px;
+    }
+    .comment-author { font-size: 13px; font-weight: 700; color: var(--navy); }
+    .comment-date { font-size: 12px; color: var(--text-soft); }
+    .comment-body { font-size: 14px; color: var(--text-mid); line-height: 1.7; white-space: pre-wrap; }
+    .comment-del {
+      background: none; border: none; cursor: pointer;
+      font-size: 11px; color: var(--text-soft); padding: 2px 8px;
+      border-radius: 4px; transition: all .15s; flex-shrink: 0;
+    }
+    .comment-del:hover { background: #fee2e2; color: #dc2626; }
+    .comment-empty { font-size: 13px; color: var(--text-soft); padding: 4px 0 12px; }
+    .comment-input-area { display: flex; gap: 10px; align-items: flex-start; }
+    .comment-input-area textarea {
+      flex: 1; padding: 10px 14px; border: 1.5px solid var(--border);
+      border-radius: var(--r-md); font-size: 14px; color: var(--text);
+      font-family: 'Paperlogy', 'Noto Sans KR', sans-serif;
+      resize: none; height: 68px; outline: none; transition: border-color .15s;
+    }
+    .comment-input-area textarea:focus { border-color: var(--blue); }
+    .comment-submit {
+      padding: 10px 18px; background: var(--blue); color: #fff;
+      border: none; border-radius: var(--r-md); cursor: pointer;
+      font-size: 13px; font-weight: 700; white-space: nowrap; flex-shrink: 0;
+      font-family: 'Paperlogy', 'Noto Sans KR', sans-serif;
+      transition: background .15s;
+    }
+    .comment-submit:hover { background: var(--navy-mid); }
+    .comment-submit:disabled { opacity: .6; cursor: not-allowed; }
+    .comment-login-notice {
+      font-size: 13px; color: var(--text-soft);
+      padding: 10px 14px; background: var(--cream);
+      border-radius: var(--r-sm); border: 1px solid var(--border);
+    }
+
     @media (max-width: 900px) {
       .media-grid { grid-template-columns: 1fr 1fr; }
       .aitool-grid { grid-template-columns: 1fr 1fr; }
@@ -1174,6 +1225,44 @@
         .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
+    async function loadComments(postId) {
+      const cl = document.getElementById('cl-' + postId);
+      const cc = document.getElementById('cc-' + postId);
+      if (!cl) return;
+      cl.innerHTML = '<div class="comment-empty">불러오는 중…</div>';
+      const { data, error } = await sb.from('comments').select('*')
+        .eq('post_id', postId).order('created_at', { ascending: true });
+      const list = error ? [] : (data || []);
+      if (cc) cc.textContent = list.length ? `(${list.length})` : '';
+      if (list.length === 0) {
+        cl.innerHTML = '<div class="comment-empty">아직 댓글이 없습니다. 첫 댓글을 남겨보세요!</div>';
+        return;
+      }
+      const admin = isAdmin();
+      cl.innerHTML = list.map(c => `
+        <div class="comment-item">
+          <div class="comment-meta">
+            <span class="comment-author">${escHtml(c.author_name)}</span>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span class="comment-date">${fmtDate(c.created_at)}</span>
+              ${admin ? `<button class="comment-del" data-cdel="${escHtml(c.id)}" data-cpid="${escHtml(postId)}">삭제</button>` : ''}
+            </div>
+          </div>
+          <div class="comment-body">${escHtml(c.content)}</div>
+        </div>
+      `).join('');
+
+      // 관리자 댓글 삭제
+      cl.querySelectorAll('[data-cdel]').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          if (!confirm('댓글을 삭제하시겠습니까?')) return;
+          await sb.from('comments').delete().eq('id', btn.dataset.cdel);
+          await loadComments(btn.dataset.cpid);
+        });
+      });
+    }
+
     async function loadPosts() {
       document.getElementById('board-loading') && (document.getElementById('board-loading').textContent = '불러오는 중…');
       const { data, error } = await sb.from('posts').select('*').order('created_at', { ascending: false });
@@ -1225,19 +1314,56 @@
               ${adminBtns}
             </div>
             <div class="board-detail-body">${escHtml(p.content)}</div>
+            <div class="comment-section">
+              <div class="comment-section-title">💬 댓글 <span id="cc-${escHtml(p.id)}"></span></div>
+              <div class="comment-list" id="cl-${escHtml(p.id)}">
+                <div class="comment-empty">불러오는 중…</div>
+              </div>
+              ${session
+                ? `<div class="comment-input-area">
+                     <textarea id="ct-${escHtml(p.id)}" placeholder="댓글을 입력하세요"></textarea>
+                     <button class="comment-submit" data-cpost="${escHtml(p.id)}">등록</button>
+                   </div>`
+                : `<div class="comment-login-notice">💬 댓글은 승인된 회원만 작성할 수 있습니다.</div>`
+              }
+            </div>
             <button class="board-detail-close" data-bclose="${escHtml(p.id)}">▲ 닫기</button>
           </div>
         `;
       }).join('');
 
-      // 행 클릭 → 인라인 펼치기
+      // 행 클릭 → 인라인 펼치기 + 댓글 로드
       list.querySelectorAll('.board-row').forEach(row => {
         row.addEventListener('click', () => {
           const bid = row.dataset.bid;
           const detail = document.getElementById('bd-' + bid);
           const isOpen = detail.classList.contains('open');
           list.querySelectorAll('.board-detail').forEach(d => d.classList.remove('open'));
-          if (!isOpen) detail.classList.add('open');
+          if (!isOpen) {
+            detail.classList.add('open');
+            loadComments(bid);
+          }
+        });
+      });
+
+      // 댓글 등록 버튼
+      list.querySelectorAll('[data-cpost]').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          const pid = btn.dataset.cpost;
+          const ta = document.getElementById('ct-' + pid);
+          const content = ta.value.trim();
+          if (!content) { ta.focus(); return; }
+          const session = getSession();
+          if (!session) return;
+          btn.disabled = true; btn.textContent = '등록 중…';
+          await sb.from('comments').insert({
+            id: uid(), post_id: pid,
+            author_name: session.name, author_id: String(session.id), content
+          });
+          ta.value = '';
+          btn.disabled = false; btn.textContent = '등록';
+          await loadComments(pid);
         });
       });
 

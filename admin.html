@@ -214,6 +214,27 @@
     }
     .btn-sec:hover { background: #e0e0e0; }
 
+    /* ── 로딩 오버레이 ── */
+    .loading-overlay {
+      position: fixed; inset: 0; z-index: 8000;
+      background: rgba(240,242,245,.75);
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
+      backdrop-filter: blur(2px);
+      transition: opacity .15s;
+    }
+    .loading-overlay.hidden { display: none; }
+    .loading-spinner {
+      width: 44px; height: 44px;
+      border: 4px solid #d1fae5;
+      border-top-color: #17422e;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-label {
+      font-size: 14px; font-weight: 700; color: #17422e; letter-spacing: .3px;
+    }
+
     @media (max-width: 768px) {
       .stats-row { grid-template-columns: 1fr 1fr; }
       .adm-topbar h1 { font-size: 13px; }
@@ -238,6 +259,12 @@
     <button class="gate-btn" id="gate-btn">로그인</button>
     <p class="gate-error" id="gate-error"></p>
   </div>
+</div>
+
+<!-- ── 로딩 오버레이 ── -->
+<div class="loading-overlay hidden" id="loading-overlay">
+  <div class="loading-spinner"></div>
+  <span class="loading-label" id="loading-label">처리 중…</span>
 </div>
 
 <!-- ── 메인 앱 ── -->
@@ -365,6 +392,15 @@ let curSearch = '';
 let curId = null;
 let _members = [];
 
+/* ── 로딩 헬퍼 ── */
+function showLoading(msg = '처리 중…') {
+  document.getElementById('loading-label').textContent = msg;
+  document.getElementById('loading-overlay').classList.remove('hidden');
+}
+function hideLoading() {
+  document.getElementById('loading-overlay').classList.add('hidden');
+}
+
 /* ── 인증 ── */
 const gateEl = document.getElementById('gate-overlay');
 const appEl  = document.getElementById('app');
@@ -462,10 +498,12 @@ function renderTable() {
 }
 
 async function renderAll() {
+  showLoading('회원 목록 불러오는 중…');
   const { data, error } = await sb.from('members').select('*').order('submitted_at', { ascending: false });
   _members = error ? [] : (data || []);
   updateStats();
   renderTable();
+  hideLoading();
 }
 
 /* ── 액션 ── */
@@ -474,15 +512,18 @@ async function doAction(action, id) {
   if (!m) return;
 
   if (action === 'approve') {
+    showLoading('승인 처리 중…');
     await sb.from('members').update({ status: 'approved', reviewed_at: new Date().toISOString() }).eq('id', id);
     await renderAll();
   } else if (action === 'reject') {
     if (confirm(`${m.name}님의 신청을 거절하시겠습니까?`)) {
+      showLoading('거절 처리 중…');
       await sb.from('members').update({ status: 'rejected', reviewed_at: new Date().toISOString() }).eq('id', id);
       await renderAll();
     }
   } else if (action === 'delete') {
     if (confirm(`${m.name}님 데이터를 완전히 삭제합니다.\n이 작업은 되돌릴 수 없습니다.`)) {
+      showLoading('삭제 중…');
       await sb.from('members').delete().eq('id', id);
       await renderAll();
     }
@@ -512,6 +553,7 @@ function openDetail(m) {
 
 async function closeDetail() {
   if (curId) {
+    showLoading('메모 저장 중…');
     const note = document.getElementById('d-note').value;
     await sb.from('members').update({ admin_note: note }).eq('id', curId);
   }

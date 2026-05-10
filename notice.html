@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>공지사항 — 자연치유학과 크리에이터 과정</title>
   <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <style>
     /* ── 탭 ── */
     .notice-tabs {
@@ -223,11 +224,121 @@
       font-family: 'Paperlogy', 'Noto Sans KR', sans-serif;
     }
 
+    /* ── 자유게시판 ── */
+    .board-topbar {
+      display: flex; justify-content: space-between; align-items: center;
+      padding-bottom: 16px;
+    }
+    .board-write-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--blue); color: #fff; border: none;
+      padding: 10px 20px; border-radius: var(--r-md);
+      font-size: 14px; font-weight: 700; cursor: pointer;
+      font-family: 'Paperlogy', 'Noto Sans KR', sans-serif;
+      transition: background .15s;
+    }
+    .board-write-btn:hover { background: var(--navy-mid); }
+    .board-list { display: flex; flex-direction: column; border-top: 2px solid var(--navy); }
+    .board-row {
+      display: grid; grid-template-columns: 52px 1fr auto auto;
+      align-items: center; gap: 16px;
+      padding: 16px 20px; border-bottom: 1px solid var(--border);
+      cursor: pointer; transition: background .15s;
+    }
+    .board-row:hover { background: var(--cream); }
+    .board-num { font-size: 13px; color: var(--text-soft); text-align: center; font-weight: 600; }
+    .board-title { font-size: 15px; font-weight: 600; color: var(--text); }
+    .board-author { font-size: 13px; color: var(--text-soft); white-space: nowrap; }
+    .board-date { font-size: 13px; color: var(--text-soft); white-space: nowrap; }
+    .board-detail {
+      display: none; padding: 22px 20px;
+      background: var(--cream); border-bottom: 1px solid var(--border);
+    }
+    .board-detail.open { display: block; }
+    .board-detail-header {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border);
+    }
+    .board-detail-meta { font-size: 13px; color: var(--text-soft); margin-top: 4px; }
+    .board-detail-body { font-size: 15px; color: var(--text-mid); line-height: 1.95; white-space: pre-wrap; max-width: 720px; }
+    .board-admin-btns { display: flex; gap: 8px; flex-shrink: 0; }
+    .board-admin-btn {
+      padding: 6px 14px; border-radius: var(--r-sm); border: none; cursor: pointer;
+      font-size: 12px; font-weight: 700;
+      font-family: 'Paperlogy', 'Noto Sans KR', sans-serif;
+      transition: background .15s;
+    }
+    .board-admin-btn.edit { background: #e0f2fe; color: #0369a1; }
+    .board-admin-btn.edit:hover { background: #bae6fd; }
+    .board-admin-btn.del { background: #fee2e2; color: #dc2626; }
+    .board-admin-btn.del:hover { background: #fecaca; }
+    .board-detail-close {
+      display: inline-flex; align-items: center; gap: 6px;
+      margin-top: 16px; font-size: 13px; font-weight: 700; color: var(--text-soft);
+      cursor: pointer; border: none; background: none;
+      font-family: 'Paperlogy', 'Noto Sans KR', sans-serif;
+    }
+    .board-empty {
+      text-align: center; padding: 60px 20px;
+      color: var(--text-soft); font-size: 15px;
+      border-bottom: 1px solid var(--border);
+    }
+    .board-login-notice {
+      display: flex; align-items: center; gap: 10px;
+      background: #fffbeb; border: 1px solid #fcd34d; border-radius: var(--r-md);
+      padding: 12px 16px; margin-bottom: 16px; font-size: 13px; color: #92400e;
+    }
+
+    /* ── 글쓰기/수정 모달 ── */
+    .bmodal-bg {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,.5); z-index: 2000;
+      align-items: center; justify-content: center; padding: 20px;
+    }
+    .bmodal-bg.open { display: flex; }
+    .bmodal {
+      background: #fff; border-radius: var(--r-lg);
+      padding: 32px; max-width: 600px; width: 100%; max-height: 85vh; overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,.25);
+    }
+    .bmodal h3 { font-size: 18px; font-weight: 900; color: var(--navy); margin-bottom: 20px; }
+    .bmodal-field { margin-bottom: 16px; }
+    .bmodal-field label { display: block; font-size: 13px; font-weight: 700; color: var(--text-mid); margin-bottom: 6px; }
+    .bmodal-field input, .bmodal-field textarea {
+      width: 100%; box-sizing: border-box;
+      padding: 12px 16px; border: 1.5px solid var(--border); border-radius: var(--r-md);
+      font-size: 14px; color: var(--text);
+      font-family: 'Paperlogy', 'Noto Sans KR', sans-serif;
+      outline: none; transition: border-color .15s; resize: vertical;
+    }
+    .bmodal-field input:focus, .bmodal-field textarea:focus { border-color: var(--blue); }
+    .bmodal-field textarea { min-height: 160px; }
+    .bmodal-btns { display: flex; gap: 10px; justify-content: flex-end; margin-top: 8px; }
+    .bmodal-cancel {
+      padding: 11px 22px; border-radius: var(--r-md);
+      border: 1.5px solid var(--border); background: #fff; color: var(--text-mid);
+      font-size: 14px; font-weight: 700; cursor: pointer;
+      font-family: 'Paperlogy', 'Noto Sans KR', sans-serif;
+      transition: border-color .15s;
+    }
+    .bmodal-cancel:hover { border-color: var(--navy); }
+    .bmodal-submit {
+      padding: 11px 22px; border-radius: var(--r-md);
+      border: none; background: var(--blue); color: #fff;
+      font-size: 14px; font-weight: 700; cursor: pointer;
+      font-family: 'Paperlogy', 'Noto Sans KR', sans-serif;
+      transition: background .15s;
+    }
+    .bmodal-submit:hover { background: var(--navy-mid); }
+    .bmodal-submit:disabled { opacity: .6; cursor: not-allowed; }
+
     @media (max-width: 900px) {
       .media-grid { grid-template-columns: 1fr 1fr; }
       .aitool-grid { grid-template-columns: 1fr 1fr; }
       .notice-row { grid-template-columns: 48px 1fr auto; }
       .notice-date { display: none; }
+      .board-row { grid-template-columns: 40px 1fr auto; }
+      .board-date { display: none; }
     }
     @media (max-width: 600px) {
       .media-grid { grid-template-columns: 1fr; }
@@ -235,6 +346,8 @@
       .notice-row { grid-template-columns: 1fr; gap: 6px; }
       .notice-num { display: none; }
       .data-item { flex-wrap: wrap; }
+      .board-row { grid-template-columns: 1fr auto; gap: 6px; }
+      .board-num, .board-author { display: none; }
     }
   </style>
 </head>
@@ -303,6 +416,7 @@
       <button class="ntab" data-ntab="tab-media">보도자료</button>
       <button class="ntab" data-ntab="tab-data">자료실</button>
       <button class="ntab" data-ntab="tab-aitool">🤖 AI Tool</button>
+      <button class="ntab" data-ntab="tab-board">💬 자유게시판</button>
     </div>
 
     <!-- ── 공지사항 탭 ── -->
@@ -863,8 +977,44 @@
       </div><!-- /aitool-grid -->
     </div><!-- /tab-aitool -->
 
+    <!-- ── 자유게시판 탭 ── -->
+    <div class="notice-panel" id="tab-board">
+
+      <div class="board-topbar fade-in">
+        <div style="font-size:14px;color:var(--text-soft);" id="board-count">게시글 0개</div>
+        <button class="board-write-btn" id="board-write-btn" style="display:none;">✏️ 글쓰기</button>
+      </div>
+      <div class="board-login-notice" id="board-login-notice" style="display:none;">
+        🔒 글쓰기는 승인된 회원만 가능합니다.
+        <a href="member.html" style="color:var(--blue);font-weight:700;margin-left:4px;">로그인하러 가기 →</a>
+      </div>
+      <div class="board-list fade-in" id="board-list">
+        <div class="board-empty" id="board-loading">불러오는 중…</div>
+      </div>
+
+    </div><!-- /tab-board -->
+
   </div>
 </section>
+
+<!-- 글쓰기/수정 모달 -->
+<div class="bmodal-bg" id="bmodal-bg">
+  <div class="bmodal">
+    <h3 id="bmodal-title">글쓰기</h3>
+    <div class="bmodal-field">
+      <label>제목</label>
+      <input type="text" id="bmodal-ttl" placeholder="제목을 입력하세요" maxlength="100">
+    </div>
+    <div class="bmodal-field">
+      <label>내용</label>
+      <textarea id="bmodal-body" placeholder="내용을 입력하세요"></textarea>
+    </div>
+    <div class="bmodal-btns">
+      <button class="bmodal-cancel" id="bmodal-cancel">취소</button>
+      <button class="bmodal-submit" id="bmodal-submit">등록</button>
+    </div>
+  </div>
+</div>
 
 <!-- CTA -->
 <section class="section" style="padding-top:0;">
@@ -991,6 +1141,200 @@
       });
     });
   });
+
+  // ── 자유게시판 ──
+  (function() {
+    const { createClient } = window.supabase;
+    const sb = createClient(
+      'https://mvbxcrxykyyshdwtuedl.supabase.co',
+      'sb_publishable_xyA4rNrKXrOK0Yy_qPgL5w_8UbP7Vaa'
+    );
+
+    let _posts = [];
+    let _editId = null;
+
+    function getSession() {
+      try { return JSON.parse(sessionStorage.getItem('rise_session')); } catch { return null; }
+    }
+    function isAdmin() { return sessionStorage.getItem('rise_admin') === '1'; }
+
+    function fmtDate(iso) {
+      if (!iso) return '';
+      const d = new Date(iso);
+      return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+    }
+
+    function uid() {
+      return Date.now().toString(36) + Math.random().toString(36).slice(2);
+    }
+
+    function escHtml(str) {
+      return String(str)
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    async function loadPosts() {
+      document.getElementById('board-loading') && (document.getElementById('board-loading').textContent = '불러오는 중…');
+      const { data, error } = await sb.from('posts').select('*').order('created_at', { ascending: false });
+      _posts = error ? [] : (data || []);
+      renderBoard();
+    }
+
+    function renderBoard() {
+      const list = document.getElementById('board-list');
+      const session = getSession();
+      const admin = isAdmin();
+
+      // 글쓰기 버튼 / 로그인 안내 토글
+      if (session) {
+        document.getElementById('board-write-btn').style.display = '';
+        document.getElementById('board-login-notice').style.display = 'none';
+      } else {
+        document.getElementById('board-write-btn').style.display = 'none';
+        document.getElementById('board-login-notice').style.display = '';
+      }
+
+      document.getElementById('board-count').textContent = `게시글 ${_posts.length}개`;
+
+      if (_posts.length === 0) {
+        list.innerHTML = '<div class="board-empty">아직 게시글이 없습니다. 첫 번째 글을 남겨보세요!</div>';
+        return;
+      }
+
+      list.innerHTML = _posts.map((p, i) => {
+        const adminBtns = admin
+          ? `<div class="board-admin-btns">
+               <button class="board-admin-btn edit" data-edit="${escHtml(p.id)}">수정</button>
+               <button class="board-admin-btn del" data-del="${escHtml(p.id)}">삭제</button>
+             </div>`
+          : '<div></div>';
+        return `
+          <div class="board-row" data-bid="${escHtml(p.id)}">
+            <div class="board-num">${_posts.length - i}</div>
+            <div class="board-title">${escHtml(p.title)}</div>
+            <div class="board-author">${escHtml(p.author_name)}</div>
+            <div class="board-date">${fmtDate(p.created_at)}</div>
+          </div>
+          <div class="board-detail" id="bd-${escHtml(p.id)}">
+            <div class="board-detail-header">
+              <div>
+                <div style="font-size:17px;font-weight:800;color:var(--navy);margin-bottom:4px;">${escHtml(p.title)}</div>
+                <div class="board-detail-meta">${escHtml(p.author_name)} · ${fmtDate(p.created_at)}${p.updated_at ? ' <span style="color:var(--text-soft);font-size:12px;">(수정됨)</span>' : ''}</div>
+              </div>
+              ${adminBtns}
+            </div>
+            <div class="board-detail-body">${escHtml(p.content)}</div>
+            <button class="board-detail-close" data-bclose="${escHtml(p.id)}">▲ 닫기</button>
+          </div>
+        `;
+      }).join('');
+
+      // 행 클릭 → 인라인 펼치기
+      list.querySelectorAll('.board-row').forEach(row => {
+        row.addEventListener('click', () => {
+          const bid = row.dataset.bid;
+          const detail = document.getElementById('bd-' + bid);
+          const isOpen = detail.classList.contains('open');
+          list.querySelectorAll('.board-detail').forEach(d => d.classList.remove('open'));
+          if (!isOpen) detail.classList.add('open');
+        });
+      });
+
+      // 닫기 버튼
+      list.querySelectorAll('[data-bclose]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          document.getElementById('bd-' + btn.dataset.bclose).classList.remove('open');
+        });
+      });
+
+      // 관리자 수정
+      list.querySelectorAll('[data-edit]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const p = _posts.find(x => x.id === btn.dataset.edit);
+          if (!p) return;
+          _editId = p.id;
+          document.getElementById('bmodal-title').textContent = '글 수정';
+          document.getElementById('bmodal-ttl').value = p.title;
+          document.getElementById('bmodal-body').value = p.content;
+          document.getElementById('bmodal-submit').textContent = '수정 완료';
+          document.getElementById('bmodal-bg').classList.add('open');
+        });
+      });
+
+      // 관리자 삭제
+      list.querySelectorAll('[data-del]').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          if (!confirm('이 게시글을 삭제하시겠습니까?')) return;
+          await sb.from('posts').delete().eq('id', btn.dataset.del);
+          await loadPosts();
+        });
+      });
+    }
+
+    // 글쓰기 버튼
+    document.getElementById('board-write-btn').addEventListener('click', () => {
+      _editId = null;
+      document.getElementById('bmodal-title').textContent = '글쓰기';
+      document.getElementById('bmodal-ttl').value = '';
+      document.getElementById('bmodal-body').value = '';
+      document.getElementById('bmodal-submit').textContent = '등록';
+      document.getElementById('bmodal-bg').classList.add('open');
+    });
+
+    // 모달 닫기
+    document.getElementById('bmodal-cancel').addEventListener('click', () => {
+      document.getElementById('bmodal-bg').classList.remove('open');
+    });
+    document.getElementById('bmodal-bg').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('bmodal-bg'))
+        document.getElementById('bmodal-bg').classList.remove('open');
+    });
+
+    // 모달 제출 (등록 or 수정)
+    document.getElementById('bmodal-submit').addEventListener('click', async () => {
+      const title = document.getElementById('bmodal-ttl').value.trim();
+      const content = document.getElementById('bmodal-body').value.trim();
+      if (!title) { alert('제목을 입력하세요.'); return; }
+      if (!content) { alert('내용을 입력하세요.'); return; }
+
+      const submitBtn = document.getElementById('bmodal-submit');
+      submitBtn.disabled = true;
+      submitBtn.textContent = '처리 중…';
+
+      if (_editId) {
+        await sb.from('posts').update({
+          title, content, updated_at: new Date().toISOString()
+        }).eq('id', _editId);
+      } else {
+        const session = getSession();
+        if (!session) {
+          alert('로그인이 필요합니다.');
+          submitBtn.disabled = false;
+          submitBtn.textContent = '등록';
+          return;
+        }
+        await sb.from('posts').insert({
+          id: uid(),
+          author_name: session.name,
+          author_id: String(session.id),
+          title,
+          content
+        });
+      }
+
+      submitBtn.disabled = false;
+      submitBtn.textContent = _editId ? '수정 완료' : '등록';
+      document.getElementById('bmodal-bg').classList.remove('open');
+      await loadPosts();
+    });
+
+    // 페이지 로드 시 게시글 불러오기
+    loadPosts();
+  })();
 </script>
 </body>
 </html>

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>핵심 사업 — 경기RISE사업단</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .prog-hero-img {
+      width: 100%; height: 320px; object-fit: cover;
+      border-radius: var(--r-xl); margin-bottom: 28px;
+    }
+    .prog-section { padding: var(--section-gap) 24px; }
+    .prog-section:nth-child(even) { background: var(--cream); }
+    .prog-layout { display: grid; grid-template-columns: 1fr 1.2fr; gap: 60px; align-items: center; }
+    .prog-layout.reverse { direction: rtl; }
+    .prog-layout.reverse > * { direction: ltr; }
+    .prog-img { border-radius: var(--r-xl); overflow: hidden; aspect-ratio: 4/3; }
+    .prog-img img { width: 100%; height: 100%; object-fit: cover; }
+    .prog-img-placeholder {
+      width: 100%; height: 100%; border-radius: var(--r-xl);
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 80px;
+    }
+    .prog-num { font-size: 72px; font-weight: 900; color: var(--border); line-height: 1; margin-bottom: -8px; }
+    .prog-info-tag { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--blue); background: var(--sky); padding: 5px 14px; border-radius: 100px; display: inline-block; margin-bottom: 14px; }
+    .prog-info h2 { font-size: clamp(24px,3.5vw,38px); font-weight: 900; color: var(--navy); letter-spacing: -.8px; margin-bottom: 16px; line-height: 1.25; }
+    .prog-info p { font-size: 15px; color: var(--text-mid); line-height: 1.9; margin-bottom: 14px; }
+    .prog-detail-list { list-style: none; display: flex; flex-direction: column; gap: 12px; margin-top: 20px; }
+    .prog-detail-list li { display: flex; align-items: flex-start; gap: 12px; font-size: 14px; color: var(--text-mid); }
+    .prog-detail-list li::before { content: '✓'; width: 20px; height: 20px; background: var(--sky); color: var(--blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 900; flex-shrink: 0; margin-top: 1px; }
+    .prog-sub-cards { display: grid; grid-template-columns: repeat(2,1fr); gap: 14px; margin-top: 24px; }
+    .prog-sub-card { background: #fff; border: 1px solid var(--border); border-radius: var(--r-md); padding: 18px; }
+    .prog-sub-card h4 { font-size: 14px; font-weight: 800; color: var(--navy); margin-bottom: 6px; }
+    .prog-sub-card p { font-size: 12px; color: var(--text-soft); line-height: 1.6; }
+    .prog-info-tag.navy { background: #EBF0FF; color: var(--navy-mid); }
+    .prog-info-tag.gold { background: var(--gold-light); color: var(--gold); }
+
+    .platform-section { background: var(--navy); padding: var(--section-gap) 24px; }
+    .platform-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 20px; }
+    .platform-card { background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12); border-radius: var(--r-lg); padding: 28px; transition: background .2s; }
+    .platform-card:hover { background: rgba(255,255,255,.11); }
+    .platform-card-icon { font-size: 32px; margin-bottom: 14px; }
+    .platform-card h3 { font-size: 18px; font-weight: 800; color: #fff; margin-bottom: 10px; }
+    .platform-card p { font-size: 14px; color: rgba(255,255,255,.5); line-height: 1.8; }
+
+    @media (max-width: 900px) {
+      .prog-layout, .prog-layout.reverse { grid-template-columns: 1fr; direction: ltr; }
+      .prog-img { aspect-ratio: 16/9; }
+      .prog-sub-cards { grid-template-columns: 1fr; }
+      .platform-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-inner">
+    <span>중부대학교 경기RISE사업단 공식 교육 프로그램</span>
+    <div class="topbar-links"><a href="https://www.joongbu.ac.kr" target="_blank">중부대학교</a><a href="https://jbrise.com" target="_blank">RISE사업단 본부</a></div>
+  </div>
+</div>
+<header>
+  <div class="header-inner">
+    <a class="logo-block" href="index.html">
+      <img src="images/joongbu-logo.png" alt="중부대학교 로고">
+      <div class="logo-sep"></div>
+      <div>
+        <div class="logo-tag">자연치유학과 크리에이터 과정</div>
+        <span class="logo-sub">중부대학교 자연치유학과 × 경기 RISE</span>
+      </div>
+    </a>
+    <nav id="main-nav">
+      <a href="about.html">과정 소개</a>
+      <a href="curriculum.html">교육 과정</a>
+      <a href="benefits.html">참여 혜택</a>
+      <a href="notice.html">공지사항</a>
+      <a href="https://chiyu.joongbu.ac.kr" target="_blank" class="nav-member">회원홈페이지</a>
+    </nav>
+    <a href="signup.html" class="btn-apply">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      수강 신청
+    </a>
+    <button class="nav-toggle" id="nav-toggle" aria-label="메뉴 열기"><span></span><span></span><span></span></button>
+  </div>
+</header>
+
+<div class="page-hero">
+  <div class="page-hero-inner">
+    <div class="breadcrumb"><a href="index.html">홈</a><span class="breadcrumb-sep">›</span><span>핵심 사업</span></div>
+    <div class="page-hero-tag">Programs</div>
+    <h1>핵심 추진 사업</h1>
+    <p>경기도 산업 생태계에 맞춰 설계된 3대 핵심 사업과 지산학 플랫폼을 소개합니다.</p>
+  </div>
+</div>
+
+<!-- 사업 01 -->
+<section class="prog-section" id="gx">
+  <div class="section-inner">
+    <div class="prog-layout">
+      <div class="prog-img">
+        <img src="images/rise_hero1.jpg" alt="GX 인재생태계 구축">
+      </div>
+      <div class="prog-info">
+        <div class="prog-num">01</div>
+        <div class="prog-info-tag">GX 인재생태계 구축</div>
+        <h2>그린 트랜스포메이션<br>핵심 인재 양성</h2>
+        <p>지역 산업의 미래를 이끌 GX(Green Transformation) 전문 인재를 발굴하고 체계적으로 육성합니다. 기후 변화·에너지 전환 시대에 맞는 실무 역량을 갖춘 인재를 배출합니다.</p>
+        <ul class="prog-detail-list">
+          <li>그린 기술 및 지속가능 비즈니스 심화 교육</li>
+          <li>ESG 경영·탄소중립 전문가 양성 과정</li>
+          <li>지역 녹색 기업 현장 인턴십 우선 연계</li>
+          <li>취업·창업 지원 네트워크 제공</li>
+          <li>정부 공인 GX 인증서 취득 지원</li>
+        </ul>
+        <div class="prog-sub-cards">
+          <div class="prog-sub-card"><h4>대상</h4><p>대학생·청년·지역민 (만 19~45세)</p></div>
+          <div class="prog-sub-card"><h4>기간</h4><p>20주 (주 2회, 총 120시간)</p></div>
+          <div class="prog-sub-card"><h4>모집 인원</h4><p>회차당 30명 내외</p></div>
+          <div class="prog-sub-card"><h4>교육비</h4><p>전액 무료 (RISE 사업 지원)</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 사업 02 -->
+<section class="prog-section" id="alliance">
+  <div class="section-inner">
+    <div class="prog-layout reverse">
+      <div class="prog-img">
+        <img src="images/rise_hero2.jpg" alt="지산학연관민 혁신 얼라이언스">
+      </div>
+      <div class="prog-info">
+        <div class="prog-num">02</div>
+        <div class="prog-info-tag navy">지산학연관민 혁신 얼라이언스</div>
+        <h2>지역사회 모든 주체가<br>함께하는 협력 플랫폼</h2>
+        <p>지역사회의 모든 구성원이 참여하는 개방형 혁신 플랫폼으로 지역의 실질적 문제를 함께 해결하고 공동 성장을 도모합니다.</p>
+        <ul class="prog-detail-list">
+          <li>지역 현안 기반 프로젝트 학습(PBL)</li>
+          <li>다부처 연계 정책 실습 및 시뮬레이션</li>
+          <li>지역 커뮤니티 리더십 개발 프로그램</li>
+          <li>협업 워크숍·세미나·네트워킹 지원</li>
+          <li>지역 혁신 우수 사례 공유 포럼</li>
+        </ul>
+        <div class="prog-sub-cards">
+          <div class="prog-sub-card"><h4>참여 주체</h4><p>기업·연구소·관공서·지역민</p></div>
+          <div class="prog-sub-card"><h4>운영 방식</h4><p>분기별 포럼 + 수시 워크숍</p></div>
+          <div class="prog-sub-card"><h4>연계 기관</h4><p>경기도·고양시·협력 기업 47개</p></div>
+          <div class="prog-sub-card"><h4>네트워크</h4><p>얼라이언스 회원 자동 가입</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 사업 03 -->
+<section class="prog-section" id="cluster">
+  <div class="section-inner">
+    <div class="prog-layout">
+      <div class="prog-img">
+        <img src="images/rise_hero3.jpg" alt="GX 콘텐츠 창업 클러스터">
+      </div>
+      <div class="prog-info">
+        <div class="prog-num">03</div>
+        <div class="prog-info-tag gold">GX 콘텐츠 창업 클러스터</div>
+        <h2>디지털 콘텐츠로<br>창업을 현실로</h2>
+        <p>디지털·미디어 콘텐츠 분야의 창업 인재를 발굴하고 아이디어를 실제 사업으로 구현합니다. 건강·치유 콘텐츠부터 AI 기반 크리에이터까지 전주기를 지원합니다.</p>
+        <ul class="prog-detail-list">
+          <li>건강·치유 콘텐츠 크리에이터 전문 과정</li>
+          <li>AI 기반 영상·이미지 콘텐츠 제작 실습</li>
+          <li>1인 창업·스타트업 멘토링 집중 지원</li>
+          <li>투자 연계·IR 피칭 세션 제공</li>
+          <li>크리에이터 전용 스튜디오·장비 무상 대여</li>
+        </ul>
+        <div class="prog-sub-cards">
+          <div class="prog-sub-card"><h4>대상</h4><p>콘텐츠 창업 희망자 전원</p></div>
+          <div class="prog-sub-card"><h4>지원</h4><p>시제품 제작비 최대 300만 원</p></div>
+          <div class="prog-sub-card"><h4>멘토</h4><p>현직 크리에이터 · 투자자 연계</p></div>
+          <div class="prog-sub-card"><h4>공간</h4><p>전용 스튜디오·장비 무상 이용</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 지산학 플랫폼 -->
+<section class="platform-section" id="platform">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="section-tag">지산학 플랫폼</div>
+      <h2>지역·산업·학교를 잇는 허브</h2>
+      <p>4개 기능 영역을 통해 지역 혁신 생태계의 실질적 연결을 담당합니다.</p>
+    </div>
+    <div class="platform-grid">
+      <div class="platform-card fade-in"><div class="platform-card-icon">🔍</div><h3>지역 현안 해결</h3><p>지역 기업·기관의 실제 문제를 학교와 함께 해결하는 리빙랩 방식의 프로젝트를 운영합니다.</p></div>
+      <div class="platform-card fade-in"><div class="platform-card-icon">💡</div><h3>기업 해답 탐색</h3><p>중소기업의 기술적·경영적 고민에 대학의 연구 역량을 매칭하여 해법을 제시합니다.</p></div>
+      <div class="platform-card fade-in"><div class="platform-card-icon">🎓</div><h3>미래 교육 설계</h3><p>산업계 수요를 반영한 교육과정을 산학이 공동으로 설계하고 지속적으로 업데이트합니다.</p></div>
+      <div class="platform-card fade-in"><div class="platform-card-icon">🌐</div><h3>지역 연결</h3><p>지역 내 대학·기업·기관·커뮤니티를 유기적으로 연결하는 네트워크 플랫폼을 운영합니다.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-inner">
+    <div class="apply-banner">
+      <div class="apply-text"><h2>원하는 프로그램을 찾으셨나요?</h2><p>지금 바로 신청하고 경기RISE 교육의 혜택을 누리세요.</p></div>
+      <div class="apply-btns"><a href="signup.html" class="apply-btn-white">📋 신청하기</a><a href="curriculum.html" class="apply-btn-ghost">교육 일정 보기 →</a></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand"><img src="images/joongbu-logo.png" alt="중부대학교"><p>중부대학교 경기RISE사업단<br>경기도 고양시 덕양구 동헌로 305 세종관 524호<br>사업자등록번호: 169-82-00019</p></div>
+      <div class="footer-col"><h4>사업단 소개</h4><ul><li><a href="about.html">인사말</a></li><li><a href="about.html#intro">사업 소개</a></li><li><a href="about.html#org">조직도</a></li><li><a href="about.html#map">오시는 길</a></li></ul></div>
+      <div class="footer-col"><h4>핵심 추진 사업</h4><ul><li><a href="programs.html">GX 인재생태계</a></li><li><a href="programs.html#alliance">지산학 얼라이언스</a></li><li><a href="programs.html#cluster">창업 클러스터</a></li></ul></div>
+      <div class="footer-col"><h4>커뮤니티</h4><ul><li><a href="notice.html">공지사항</a></li><li><a href="notice.html#news">보도자료</a></li><li><a href="https://jbrise.com" target="_blank">RISE사업단 본부</a></li></ul></div>
+    </div>
+    <div class="footer-bottom"><span>© 2026 중부대학교 경기RISE사업단. All rights reserved.</span><div class="footer-bottom-links"><a href="#">개인정보처리방침</a><a href="#">이용약관</a></div></div>
+  </div>
+</footer>
+<script>
+const fadeObs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); fadeObs.unobserve(e.target); } });
+}, { threshold: .1 });
+document.querySelectorAll('.fade-in').forEach(el => fadeObs.observe(el));
+</script>
+</body>
+</html>

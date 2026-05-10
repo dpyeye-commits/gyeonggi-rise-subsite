@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>공지사항 — 자연치유학과 크리에이터 과정</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* ── 탭 ── */
+    .notice-tabs {
+      display: flex; gap: 6px;
+      border-bottom: 2px solid var(--border); margin-bottom: 32px;
+    }
+    .ntab {
+      padding: 11px 22px; border: none; background: none; cursor: pointer;
+      font-size: 14px; font-weight: 700; color: var(--text-soft);
+      border-radius: var(--r-sm) var(--r-sm) 0 0;
+      position: relative; bottom: -2px;
+      border-bottom: 2px solid transparent;
+      transition: color .15s;
+      font-family: 'Paperlogy', 'Noto Sans KR', sans-serif;
+    }
+    .ntab:hover { color: var(--navy); }
+    .ntab.active { color: var(--blue); border-bottom-color: var(--blue); }
+    .notice-panel { display: none; }
+    .notice-panel.active { display: block; }
+
+    /* ── 공지 목록 ── */
+    .notice-list { display: flex; flex-direction: column; border-top: 2px solid var(--navy); }
+    .notice-row {
+      display: grid; grid-template-columns: 64px 1fr auto auto;
+      align-items: center; gap: 20px;
+      padding: 18px 20px; border-bottom: 1px solid var(--border);
+      text-decoration: none; color: inherit;
+      transition: background .15s;
+    }
+    .notice-row:hover { background: var(--cream); }
+    .notice-row.pinned { background: #EBF3FF; }
+    .notice-row.pinned:hover { background: #dbeeff; }
+    .notice-num {
+      font-size: 13px; color: var(--text-soft); text-align: center; font-weight: 600;
+    }
+    .pin-badge {
+      display: inline-flex; align-items: center; justify-content: center;
+      background: var(--blue); color: #fff;
+      font-size: 10px; font-weight: 800; letter-spacing: .3px;
+      padding: 3px 8px; border-radius: 100px;
+    }
+    .notice-title { font-size: 15px; font-weight: 600; color: var(--text); }
+    .notice-title .new-badge {
+      display: inline-block; background: #EF4444; color: #fff;
+      font-size: 10px; font-weight: 800; padding: 1px 6px;
+      border-radius: 4px; margin-left: 8px; vertical-align: middle;
+    }
+    .notice-cat {
+      font-size: 11px; font-weight: 700; letter-spacing: .5px;
+      padding: 3px 10px; border-radius: 100px;
+      background: var(--sky); color: var(--blue);
+      white-space: nowrap;
+    }
+    .notice-cat.cat-notice { background: var(--sky); color: var(--blue); }
+    .notice-cat.cat-media { background: rgba(200,150,42,.15); color: var(--gold); }
+    .notice-cat.cat-data { background: rgba(15,37,71,.08); color: var(--navy); }
+    .notice-date { font-size: 13px; color: var(--text-soft); white-space: nowrap; }
+
+    /* ── 페이지네이션 ── */
+    .pagination {
+      display: flex; gap: 6px; justify-content: center;
+      margin-top: 32px;
+    }
+    .page-btn {
+      width: 36px; height: 36px; border-radius: var(--r-sm);
+      border: 1px solid var(--border); background: #fff;
+      font-size: 13px; font-weight: 700; color: var(--text-mid);
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: all .15s;
+      font-family: 'Paperlogy', 'Noto Sans KR', sans-serif;
+    }
+    .page-btn:hover { border-color: var(--blue); color: var(--blue); }
+    .page-btn.active { background: var(--blue); border-color: var(--blue); color: #fff; }
+    .page-btn.arrow { font-size: 16px; }
+
+    /* ── 검색 바 ── */
+    .search-bar {
+      display: flex; gap: 10px; margin-bottom: 28px;
+    }
+    .search-input {
+      flex: 1; padding: 12px 18px;
+      border: 1.5px solid var(--border); border-radius: var(--r-md);
+      font-size: 14px; color: var(--text);
+      font-family: 'Paperlogy', 'Noto Sans KR', sans-serif;
+      outline: none; transition: border-color .15s;
+    }
+    .search-input:focus { border-color: var(--blue); }
+    .search-btn {
+      padding: 12px 22px; background: var(--blue); color: #fff;
+      border: none; border-radius: var(--r-md); cursor: pointer;
+      font-size: 14px; font-weight: 700;
+      font-family: 'Paperlogy', 'Noto Sans KR', sans-serif;
+      transition: background .15s;
+    }
+    .search-btn:hover { background: var(--navy-mid); }
+
+    /* ── 보도자료 카드 (media) ── */
+    .media-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; }
+    .media-card {
+      border-radius: var(--r-lg); overflow: hidden;
+      border: 1px solid var(--border); background: #fff;
+      box-shadow: var(--sh-card); text-decoration: none; color: inherit;
+      transition: box-shadow .2s, transform .2s;
+      display: flex; flex-direction: column;
+    }
+    .media-card:hover { box-shadow: var(--sh-hover); transform: translateY(-3px); }
+    .media-thumb {
+      height: 160px;
+      background: linear-gradient(135deg, var(--navy-mid) 0%, var(--blue) 100%);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 48px; flex-shrink: 0;
+    }
+    .media-body { padding: 20px; flex: 1; display: flex; flex-direction: column; }
+    .media-source { font-size: 11px; font-weight: 700; color: var(--gold); margin-bottom: 8px; letter-spacing: .3px; }
+    .media-card h4 { font-size: 15px; font-weight: 800; color: var(--navy); line-height: 1.5; margin-bottom: 8px; flex: 1; }
+    .media-card p { font-size: 13px; color: var(--text-soft); line-height: 1.7; }
+    .media-date { font-size: 12px; color: var(--text-soft); margin-top: 12px; }
+
+    /* ── 자료실 ── */
+    .data-list { display: flex; flex-direction: column; gap: 12px; }
+    .data-item {
+      display: flex; gap: 18px; align-items: center;
+      padding: 18px 24px; border-radius: var(--r-md);
+      background: #fff; border: 1px solid var(--border);
+      box-shadow: var(--sh-card); text-decoration: none; color: inherit;
+      transition: box-shadow .15s, transform .15s;
+    }
+    .data-item:hover { box-shadow: var(--sh-hover); transform: translateX(4px); }
+    .data-icon {
+      width: 44px; height: 44px; border-radius: var(--r-sm); flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; background: var(--sky);
+    }
+    .data-icon.pdf { background: rgba(239,68,68,.1); }
+    .data-icon.hwp { background: rgba(59,130,246,.1); }
+    .data-icon.zip { background: rgba(245,158,11,.1); }
+    .data-meta { flex: 1; }
+    .data-meta h4 { font-size: 15px; font-weight: 700; color: var(--navy); margin-bottom: 4px; }
+    .data-meta p { font-size: 13px; color: var(--text-soft); }
+    .data-size { font-size: 12px; color: var(--text-soft); white-space: nowrap; }
+    .data-dl {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--blue); color: #fff; font-size: 12px; font-weight: 700;
+      padding: 8px 14px; border-radius: var(--r-sm);
+      white-space: nowrap; flex-shrink: 0;
+      text-decoration: none; transition: background .15s;
+    }
+    .data-dl:hover { background: var(--navy-mid); }
+
+    /* ── 공지 뷰 모달 오버레이 (간단한 inline expand) ── */
+    .notice-detail {
+      display: none; padding: 24px 20px;
+      background: var(--cream); border-bottom: 1px solid var(--border);
+    }
+    .notice-detail.open { display: block; }
+    .notice-detail-body { font-size: 15px; color: var(--text-mid); line-height: 1.95; max-width: 720px; }
+    .notice-detail-body strong { color: var(--navy); }
+    .notice-detail-close {
+      display: inline-flex; align-items: center; gap: 6px;
+      margin-top: 16px; font-size: 13px; font-weight: 700; color: var(--text-soft);
+      cursor: pointer; border: none; background: none;
+      font-family: 'Paperlogy', 'Noto Sans KR', sans-serif;
+    }
+
+    @media (max-width: 900px) {
+      .media-grid { grid-template-columns: 1fr 1fr; }
+      .notice-row { grid-template-columns: 48px 1fr auto; }
+      .notice-date { display: none; }
+    }
+    @media (max-width: 600px) {
+      .media-grid { grid-template-columns: 1fr; }
+      .notice-row { grid-template-columns: 1fr; gap: 6px; }
+      .notice-num { display: none; }
+      .data-item { flex-wrap: wrap; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- 탑바 -->
+<div class="topbar">
+  <div class="topbar-inner">
+    <span>중부대학교 자연치유학과 × 경기 RISE 지원 교육과정</span>
+    <div class="topbar-links">
+      <a href="https://www.joongbu.ac.kr" target="_blank">중부대학교</a>
+      <a href="notice.html">공지사항</a>
+      <a href="signup.html">신청하기</a>
+    </div>
+  </div>
+</div>
+
+<!-- 헤더 -->
+<header>
+  <div class="header-inner">
+    <a class="logo-block" href="index.html">
+      <img src="images/joongbu-logo.png" alt="중부대학교 로고">
+      <div class="logo-sep"></div>
+      <div>
+        <div class="logo-tag">자연치유학과 크리에이터 과정</div>
+        <span class="logo-sub">중부대학교 자연치유학과 × 경기 RISE</span>
+      </div>
+    </a>
+    <nav id="main-nav">
+      <a href="about.html">과정 소개</a>
+      <a href="curriculum.html">교육 과정</a>
+      <a href="benefits.html">참여 혜택</a>
+      <a href="notice.html" class="active">공지사항</a>
+      <a href="https://chiyu.joongbu.ac.kr" target="_blank" class="nav-member">회원홈페이지</a>
+    </nav>
+    <a class="btn-apply" href="signup.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      수강 신청
+    </a>
+    <button class="nav-toggle" id="navToggle" aria-label="메뉴 열기">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<!-- 페이지 헤더 -->
+<section class="page-hero">
+  <div class="page-hero-inner">
+    <div class="breadcrumb">
+      <a href="index.html">홈</a>
+      <span class="breadcrumb-sep">›</span>
+      <span>공지사항</span>
+    </div>
+    <div class="page-hero-tag">Notice</div>
+    <h1>공지사항</h1>
+    <p>자연치유학과 크리에이터 과정의 최신 공지, 모집 일정, 학습 자료를 확인하세요.</p>
+  </div>
+</section>
+
+<!-- 공지 탭 본문 -->
+<section class="section">
+  <div class="section-inner">
+
+    <div class="notice-tabs fade-in">
+      <button class="ntab active" data-ntab="tab-notice">공지사항</button>
+      <button class="ntab" data-ntab="tab-media">보도자료</button>
+      <button class="ntab" data-ntab="tab-data">자료실</button>
+    </div>
+
+    <!-- ── 공지사항 탭 ── -->
+    <div class="notice-panel active" id="tab-notice">
+      <div class="search-bar fade-in">
+        <input class="search-input" type="text" placeholder="제목 또는 내용으로 검색하세요" id="searchInput">
+        <button class="search-btn" id="searchBtn">검색</button>
+      </div>
+
+      <div class="notice-list fade-in">
+
+        <!-- 고정 공지 -->
+        <div class="notice-row pinned" data-idx="0">
+          <div class="notice-num"><span class="pin-badge">공지</span></div>
+          <div class="notice-title">2026년 자연치유학과 크리에이터 과정 2기 수강생 모집 안내 <span class="new-badge">NEW</span></div>
+          <div class="notice-cat cat-notice">모집</div>
+          <div class="notice-date">2026.08.14</div>
+        </div>
+        <div class="notice-detail" id="detail-0">
+          <div class="notice-detail-body">
+            <strong>2026년 하반기 자연치유학과 건강콘텐츠 크리에이터 과정 2기 수강생을 모집합니다.</strong><br><br>
+            ▸ 모집 과정: 건강콘텐츠 크리에이터 과정 (16주)<br>
+            ▸ 모집 인원: 20명 내외<br>
+            ▸ 신청 기간: 2026. 08. 14 ~ 09. 05 (마감 시 조기 종료)<br>
+            ▸ 교육 시작: 2026. 10. 05 예정<br>
+            ▸ 신청 방법: <a href="signup.html" style="color:var(--blue);">참여 혜택 페이지</a>를 통해 온라인 신청<br><br>
+            자세한 내용은 담당자(chiyu@joongbu.ac.kr)에게 문의하여 주시기 바랍니다.
+          </div>
+          <button class="notice-detail-close" data-close="0">▲ 닫기</button>
+        </div>
+
+        <!-- 고정 공지 2 -->
+        <div class="notice-row pinned" data-idx="1">
+          <div class="notice-num"><span class="pin-badge">공지</span></div>
+          <div class="notice-title">자연치유학과 크리에이터 과정 공식 홈페이지 오픈 안내</div>
+          <div class="notice-cat cat-notice">안내</div>
+          <div class="notice-date">2026.03.01</div>
+        </div>
+        <div class="notice-detail" id="detail-1">
+          <div class="notice-detail-body">
+            중부대학교 자연치유학과 크리에이터 과정 공식 홈페이지가 오픈되었습니다. 앞으로 본 홈페이지를 통해 과정 소개, 커리큘럼, 참여 혜택 등 다양한 정보를 안내해 드리겠습니다. 많은 관심과 이용 부탁드립니다.
+          </div>
+          <button class="notice-detail-close" data-close="1">▲ 닫기</button>
+        </div>
+
+        <!-- 일반 공지 -->
+        <div class="notice-row" data-idx="2">
+          <div class="notice-num">5</div>
+          <div class="notice-title">2026년 1기 수료식 개최 결과 <span class="new-badge">NEW</span></div>
+          <div class="notice-cat cat-notice">행사</div>
+          <div class="notice-date">2026.09.02</div>
+        </div>
+        <div class="notice-detail" id="detail-2">
+          <div class="notice-detail-body">
+            지난 8월 28일(금) 중부대학교 자연치유학관에서 크리에이터 과정 1기 수료식을 성황리에 개최하였습니다.<br><br>
+            ▸ 수료생: 18명 (참여 인원 20명 중 18명 수료)<br>
+            ▸ 채널 성과: 평균 구독자 142명, 최고 구독자 1,240명 달성<br>
+            ▸ 취업 연계: 3명 웰니스 기관 취업 확정<br>
+            ▸ 수료증: 중부대학교 자연치유학과 공식 발급<br><br>
+            참여해 주신 모든 1기 수료생 여러분께 진심으로 감사드립니다.
+          </div>
+          <button class="notice-detail-close" data-close="2">▲ 닫기</button>
+        </div>
+
+        <div class="notice-row" data-idx="3">
+          <div class="notice-num">4</div>
+          <div class="notice-title">1기 4주차 명상 실습 장소 변경 안내</div>
+          <div class="notice-cat cat-notice">안내</div>
+          <div class="notice-date">2026.04.08</div>
+        </div>
+        <div class="notice-detail" id="detail-3">
+          <div class="notice-detail-body">
+            2026년 1기 4주차 명상·마음챙김 실습 장소가 변경됩니다.<br><br>
+            ▸ 기존: 자연치유학관 301호<br>
+            ▸ 변경: 자연치유학관 야외 명상 공간 (우천 시 305호)<br>
+            ▸ 일시: 2026. 04. 16 (목) 오후 2시 (동일)<br><br>
+            변경된 장소에 대한 문의는 담당 조교(chiyu@joongbu.ac.kr)에게 연락 주시기 바랍니다.
+          </div>
+          <button class="notice-detail-close" data-close="3">▲ 닫기</button>
+        </div>
+
+        <div class="notice-row" data-idx="4">
+          <div class="notice-num">3</div>
+          <div class="notice-title">1기 게스트 특강 — 건강 유튜버 초청 안내</div>
+          <div class="notice-cat cat-notice">행사</div>
+          <div class="notice-date">2026.05.20</div>
+        </div>
+        <div class="notice-detail" id="detail-4">
+          <div class="notice-detail-body">
+            5월 특강으로 구독자 15만 건강 유튜버 '자연치유맘'님을 초청합니다.<br><br>
+            ▸ 일시: 2026. 05. 28 (목) 오후 3시<br>
+            ▸ 장소: 자연치유학관 세미나실<br>
+            ▸ 내용: 유튜브 알고리즘 실전 경험, 협찬 계약 노하우, Q&A<br>
+            ▸ 참석 대상: 크리에이터 과정 1기 수강생 전원<br><br>
+            질문이 있으신 분은 사전에 담당 교수에게 제출해 주시면 반영하겠습니다.
+          </div>
+          <button class="notice-detail-close" data-close="4">▲ 닫기</button>
+        </div>
+
+        <div class="notice-row" data-idx="5">
+          <div class="notice-num">2</div>
+          <div class="notice-title">자연치유학과 크리에이터 과정 설명회 개최 안내</div>
+          <div class="notice-cat cat-notice">행사</div>
+          <div class="notice-date">2026.02.12</div>
+        </div>
+        <div class="notice-detail" id="detail-5">
+          <div class="notice-detail-body">
+            크리에이터 과정 지원을 고려하시는 분들을 위한 온라인 설명회를 개최합니다.<br><br>
+            ▸ 일시: 2026. 02. 20 (금) 오후 7시<br>
+            ▸ 방식: Zoom 온라인 (링크는 신청자에게 개별 발송)<br>
+            ▸ 내용: 커리큘럼 안내, 혜택 소개, Q&A<br>
+            ▸ 신청: chiyu@joongbu.ac.kr 로 이름·연락처 발송
+          </div>
+          <button class="notice-detail-close" data-close="5">▲ 닫기</button>
+        </div>
+
+        <div class="notice-row" data-idx="6">
+          <div class="notice-num">1</div>
+          <div class="notice-title">2026년 자연치유학과 크리에이터 과정 운영 계획 공고</div>
+          <div class="notice-cat cat-notice">안내</div>
+          <div class="notice-date">2026.01.10</div>
+        </div>
+        <div class="notice-detail" id="detail-6">
+          <div class="notice-detail-body">
+            2026년도 자연치유학과 크리에이터 과정 전체 운영 계획이 확정되어 공고합니다. 교육 일정, 강사진 구성, 모집 일정 등이 포함된 세부 계획서는 자료실에서 다운로드 하실 수 있습니다.
+          </div>
+          <button class="notice-detail-close" data-close="6">▲ 닫기</button>
+        </div>
+
+      </div><!-- /notice-list -->
+
+      <div class="pagination fade-in">
+        <button class="page-btn arrow">‹</button>
+        <button class="page-btn active">1</button>
+        <button class="page-btn">2</button>
+        <button class="page-btn">3</button>
+        <button class="page-btn arrow">›</button>
+      </div>
+    </div><!-- /tab-notice -->
+
+    <!-- ── 보도자료 탭 ── -->
+    <div class="notice-panel" id="tab-media">
+      <div class="media-grid fade-in">
+        <a class="media-card" href="#">
+          <div class="media-thumb">📰</div>
+          <div class="media-body">
+            <div class="media-source">충청일보</div>
+            <h4>중부대, 자연치유 크리에이터 양성 과정 출범… 경기 RISE 지원 16주 무료</h4>
+            <p>중부대학교 자연치유학과가 건강콘텐츠 크리에이터 양성 과정을 신설하고 첫 수강생 모집에 나선다...</p>
+            <div class="media-date">2026. 03. 05</div>
+          </div>
+        </a>
+        <a class="media-card" href="#">
+          <div class="media-thumb">🖥️</div>
+          <div class="media-body">
+            <div class="media-source">연합뉴스</div>
+            <h4>경기 RISE 사업, 건강·웰니스 분야로 확대… 자연치유 콘텐츠 인재 육성</h4>
+            <p>경기 RISE 사업이 건강·웰니스 크리에이터 양성으로 지원 분야를 확대하며 새로운 인재 생태계 조성에 나선다...</p>
+            <div class="media-date">2026. 02. 20</div>
+          </div>
+        </a>
+        <a class="media-card" href="#">
+          <div class="media-thumb">📡</div>
+          <div class="media-body">
+            <div class="media-source">헬스조선</div>
+            <h4>자연치유 전문 지식을 유튜브로… 건강 크리에이터 시장 급성장</h4>
+            <p>건강·웰니스 유튜브 채널의 구독자 성장률이 타 분야 대비 3배 이상 높게 나타나며 전문 크리에이터 수요가 증가하고 있다...</p>
+            <div class="media-date">2026. 01. 15</div>
+          </div>
+        </a>
+        <a class="media-card" href="#">
+          <div class="media-thumb">🏛️</div>
+          <div class="media-body">
+            <div class="media-source">대학저널</div>
+            <h4>교육부 RISE 사업 전국 확대… 지역 대학 특화 교육 강화</h4>
+            <p>교육부가 지역혁신중심 대학지원체계(RISE)를 전국 17개 시도로 확대 적용한다고 밝혔다...</p>
+            <div class="media-date">2025. 12. 10</div>
+          </div>
+        </a>
+        <a class="media-card" href="#">
+          <div class="media-thumb">💡</div>
+          <div class="media-body">
+            <div class="media-source">동아일보</div>
+            <h4>허브·아로마·명상 전문가의 유튜브 도전… 자연치유 콘텐츠의 힘</h4>
+            <p>자연치유 전문가들이 유튜브를 통해 대중과 소통하며 새로운 수익 모델을 만들어 가고 있다...</p>
+            <div class="media-date">2025. 11. 18</div>
+          </div>
+        </a>
+        <a class="media-card" href="#">
+          <div class="media-thumb">🎓</div>
+          <div class="media-body">
+            <div class="media-source">중부대학교 뉴스</div>
+            <h4>자연치유학과, 건강콘텐츠 크리에이터 과정 협약 기관 20개사 확보</h4>
+            <p>중부대 자연치유학과가 헬스케어 기업·웰니스 스타트업 등 20개 기관과 수료생 취업 연계 협약을 체결했다...</p>
+            <div class="media-date">2025. 10. 30</div>
+          </div>
+        </a>
+      </div>
+    </div><!-- /tab-media -->
+
+    <!-- ── 자료실 탭 ── -->
+    <div class="notice-panel" id="tab-data">
+      <div class="search-bar fade-in">
+        <input class="search-input" type="text" placeholder="자료명으로 검색하세요">
+        <button class="search-btn">검색</button>
+      </div>
+      <div class="data-list fade-in">
+        <a class="data-item" href="#">
+          <div class="data-icon pdf">📄</div>
+          <div class="data-meta">
+            <h4>2026년 크리에이터 과정 운영 계획서</h4>
+            <p>2026년 전체 과정 운영 계획, 교육 일정, 강사진 구성 계획서 (공고용)</p>
+          </div>
+          <div class="data-size">PDF · 3.8 MB</div>
+          <a class="data-dl" href="#">⬇ 다운로드</a>
+        </a>
+        <a class="data-item" href="#">
+          <div class="data-icon hwp">📝</div>
+          <div class="data-meta">
+            <h4>수강 신청서 양식 (HWP)</h4>
+            <p>크리에이터 과정 온라인 신청 전 참고용 양식</p>
+          </div>
+          <div class="data-size">HWP · 0.6 MB</div>
+          <a class="data-dl" href="#">⬇ 다운로드</a>
+        </a>
+        <a class="data-item" href="#">
+          <div class="data-icon pdf">📄</div>
+          <div class="data-meta">
+            <h4>자연치유학과 크리에이터 과정 소개 브로셔 2026</h4>
+            <p>과정 개요, 커리큘럼, 지원 혜택을 담은 홍보용 브로셔</p>
+          </div>
+          <div class="data-size">PDF · 5.4 MB</div>
+          <a class="data-dl" href="#">⬇ 다운로드</a>
+        </a>
+        <a class="data-item" href="#">
+          <div class="data-icon zip">🗜️</div>
+          <div class="data-meta">
+            <h4>1~2월 자연치유 기초 강의 자료 패키지</h4>
+            <p>1기 1~2월 자연치유 이론 전 회차 강의 자료 묶음 (PPT, 참고자료 포함)</p>
+          </div>
+          <div class="data-size">ZIP · 32.7 MB</div>
+          <a class="data-dl" href="#">⬇ 다운로드</a>
+        </a>
+        <a class="data-item" href="#">
+          <div class="data-icon zip">🗜️</div>
+          <div class="data-meta">
+            <h4>3~4월 콘텐츠 제작 강의 자료 패키지</h4>
+            <p>1기 3~4월 영상 제작·편집 전 회차 강의 자료 묶음</p>
+          </div>
+          <div class="data-size">ZIP · 45.2 MB</div>
+          <a class="data-dl" href="#">⬇ 다운로드</a>
+        </a>
+        <a class="data-item" href="#">
+          <div class="data-icon pdf">📄</div>
+          <div class="data-meta">
+            <h4>2026년 1기 수료식 결과 보고서</h4>
+            <p>2026년 8월 28일 수료식 결과 및 수료생 채널 성과 사진 자료</p>
+          </div>
+          <div class="data-size">PDF · 8.1 MB</div>
+          <a class="data-dl" href="#">⬇ 다운로드</a>
+        </a>
+        <a class="data-item" href="#">
+          <div class="data-icon hwp">📝</div>
+          <div class="data-meta">
+            <h4>채널 기획서 작성 가이드 (템플릿)</h4>
+            <p>수강생이 자신의 자연치유 채널 컨셉과 방향성을 정리하는 기획서 양식</p>
+          </div>
+          <div class="data-size">HWP · 0.9 MB</div>
+          <a class="data-dl" href="#">⬇ 다운로드</a>
+        </a>
+      </div>
+    </div><!-- /tab-data -->
+
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="section" style="padding-top:0;">
+  <div class="section-inner">
+    <div class="apply-banner fade-in">
+      <div class="apply-text">
+        <h2>더 많은 정보가 필요하신가요?</h2>
+        <p>담당자에게 직접 문의하시거나 과정 소개 페이지를 확인해 보세요.</p>
+      </div>
+      <div class="apply-btns">
+        <a href="signup.html" class="apply-btn-white">수강 신청하기</a>
+        <a href="about.html" class="apply-btn-ghost">과정 소개 보기</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 푸터 -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <img src="images/joongbu-logo.png" alt="중부대학교" style="height:30px;width:auto;filter:brightness(0) invert(1);opacity:.8;margin-bottom:14px;display:block;">
+        <p>중부대학교 자연치유학과 크리에이터 과정<br>충남 천안시 동남구 목천읍 충절로 1600<br>문의: chiyu@joongbu.ac.kr</p>
+      </div>
+      <div class="footer-col">
+        <h4>과정 소개</h4>
+        <ul>
+          <li><a href="about.html#greeting">담당 교수 인사말</a></li>
+          <li><a href="about.html#intro">과정 특징</a></li>
+          <li><a href="about.html#org">수료 후 진로</a></li>
+          <li><a href="about.html#map">오시는 길</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>교육 정보</h4>
+        <ul>
+          <li><a href="curriculum.html">16주 커리큘럼</a></li>
+          <li><a href="curriculum.html#track1">자연치유 기초</a></li>
+          <li><a href="curriculum.html#track2">콘텐츠 제작</a></li>
+          <li><a href="curriculum.html#track3">채널 성장</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>참여 안내</h4>
+        <ul>
+          <li><a href="benefits.html">참여 혜택</a></li>
+          <li><a href="curriculum.html">교육 과정</a></li>
+          <li><a href="signup.html">신청하기</a></li>
+          <li><a href="notice.html">공지사항</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 중부대학교 자연치유학과 크리에이터 과정. All rights reserved.</span>
+      <div class="footer-bottom-links">
+        <a href="#">개인정보처리방침</a>
+        <a href="#">이용약관</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // 모바일 네비게이션
+  const navToggle = document.getElementById('navToggle');
+  const nav = document.getElementById('nav');
+  navToggle.addEventListener('click', () => nav.classList.toggle('open'));
+
+  // 페이드인
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+  // 공지 탭
+  document.querySelectorAll('.ntab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.ntab').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.notice-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.ntab).classList.add('active');
+    });
+  });
+
+  // 공지 행 클릭 → 인라인 펼치기
+  document.querySelectorAll('.notice-row').forEach(row => {
+    row.addEventListener('click', (e) => {
+      if (e.target.closest('.notice-detail-close')) return;
+      const idx = row.dataset.idx;
+      const detail = document.getElementById('detail-' + idx);
+      if (!detail) return;
+      const isOpen = detail.classList.contains('open');
+      // 모두 닫기
+      document.querySelectorAll('.notice-detail').forEach(d => d.classList.remove('open'));
+      if (!isOpen) detail.classList.add('open');
+    });
+  });
+
+  // 닫기 버튼
+  document.querySelectorAll('.notice-detail-close').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      document.getElementById('detail-' + btn.dataset.close).classList.remove('open');
+    });
+  });
+
+  // 페이지네이션 버튼 active 토글
+  document.querySelectorAll('.page-btn:not(.arrow)').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.page-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>

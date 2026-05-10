@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>자연치유학과 건강콘텐츠 크리에이터 과정 — 중부대학교</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* ── 히어로 ── */
+    .hero {
+      background: linear-gradient(150deg, var(--forest) 0%, #1E5C3C 45%, var(--sage) 100%);
+      padding: clamp(72px,10vw,120px) 24px clamp(64px,9vw,108px);
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 60% 70% at 90% 30%, rgba(107,175,135,.2) 0%, transparent 55%),
+        radial-gradient(ellipse 40% 50% at 10% 80%, rgba(200,150,42,.1) 0%, transparent 50%);
+      pointer-events: none;
+    }
+    .hero-inner {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      position: relative; z-index: 1;
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      gap: 48px;
+      align-items: center;
+    }
+    .hero-rise-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(30,111,224,.3);
+      border: 1px solid rgba(30,111,224,.5);
+      color: #74B8FF;
+      font-size: 11px; font-weight: 700; letter-spacing: .5px;
+      padding: 4px 12px; border-radius: 100px;
+      margin-left: 10px;
+    }
+    .hero-main-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.22);
+      border-radius: 100px;
+      padding: 7px 18px;
+      font-size: 12px; font-weight: 700; letter-spacing: .4px;
+      color: rgba(255,255,255,.9);
+    }
+    .hero-text h1 {
+      font-size: clamp(32px, 4.5vw, 58px);
+      font-weight: 900;
+      color: #fff;
+      letter-spacing: -1.5px;
+      line-height: 1.18;
+      margin: 20px 0;
+    }
+    .hero-text h1 em { font-style: normal; color: #A8D8B3; }
+    .hero-text p {
+      font-size: 17px; color: rgba(255,255,255,.72);
+      line-height: 1.8; max-width: 500px;
+      margin-bottom: 36px; word-break: keep-all;
+    }
+    .hero-actions { display: flex; gap: 14px; flex-wrap: wrap; }
+    .btn-hero-main {
+      display: inline-flex; align-items: center; gap: 9px;
+      background: var(--gold); color: #fff;
+      padding: 16px 32px; border-radius: var(--r-md);
+      font-size: 16px; font-weight: 800; text-decoration: none;
+      box-shadow: 0 4px 20px rgba(200,150,42,.4);
+      transition: transform .15s, box-shadow .15s;
+    }
+    .btn-hero-main:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(200,150,42,.5); }
+    .btn-hero-ghost {
+      display: inline-flex; align-items: center; gap: 9px;
+      background: rgba(255,255,255,.1); color: #fff;
+      padding: 16px 28px; border-radius: var(--r-md);
+      font-size: 15px; font-weight: 600; text-decoration: none;
+      border: 1.5px solid rgba(255,255,255,.3);
+      transition: background .18s;
+    }
+    .btn-hero-ghost:hover { background: rgba(255,255,255,.18); }
+
+    /* 히어로 우측 카드 */
+    .hero-card {
+      background: rgba(255,255,255,.1);
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: var(--r-lg);
+      padding: 32px 28px;
+      backdrop-filter: blur(10px);
+    }
+    .hero-card-title {
+      font-size: 12px; font-weight: 700;
+      color: #A8D8B3; letter-spacing: .8px;
+      margin-bottom: 20px; text-transform: uppercase;
+    }
+    .hero-card-list { list-style: none; display: flex; flex-direction: column; gap: 14px; }
+    .hero-card-list li {
+      display: flex; align-items: flex-start; gap: 12px;
+      font-size: 14px; color: rgba(255,255,255,.85); line-height: 1.5;
+    }
+    .hero-card-list li .ico {
+      width: 30px; height: 30px; border-radius: 8px;
+      background: rgba(107,175,135,.25);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px; flex-shrink: 0; margin-top: 1px;
+    }
+    .hero-card-div { height: 1px; background: rgba(255,255,255,.12); margin: 20px 0; }
+    .hero-card-apply {
+      display: block; text-align: center;
+      background: #fff; color: var(--forest);
+      padding: 14px; border-radius: var(--r-md);
+      font-size: 15px; font-weight: 800; text-decoration: none;
+      transition: transform .15s, box-shadow .15s;
+      box-shadow: 0 2px 12px rgba(0,0,0,.15);
+    }
+    .hero-card-apply:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,0,0,.2); }
+
+    /* ── 과정 특징 ── */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+    .feature-card {
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-lg);
+      padding: 32px 28px;
+      box-shadow: var(--sh-card);
+      transition: transform .2s, box-shadow .2s;
+      position: relative; overflow: hidden;
+    }
+    .feature-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 4px;
+      background: var(--fc-color, var(--sage));
+    }
+    .feature-card:hover { transform: translateY(-5px); box-shadow: var(--sh-hover); }
+    .feature-icon {
+      width: 56px; height: 56px; border-radius: var(--r-md);
+      background: var(--fc-bg, var(--mint));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px; margin-bottom: 18px;
+    }
+    .feature-title { font-size: 17px; font-weight: 800; color: var(--forest); letter-spacing: -.3px; margin-bottom: 10px; }
+    .feature-desc { font-size: 14px; color: var(--text-soft); line-height: 1.7; word-break: keep-all; }
+    .feature-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 16px; }
+    .feature-tag {
+      font-size: 11px; font-weight: 600;
+      color: var(--fc-color, var(--sage));
+      background: var(--fc-bg, var(--mint));
+      padding: 3px 10px; border-radius: 100px;
+    }
+    .fc-healing { --fc-color: #C0392B; --fc-bg: #FCE9E7; }
+    .fc-video   { --fc-color: #1E5C8A; --fc-bg: #E8F0F8; }
+    .fc-content { --fc-color: var(--sage); --fc-bg: var(--mint); }
+    .fc-brand   { --fc-color: #B07D1A; --fc-bg: #FBF3E0; }
+    .fc-network { --fc-color: #6B3DAA; --fc-bg: #F2ECF9; }
+    .fc-support { --fc-color: var(--forest); --fc-bg: var(--mint-deep); }
+
+    /* ── 지원 내용 ── */
+    .support-wrap {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 36px;
+      align-items: start;
+    }
+    .support-img-side {
+      border-radius: var(--r-lg);
+      overflow: hidden;
+      box-shadow: var(--sh-hover);
+      position: relative;
+    }
+    .support-img-side img {
+      width: 100%; height: 360px; object-fit: cover; display: block;
+    }
+    .support-img-badge {
+      position: absolute; bottom: 20px; left: 20px;
+      background: rgba(23,66,46,.88);
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: var(--r-md);
+      padding: 12px 18px;
+      color: #fff; font-size: 13px; font-weight: 700; line-height: 1.6;
+    }
+    .support-img-badge span { color: #A8D8B3; }
+    .support-list { list-style: none; display: flex; flex-direction: column; gap: 14px; }
+    .support-item {
+      display: flex; gap: 16px;
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-md);
+      padding: 20px;
+      box-shadow: var(--sh-card);
+      transition: border-color .2s, transform .2s;
+    }
+    .support-item:hover { border-color: var(--sage-light); transform: translateX(4px); }
+    .support-item-icon {
+      width: 44px; height: 44px; border-radius: var(--r-sm);
+      background: var(--mint); display: flex; align-items: center;
+      justify-content: center; font-size: 22px; flex-shrink: 0;
+    }
+    .support-item-title { font-size: 15px; font-weight: 800; color: var(--forest); margin-bottom: 4px; }
+    .support-item-desc { font-size: 13px; color: var(--text-soft); line-height: 1.6; word-break: keep-all; }
+    .support-item-badge {
+      font-size: 11px; font-weight: 700;
+      background: var(--gold-light); color: var(--gold);
+      padding: 2px 9px; border-radius: 100px; margin-left: 8px;
+    }
+
+    /* ── 커리큘럼 미리보기 ── */
+    .track-tabs { display: flex; gap: 8px; margin-bottom: 28px; flex-wrap: wrap; }
+    .track-tab {
+      padding: 10px 20px;
+      border-radius: var(--r-sm);
+      font-size: 14px; font-weight: 700;
+      border: 1.5px solid var(--border);
+      background: var(--white);
+      color: var(--text-soft);
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .track-tab.active { background: var(--forest); color: #fff; border-color: var(--forest); }
+    .track-panel { display: none; }
+    .track-panel.active { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+    .track-module {
+      display: flex; gap: 14px;
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-md);
+      padding: 18px;
+      transition: border-color .15s;
+    }
+    .track-module:hover { border-color: var(--sage-light); }
+    .track-module-num {
+      width: 34px; height: 34px; border-radius: var(--r-sm);
+      background: var(--forest); color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 900; flex-shrink: 0;
+    }
+    .track-module-title { font-size: 15px; font-weight: 700; color: var(--forest); margin-bottom: 4px; }
+    .track-module-desc { font-size: 13px; color: var(--text-soft); line-height: 1.6; }
+
+    /* ── 신청 절차 ── */
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0;
+      position: relative;
+    }
+    .steps-grid::before {
+      content: '';
+      position: absolute;
+      top: 27px; left: 10%; right: 10%;
+      height: 2px; background: var(--border); z-index: 0;
+    }
+    .step-item {
+      display: flex; flex-direction: column; align-items: center;
+      text-align: center; padding: 0 12px; position: relative; z-index: 1;
+    }
+    .step-num {
+      width: 54px; height: 54px; border-radius: 50%;
+      background: var(--white); border: 2px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; margin-bottom: 14px;
+    }
+    .step-item.done .step-num { background: var(--forest); border-color: var(--forest); }
+    .step-item.active .step-num { background: var(--gold); border-color: var(--gold); box-shadow: 0 0 0 4px var(--gold-light); }
+    .step-title { font-size: 14px; font-weight: 800; color: var(--forest); margin-bottom: 6px; }
+    .step-desc { font-size: 12px; color: var(--text-soft); line-height: 1.6; word-break: keep-all; }
+
+    /* ── 피처 카드 확장 ── */
+    .feature-card { cursor: pointer; transition: box-shadow .2s, transform .2s; }
+    .feature-card:hover { transform: translateY(-2px); }
+    .feature-card.open { box-shadow: 0 8px 32px rgba(23,66,46,.18); }
+    .fc-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+    .fc-chevron {
+      flex-shrink: 0; margin-top: 3px;
+      width: 20px; height: 20px;
+      border-radius: 50%; background: var(--cream);
+      display: flex; align-items: center; justify-content: center;
+      transition: transform .25s, background .2s;
+    }
+    .feature-card.open .fc-chevron { transform: rotate(180deg); background: var(--forest); }
+    .fc-chevron svg { display: block; }
+    .feature-card.open .fc-chevron svg path { stroke: #fff; }
+    .feature-detail {
+      max-height: 0; overflow: hidden;
+      transition: max-height .35s cubic-bezier(.4,0,.2,1), opacity .25s;
+      opacity: 0;
+    }
+    .feature-card.open .feature-detail { max-height: 400px; opacity: 1; }
+    .feature-detail-inner {
+      margin-top: 14px; padding-top: 14px;
+      border-top: 1px solid var(--border);
+    }
+    .fd-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 7px; }
+    .fd-list li {
+      display: flex; align-items: flex-start; gap: 8px;
+      font-size: 13px; color: var(--text-mid); line-height: 1.65;
+    }
+    .fd-list li::before {
+      content: '✓'; color: var(--forest); font-weight: 800;
+      flex-shrink: 0; margin-top: 1px;
+    }
+    .fd-phase {
+      display: inline-block; margin-top: 10px;
+      font-size: 11px; font-weight: 700; color: var(--forest);
+      background: rgba(23,66,46,.08); border-radius: 100px;
+      padding: 3px 10px;
+    }
+
+    /* ── 반응형 ── */
+    @media (max-width: 960px) {
+      .hero-inner { grid-template-columns: 1fr; }
+      .hero-card { display: none; }
+      .feature-grid { grid-template-columns: repeat(2, 1fr); }
+      .support-wrap { grid-template-columns: 1fr; }
+      .support-img-side { display: none; }
+      .track-panel.active { grid-template-columns: 1fr; }
+      .steps-grid { grid-template-columns: repeat(3, 1fr); gap: 24px; }
+      .steps-grid::before { display: none; }
+    }
+    @media (max-width: 600px) {
+      .feature-grid { grid-template-columns: 1fr; }
+      .steps-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- 탑바 -->
+<div class="topbar">
+  <div class="topbar-inner">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <span class="topbar-badge">경기도 RISE 사업단 연계 교육과정</span>
+      <a href="https://jbrise.com" target="_blank" style="font-size:11px;">jbrise.com ↗</a>
+    </div>
+    <div class="topbar-links">
+      <a href="notice.html">공지사항</a>
+      <a href="signup.html">회원가입</a>
+      <a href="https://www.joongbu.ac.kr" target="_blank">중부대학교</a>
+    </div>
+  </div>
+</div>
+
+<!-- 헤더 -->
+<header>
+  <div class="header-inner">
+    <a class="logo-block" href="index.html">
+      <img src="images/joongbu-logo.png" alt="중부대학교 로고">
+      <div class="logo-sep"></div>
+      <div>
+        <div class="logo-tag">자연치유학과 크리에이터 과정</div>
+        <span class="logo-sub">중부대학교 자연치유학과 × 경기 RISE</span>
+      </div>
+    </a>
+    <nav id="main-nav">
+      <a href="about.html">과정 소개</a>
+      <a href="curriculum.html">교육 과정</a>
+      <a href="benefits.html">참여 혜택</a>
+      <a href="notice.html">공지사항</a>
+      <a href="https://chiyu.joongbu.ac.kr" target="_blank" class="nav-member">회원홈페이지</a>
+    </nav>
+    <a href="signup.html" class="btn-apply">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      회원가입
+    </a>
+    <button class="nav-toggle" id="nav-toggle" aria-label="메뉴 열기">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<!-- 히어로 -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-text">
+      <div style="margin-bottom:8px;">
+        <span class="hero-main-badge">🌿 중부대학교 자연치유학과 공식 과정</span>
+        <span class="hero-rise-badge">경기 RISE 지원</span>
+      </div>
+      <h1>자연치유 지식을<br><em>건강콘텐츠</em>로<br>세상에 전하다</h1>
+      <p>누구나 시작할 수 있는 실전 중심 교육 — 영상 제작부터 SNS 운영, 개인 브랜드 상표 등록까지 체계적으로 지원합니다.</p>
+      <div class="hero-actions">
+        <a href="signup.html" class="btn-hero-main">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          지금 신청하기
+        </a>
+        <a href="curriculum.html" class="btn-hero-ghost">교육 과정 보기 →</a>
+      </div>
+    </div>
+    <div class="hero-card">
+      <div class="hero-card-title">✦ 핵심 혜택</div>
+      <ul class="hero-card-list">
+        <li>
+          <span class="ico">💰</span>
+          <span><strong>교육비 전액 무료</strong><br>경기도 RISE 지원으로 수강료 100% 면제</span>
+        </li>
+        <li>
+          <span class="ico">🎬</span>
+          <span><strong>영상 제작 전 과정</strong><br>기획·촬영·편집·채널 운영까지 실전 실습</span>
+        </li>
+        <li>
+          <span class="ico">™️</span>
+          <span><strong>개인 상표 등록 지원</strong><br>수료 후 개인 브랜드 상표 등록 무료 지원</span>
+        </li>
+        <li>
+          <span class="ico">🤝</span>
+          <span><strong>1:1 개인 멘토링</strong><br>담당 교수와 채널 성장 전략 수립</span>
+        </li>
+      </ul>
+      <div class="hero-card-div"></div>
+      <a href="signup.html" class="hero-card-apply">📝 회원가입</a>
+    </div>
+  </div>
+</section>
+
+<!-- 통계 바 -->
+<div class="stat-bar">
+  <div class="stat-bar-inner">
+    <div class="stat-item">
+      <div class="stat-num">100<span>%</span></div>
+      <div class="stat-label">교육비 전액 지원</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">16<span>주</span></div>
+      <div class="stat-label">집중 커리큘럼</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">1<span>:1</span></div>
+      <div class="stat-label">개인 멘토링</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">무료</div>
+      <div class="stat-label">상표 등록 지원</div>
+    </div>
+  </div>
+</div>
+
+<!-- 과정 특징 -->
+<section class="section fade-in">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="section-tag">PROGRAM FEATURES</div>
+      <h2>왜 자연치유학과<br>크리에이터 과정인가</h2>
+      <p>건강·치유 분야의 전문 지식과 디지털 콘텐츠 제작 역량을 동시에 키웁니다.</p>
+    </div>
+    <div class="feature-grid">
+
+      <div class="feature-card fc-healing fade-in">
+        <div class="fc-header">
+          <div>
+            <div class="feature-icon">🌿</div>
+            <div class="feature-title">자연치유 전문 지식</div>
+          </div>
+          <div class="fc-chevron">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+          </div>
+        </div>
+        <div class="feature-desc">자연치유학의 핵심 이론을 바탕으로 신뢰도 높은 건강 콘텐츠를 제작합니다.</div>
+        <div class="feature-tags"><span class="feature-tag">자연치유학</span><span class="feature-tag">건강 이론</span></div>
+        <div class="feature-detail">
+          <div class="feature-detail-inner">
+            <ul class="fd-list">
+              <li>자연치유와 건강관리의 원리 — 자연치유 7대 원칙·자가건강관리법 기초</li>
+              <li>체질별 맞춤 생활습관 — 사상체질 기반 음식·수면·운동 가이드</li>
+              <li>건강정보 선별 및 상담 커뮤니케이션 기초</li>
+              <li>중부대 자연치유학과 전임 교수진(김동원·유호종·이해욱·최재용) 직접 강의</li>
+            </ul>
+            <span class="fd-phase">Phase 1 · 1~4회차</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="feature-card fc-video fade-in">
+        <div class="fc-header">
+          <div>
+            <div class="feature-icon">🎬</div>
+            <div class="feature-title">AI 영상 제작 실습</div>
+          </div>
+          <div class="fc-chevron">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+          </div>
+        </div>
+        <div class="feature-desc">완전 무료 AI 도구로 자연치유 영상을 처음부터 끝까지 직접 만듭니다.</div>
+        <div class="feature-tags"><span class="feature-tag">Gemini API</span><span class="feature-tag">Vrew</span><span class="feature-tag">CapCut</span></div>
+        <div class="feature-detail">
+          <div class="feature-detail-inner">
+            <ul class="fd-list">
+              <li>AI 영상 생태계 핵심 용어 및 무료 도구 지도 파악</li>
+              <li>Gemini API로 자연치유 스크립트 자동 생성 실습</li>
+              <li>Pexels·Pixabay·YouTube Audio Library 무료 소재 완전 정복</li>
+              <li>Vrew AI 자막·음성합성 + CapCut 숏폼 편집으로 영상 1편 완성</li>
+            </ul>
+            <span class="fd-phase">Phase 2 · 5~8회차</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="feature-card fc-content fade-in">
+        <div class="fc-header">
+          <div>
+            <div class="feature-icon">📱</div>
+            <div class="feature-title">SNS 채널 운영</div>
+          </div>
+          <div class="fc-chevron">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+          </div>
+        </div>
+        <div class="feature-desc">유튜브 자동업로드·SEO·알고리즘 전략으로 채널을 직접 성장시킵니다.</div>
+        <div class="feature-tags"><span class="feature-tag">YouTube API</span><span class="feature-tag">SEO</span><span class="feature-tag">숏폼</span></div>
+        <div class="feature-detail">
+          <div class="feature-detail-inner">
+            <ul class="fd-list">
+              <li>YouTube Data API 설정 + Python 스크립트로 영상 자동 업로드</li>
+              <li>검색 최적화(SEO) — 제목·태그·설명란 작성 전략</li>
+              <li>유튜브 알고리즘 원리 및 CTR·시청 지속시간 높이는 법</li>
+              <li>커뮤니티 포스트·구독자 소통 전략 실습</li>
+            </ul>
+            <span class="fd-phase">Phase 3 · 9~16회차</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="feature-card fc-brand fade-in">
+        <div class="fc-header">
+          <div>
+            <div class="feature-icon">™️</div>
+            <div class="feature-title">개인 브랜드 구축</div>
+          </div>
+          <div class="fc-chevron">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+          </div>
+        </div>
+        <div class="feature-desc">GitHub·Vercel로 포트폴리오 사이트를 배포하고, 상표등록까지 지원합니다.</div>
+        <div class="feature-tags"><span class="feature-tag">상표등록</span><span class="feature-tag">Vercel 배포</span></div>
+        <div class="feature-detail">
+          <div class="feature-detail-inner">
+            <ul class="fd-list">
+              <li>GitHub 저장소 + Vercel 연동으로 크리에이터 사이트 1분 배포</li>
+              <li>채널명·브랜드명 상표 출원 절차 특강 (특허청 온라인 출원 실습)</li>
+              <li>개별 상담 및 출원 서류 작성 지원</li>
+              <li>수익화 전략 — 협찬·강의·스폰서 다각화 기획</li>
+            </ul>
+            <span class="fd-phase">Phase 3 · 상표등록 특강 포함</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="feature-card fc-network fade-in">
+        <div class="fc-header">
+          <div>
+            <div class="feature-icon">🤝</div>
+            <div class="feature-title">산학 네트워크</div>
+          </div>
+          <div class="fc-chevron">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+          </div>
+        </div>
+        <div class="feature-desc">경기 RISE 연계 기업과의 네트워킹·인턴십·콜라보 기회를 제공합니다.</div>
+        <div class="feature-tags"><span class="feature-tag">기업 연계</span><span class="feature-tag">인턴십</span></div>
+        <div class="feature-detail">
+          <div class="feature-detail-inner">
+            <ul class="fd-list">
+              <li>경기도 내 건강·복지 기업 및 의료기관 네트워킹 행사 참여</li>
+              <li>RISE 얼라이언스 기업 인턴십·실무 프로젝트 연계</li>
+              <li>수료생 콜라보 및 협찬 매칭 지원</li>
+              <li>수료 후 지속적 동문 커뮤니티 운영</li>
+            </ul>
+            <span class="fd-phase">전 과정 + 수료 후 지속</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="feature-card fc-support fade-in">
+        <div class="fc-header">
+          <div>
+            <div class="feature-icon">🎓</div>
+            <div class="feature-title">공식 수료 인증</div>
+          </div>
+          <div class="fc-chevron">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+          </div>
+        </div>
+        <div class="feature-desc">중부대학교 총장 명의 수료증과 경기도 RISE 인증서를 함께 발급합니다.</div>
+        <div class="feature-tags"><span class="feature-tag">수료 인증서</span><span class="feature-tag">학점 인정</span></div>
+        <div class="feature-detail">
+          <div class="feature-detail-inner">
+            <ul class="fd-list">
+              <li>중부대학교 자연치유학과 공식 수료 인증서 (총장 명의)</li>
+              <li>경기도 RISE 사업단 이수 증명서 동시 발급</li>
+              <li>재학생 학점 인정 가능 (자연치유학과 기준)</li>
+              <li>16회차 수료 발표 후 수료식 개최</li>
+            </ul>
+            <span class="fd-phase">16회차 수료식</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- RISE 지원 내용 -->
+<section class="section section-bg fade-in">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="section-tag">RISE SUPPORT</div>
+      <h2>경기 RISE 사업단이<br>함께합니다</h2>
+      <p>경기도 대학혁신지원(RISE) 사업의 특별 지원으로 진행되는 과정입니다.</p>
+    </div>
+    <div class="support-wrap">
+      <div class="support-img-side">
+        <img src="https://jbrise.com/theme/jbrise/img/main_visual_01.jpg" alt="경기 RISE 교육 현장" onerror="this.parentElement.style.display='none'">
+        <div class="support-img-badge">
+          경기도 RISE 사업단<br><span>× 중부대학교 자연치유학과</span>
+        </div>
+      </div>
+      <ul class="support-list">
+        <li class="support-item">
+          <div class="support-item-icon">💰</div>
+          <div>
+            <div class="support-item-title">교육비 전액 지원 <span class="support-item-badge">RISE 지원</span></div>
+            <div class="support-item-desc">수강료·교재비 포함 교육비 전액을 경기도 RISE 사업단에서 지원합니다. 개인 부담 없이 전문 교육을 받을 수 있습니다.</div>
+          </div>
+        </li>
+        <li class="support-item">
+          <div class="support-item-icon">🖥️</div>
+          <div>
+            <div class="support-item-title">장비 · 소프트웨어 무상 지원</div>
+            <div class="support-item-desc">촬영 장비, 편집 소프트웨어 라이선스를 교육 기간 동안 무상으로 제공합니다.</div>
+          </div>
+        </li>
+        <li class="support-item">
+          <div class="support-item-icon">🏢</div>
+          <div>
+            <div class="support-item-title">기업 연계 실습 기회</div>
+            <div class="support-item-desc">경기도 RISE 얼라이언스 기업들과 연계한 실무 인턴십 및 프로젝트 참여 기회를 제공합니다.</div>
+          </div>
+        </li>
+        <li class="support-item">
+          <div class="support-item-icon">📜</div>
+          <div>
+            <div class="support-item-title">공식 수료 인증서 발급</div>
+            <div class="support-item-desc">중부대학교 총장 명의 수료 인증서 및 경기도 RISE 사업단 인증서를 함께 발급합니다.</div>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 커리큘럼 미리보기 -->
+<section class="section fade-in">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="section-tag">CURRICULUM</div>
+      <h2>16주 집중 커리큘럼</h2>
+      <p>이론과 실습을 균형 있게 구성한 자연치유 크리에이터 양성 과정입니다.</p>
+    </div>
+    <div class="track-tabs">
+      <button class="track-tab active" data-track="track1">1단계 · 기초 이론</button>
+      <button class="track-tab" data-track="track2">2단계 · 영상 제작</button>
+      <button class="track-tab" data-track="track3">3단계 · 채널 성장</button>
+    </div>
+    <div id="track1" class="track-panel active">
+      <div class="track-module">
+        <div class="track-module-num">01</div>
+        <div><div class="track-module-title">자연치유학 개론</div><div class="track-module-desc">자연치유의 기초 개념·역사·주요 모달리티 이해</div></div>
+      </div>
+      <div class="track-module">
+        <div class="track-module-num">02</div>
+        <div><div class="track-module-title">건강 콘텐츠 기획론</div><div class="track-module-desc">시청자 분석, 콘셉트 설정, 콘텐츠 전략 수립</div></div>
+      </div>
+      <div class="track-module">
+        <div class="track-module-num">03</div>
+        <div><div class="track-module-title">미디어 리터러시</div><div class="track-module-desc">디지털 미디어 생태계 이해 및 저작권 교육</div></div>
+      </div>
+      <div class="track-module">
+        <div class="track-module-num">04</div>
+        <div><div class="track-module-title">퍼스널 브랜딩 기초</div><div class="track-module-desc">나만의 색깔 찾기, 채널 아이덴티티 설계</div></div>
+      </div>
+    </div>
+    <div id="track2" class="track-panel">
+      <div class="track-module">
+        <div class="track-module-num">05</div>
+        <div><div class="track-module-title">스마트폰 영상 촬영</div><div class="track-module-desc">구도·조명·음향 기초 및 실전 촬영 실습</div></div>
+      </div>
+      <div class="track-module">
+        <div class="track-module-num">06</div>
+        <div><div class="track-module-title">영상 편집 실습</div><div class="track-module-desc">CapCut·프리미어 프로 활용 편집 완성</div></div>
+      </div>
+      <div class="track-module">
+        <div class="track-module-num">07</div>
+        <div><div class="track-module-title">썸네일 · 그래픽 디자인</div><div class="track-module-desc">클릭률 높이는 썸네일 제작 전략과 실습</div></div>
+      </div>
+      <div class="track-module">
+        <div class="track-module-num">08</div>
+        <div><div class="track-module-title">AI 도구 활용</div><div class="track-module-desc">AI 영상·이미지·자막 도구를 활용한 효율적 제작</div></div>
+      </div>
+    </div>
+    <div id="track3" class="track-panel">
+      <div class="track-module">
+        <div class="track-module-num">09</div>
+        <div><div class="track-module-title">유튜브 SEO & 알고리즘</div><div class="track-module-desc">검색 최적화, 태그·제목·설명 작성 전략</div></div>
+      </div>
+      <div class="track-module">
+        <div class="track-module-num">10</div>
+        <div><div class="track-module-title">숏폼 콘텐츠 전략</div><div class="track-module-desc">릴스·쇼츠·틱톡 바이럴 콘텐츠 제작법</div></div>
+      </div>
+      <div class="track-module">
+        <div class="track-module-num">11</div>
+        <div><div class="track-module-title">수익화 & 브랜드 협업</div><div class="track-module-desc">광고·협찬·온라인 강의·상품 판매 수익화 전략</div></div>
+      </div>
+      <div class="track-module">
+        <div class="track-module-num">12</div>
+        <div><div class="track-module-title">채널 성장 프로젝트</div><div class="track-module-desc">실제 채널 런칭 후 성장 데이터 분석·발표</div></div>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:32px;">
+      <a href="curriculum.html" class="btn-apply" style="display:inline-flex;font-size:14px;padding:14px 28px;">전체 커리큘럼 보기 →</a>
+    </div>
+  </div>
+</section>
+
+<!-- 신청 절차 -->
+<section class="section section-bg fade-in">
+  <div class="section-inner">
+    <div class="section-header" style="text-align:center;">
+      <div class="section-tag" style="margin:0 auto 12px;">HOW TO APPLY</div>
+      <h2 style="margin:0 auto 10px;">간단한 신청 절차</h2>
+      <p style="margin:0 auto;">온라인 신청 후 담당자 확인 → 합격 통보까지 빠르게 진행됩니다.</p>
+    </div>
+    <div class="steps-grid">
+      <div class="step-item done">
+        <div class="step-num">📝</div>
+        <div class="step-title">온라인 신청</div>
+        <div class="step-desc">신청 양식 작성 및 지원 동기 제출</div>
+      </div>
+      <div class="step-item done">
+        <div class="step-num">📋</div>
+        <div class="step-title">서류 검토</div>
+        <div class="step-desc">담당자 검토 후 3일 내 결과 통보</div>
+      </div>
+      <div class="step-item active">
+        <div class="step-num">📞</div>
+        <div class="step-title">개별 상담</div>
+        <div class="step-desc">유선 또는 대면 간단 상담 진행</div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">✅</div>
+        <div class="step-title">최종 합격</div>
+        <div class="step-desc">합격 통보 및 OT 안내</div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">🎬</div>
+        <div class="step-title">교육 시작</div>
+        <div class="step-desc">16주 집중 교육 수강</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 회원홈페이지 바로가기 -->
+<section class="section fade-in">
+  <div class="section-inner">
+    <div style="
+      background: linear-gradient(135deg, #0f2547 0%, #1a3a6e 100%);
+      border-radius: var(--r-xl);
+      padding: clamp(32px,5vw,52px) clamp(28px,5vw,60px);
+      display: flex; align-items: center; justify-content: space-between; gap: 32px;
+      flex-wrap: wrap;
+    ">
+      <div style="display:flex;align-items:center;gap:20px;">
+        <div style="
+          width:56px;height:56px;border-radius:50%;flex-shrink:0;
+          background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);
+          display:flex;align-items:center;justify-content:center;font-size:26px;
+        ">🔐</div>
+        <div>
+          <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,.5);letter-spacing:.8px;margin-bottom:6px;">MEMBER PORTAL</div>
+          <div style="font-size:clamp(18px,2.5vw,24px);font-weight:900;color:#fff;letter-spacing:-.3px;margin-bottom:6px;">회원 전용 홈페이지</div>
+          <div style="font-size:14px;color:rgba(255,255,255,.6);line-height:1.6;">강의 자료·공지사항·자료실을 수강생 전용 페이지에서 확인하세요.</div>
+        </div>
+      </div>
+      <a href="https://chiyu.joongbu.ac.kr" target="_blank" style="
+        display:inline-flex;align-items:center;gap:8px;
+        background:#fff;color:#0f2547;
+        padding:14px 28px;border-radius:var(--r-md);
+        font-size:15px;font-weight:800;letter-spacing:-.2px;
+        text-decoration:none;white-space:nowrap;flex-shrink:0;
+        box-shadow:0 4px 20px rgba(0,0,0,.25);
+        transition:transform .15s,box-shadow .15s;
+      "
+      onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 28px rgba(0,0,0,.35)';"
+      onmouseout="this.style.transform='';this.style.boxShadow='0 4px 20px rgba(0,0,0,.25)';">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        회원 로그인 바로가기
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- CTA 배너 -->
+<section class="section">
+  <div class="section-inner">
+    <div class="apply-banner fade-in">
+      <div class="apply-text">
+        <h2>지금 바로 신청하세요</h2>
+        <p>교육비 전액 무료 · 선착순 모집 · 2026학년도 모집 중</p>
+      </div>
+      <div class="apply-btns">
+        <a href="signup.html" class="apply-btn-white">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          회원가입
+        </a>
+        <a href="curriculum.html" class="apply-btn-ghost">교육 과정 보기</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 푸터 -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <img src="images/joongbu-logo.png" alt="중부대학교 로고">
+        <p>중부대학교 자연치유학과<br>건강콘텐츠 크리에이터 과정<br>경기도 RISE 사업단 연계 교육과정</p>
+        <p style="margin-top:8px;font-size:11px;opacity:.4;">충청남도 금산군 추부면 대학로 201<br>T. 041-750-6114</p>
+      </div>
+      <div class="footer-col">
+        <h4>과정 안내</h4>
+        <ul>
+          <li><a href="about.html">과정 소개</a></li>
+          <li><a href="curriculum.html">교육 과정</a></li>
+          <li><a href="benefits.html">참여 혜택</a></li>
+          <li><a href="signup.html">회원가입</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>정보</h4>
+        <ul>
+          <li><a href="notice.html">공지사항</a></li>
+          <li><a href="notice.html#media">보도자료</a></li>
+          <li><a href="notice.html#data">자료실</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>관련 사이트</h4>
+        <ul>
+          <li><a href="https://jbrise.com" target="_blank">경기 RISE 사업단</a></li>
+          <li><a href="https://www.joongbu.ac.kr" target="_blank">중부대학교</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 중부대학교 자연치유학과. 경기도 RISE 사업단 연계 교육과정.</span>
+      <div class="footer-bottom-links">
+        <a href="#">개인정보처리방침</a>
+        <a href="#">이용약관</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const toggle = document.getElementById('nav-toggle');
+  const nav = document.getElementById('main-nav');
+  toggle.addEventListener('click', () => nav.classList.toggle('open'));
+
+  document.querySelectorAll('.track-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.track-tab').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.track-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.track).classList.add('active');
+    });
+  });
+
+  /* 피처 카드 확장 */
+  document.querySelectorAll('.feature-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const isOpen = card.classList.contains('open');
+      document.querySelectorAll('.feature-card').forEach(c => c.classList.remove('open'));
+      if (!isOpen) card.classList.add('open');
+    });
+  });
+
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.fade-in').forEach(el => io.observe(el));
+</script>
+</body>
+</html>

@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>참여 혜택 — 자연치유학과 크리에이터 과정</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* ── 혜택 카드 그리드 ── */
+    .benefit-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; }
+    .benefit-card {
+      border-radius: var(--r-lg); padding: 36px 28px;
+      background: #fff; border: 1px solid var(--border);
+      box-shadow: var(--sh-card);
+      transition: box-shadow .2s, transform .2s;
+      position: relative; overflow: hidden;
+    }
+    .benefit-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 4px;
+      background: var(--blue);
+    }
+    .benefit-card.gold::before { background: var(--gold); }
+    .benefit-card.navy::before { background: var(--navy); }
+    .benefit-card:hover { box-shadow: var(--sh-hover); transform: translateY(-3px); }
+    .benefit-icon { font-size: 44px; margin-bottom: 16px; line-height: 1; }
+    .benefit-tag {
+      display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: .8px;
+      text-transform: uppercase; padding: 4px 10px; border-radius: 100px;
+      background: var(--sky); color: var(--blue); margin-bottom: 12px;
+    }
+    .benefit-card.gold .benefit-tag { background: var(--gold-light); color: var(--gold); }
+    .benefit-card.navy .benefit-tag { background: rgba(15,37,71,.08); color: var(--navy); }
+    .benefit-card h3 { font-size: 20px; font-weight: 900; color: var(--navy); margin-bottom: 10px; letter-spacing: -.3px; }
+    .benefit-card p { font-size: 14px; color: var(--text-soft); line-height: 1.85; }
+    .benefit-highlight {
+      display: inline-block; margin-top: 14px;
+      font-size: 22px; font-weight: 900; color: var(--blue); letter-spacing: -.5px;
+    }
+    .benefit-card.gold .benefit-highlight { color: var(--gold); }
+    .benefit-card.navy .benefit-highlight { color: var(--navy); }
+
+    /* ── 지원 자격 ── */
+    .qualify-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+    .qualify-box {
+      border-radius: var(--r-lg); padding: 36px;
+      border: 1px solid var(--border); background: #fff;
+      box-shadow: var(--sh-card);
+    }
+    .qualify-box h3 { font-size: 18px; font-weight: 800; color: var(--navy); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+    .qualify-box h3 span { font-size: 24px; }
+    .qualify-list { display: flex; flex-direction: column; gap: 12px; }
+    .qualify-item {
+      display: flex; gap: 12px; align-items: flex-start;
+      padding: 12px 14px; border-radius: var(--r-sm);
+      background: var(--cream); font-size: 14px; color: var(--text-mid); line-height: 1.7;
+    }
+    .qualify-item-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+
+    /* ── 신청 방법 (스텝) ── */
+    .apply-steps { display: flex; gap: 0; position: relative; }
+    .apply-steps::before {
+      content: '';
+      position: absolute; top: 44px; left: 0; right: 0; height: 2px;
+      background: var(--border); z-index: 0;
+    }
+    .step-item { flex: 1; text-align: center; position: relative; z-index: 1; padding: 0 8px; }
+    .step-num {
+      width: 48px; height: 48px; border-radius: 50%;
+      background: var(--blue); color: #fff;
+      font-size: 18px; font-weight: 900;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 14px; box-shadow: 0 4px 16px rgba(30,111,224,.3);
+    }
+    .step-item h4 { font-size: 14px; font-weight: 800; color: var(--navy); margin-bottom: 6px; }
+    .step-item p { font-size: 12px; color: var(--text-soft); line-height: 1.7; }
+    .step-badge {
+      display: inline-block; font-size: 10px; font-weight: 700; color: var(--blue);
+      background: var(--sky); border-radius: 100px; padding: 2px 8px; margin-bottom: 6px;
+    }
+
+    /* ── 자주 묻는 질문 ── */
+    .faq-list { display: flex; flex-direction: column; gap: 12px; max-width: 820px; margin: 0 auto; }
+    .faq-item {
+      border-radius: var(--r-md); background: #fff;
+      border: 1px solid var(--border); overflow: hidden;
+    }
+    .faq-q {
+      padding: 20px 24px;
+      display: flex; gap: 14px; align-items: center; cursor: pointer;
+      font-size: 15px; font-weight: 700; color: var(--navy);
+      transition: background .15s;
+    }
+    .faq-q:hover { background: var(--sky); }
+    .faq-q-icon { font-size: 20px; font-weight: 900; color: var(--blue); flex-shrink: 0; }
+    .faq-q-arrow { margin-left: auto; font-size: 12px; color: var(--text-soft); transition: transform .2s; }
+    .faq-item.open .faq-q-arrow { transform: rotate(180deg); }
+    .faq-a {
+      display: none;
+      padding: 0 24px 20px 58px;
+      font-size: 14px; color: var(--text-mid); line-height: 1.85;
+    }
+    .faq-item.open .faq-a { display: block; }
+
+    /* ── 신청 링크 배너 ── */
+    .apply-form-banner {
+      background: var(--cream); border-radius: var(--r-xl);
+      padding: clamp(44px,6vw,72px) clamp(32px,5vw,64px);
+      border: 2px dashed var(--border);
+      text-align: center;
+    }
+    .apply-form-banner h3 { font-size: clamp(22px,3vw,32px); font-weight: 900; color: var(--navy); margin-bottom: 10px; }
+    .apply-form-banner p { font-size: 15px; color: var(--text-soft); margin-bottom: 28px; }
+    .apply-form-btns { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+    .btn-primary { display: inline-flex; align-items: center; gap: 8px; background: var(--blue); color: #fff; padding: 16px 32px; border-radius: var(--r-md); font-size: 15px; font-weight: 800; text-decoration: none; box-shadow: 0 4px 20px rgba(30,111,224,.3); transition: background .15s, transform .15s; }
+    .btn-primary:hover { background: var(--navy-mid); transform: translateY(-2px); }
+    .btn-secondary { display: inline-flex; align-items: center; gap: 8px; border: 2px solid var(--blue); color: var(--blue); padding: 14px 28px; border-radius: var(--r-md); font-size: 15px; font-weight: 700; text-decoration: none; transition: background .15s; }
+    .btn-secondary:hover { background: var(--sky); }
+
+    @media (max-width: 900px) {
+      .benefit-grid { grid-template-columns: 1fr 1fr; }
+      .qualify-wrap { grid-template-columns: 1fr; }
+      .apply-steps { flex-direction: column; gap: 24px; }
+      .apply-steps::before { display: none; }
+    }
+    @media (max-width: 600px) {
+      .benefit-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- 탑바 -->
+<div class="topbar">
+  <div class="topbar-inner">
+    <span>중부대학교 자연치유학과 × 경기 RISE 지원 교육과정</span>
+    <div class="topbar-links">
+      <a href="https://www.joongbu.ac.kr" target="_blank">중부대학교</a>
+      <a href="notice.html">공지사항</a>
+      <a href="signup.html">신청하기</a>
+    </div>
+  </div>
+</div>
+
+<!-- 헤더 -->
+<header>
+  <div class="header-inner">
+    <a class="logo-block" href="index.html">
+      <img src="images/joongbu-logo.png" alt="중부대학교 로고">
+      <div class="logo-sep"></div>
+      <div>
+        <div class="logo-tag">자연치유학과 크리에이터 과정</div>
+        <span class="logo-sub">중부대학교 자연치유학과 × 경기 RISE</span>
+      </div>
+    </a>
+    <nav id="main-nav">
+      <a href="about.html">과정 소개</a>
+      <a href="curriculum.html">교육 과정</a>
+      <a href="benefits.html" class="active">참여 혜택</a>
+      <a href="notice.html">공지사항</a>
+      <a href="https://chiyu.joongbu.ac.kr" target="_blank" class="nav-member">회원홈페이지</a>
+    </nav>
+    <a class="btn-apply" href="signup.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      수강 신청
+    </a>
+    <button class="nav-toggle" id="navToggle" aria-label="메뉴 열기">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<!-- 페이지 헤더 -->
+<section class="page-hero">
+  <div class="page-hero-inner">
+    <div class="breadcrumb">
+      <a href="index.html">홈</a>
+      <span class="breadcrumb-sep">›</span>
+      <span>참여 혜택</span>
+    </div>
+    <div class="page-hero-tag">Benefits</div>
+    <h1>참여하면 달라집니다</h1>
+    <p>수강료 걱정 없이, 장비 걱정 없이, 오직 콘텐츠에만 집중하세요. 중부대학교와 경기 RISE가 여러분의 크리에이터 여정을 전폭 지원합니다.</p>
+  </div>
+</section>
+
+<!-- 주요 혜택 카드 -->
+<section class="section">
+  <div class="section-inner">
+    <div class="section-header fade-in">
+      <div class="section-tag">Core Benefits</div>
+      <h2>6대 핵심 혜택</h2>
+      <p>크리에이터 도전에 필요한 모든 것을 지원합니다.</p>
+    </div>
+    <div class="benefit-grid">
+      <div class="benefit-card fade-in">
+        <div class="benefit-icon">💰</div>
+        <div class="benefit-tag">수강료 무료</div>
+        <h3>교육비 전액 지원</h3>
+        <p>16주 전 과정 수강료, 실습 재료비, 외부 강사 초청 특강까지 모두 경기 RISE 사업 지원으로 무료입니다.</p>
+        <span class="benefit-highlight">100% 무료</span>
+      </div>
+
+      <div class="benefit-card navy fade-in">
+        <div class="benefit-icon">📜</div>
+        <div class="benefit-tag">공식 인증서</div>
+        <h3>수료증 발급</h3>
+        <p>중부대학교 자연치유학과 명의의 공식 수료증을 발급합니다. 크리에이터 포트폴리오와 이력서에 즉시 활용 가능합니다.</p>
+        <span class="benefit-highlight">중부대 공식 발급</span>
+      </div>
+      <div class="benefit-card fade-in">
+        <div class="benefit-icon">🤝</div>
+        <div class="benefit-tag">멘토링</div>
+        <h3>1:1 전문 멘토링</h3>
+        <p>현직 건강 유튜버, 자연치유 전문가, 콘텐츠 마케터가 수강생 1인 1인을 개별 지도합니다. 내 채널에 맞는 맞춤 전략을 받으세요.</p>
+        <span class="benefit-highlight">월 2회 1:1 멘토</span>
+      </div>
+      <div class="benefit-card gold fade-in">
+        <div class="benefit-icon">🌐</div>
+        <div class="benefit-tag">커뮤니티</div>
+        <h3>크리에이터 네트워크</h3>
+        <p>동기 수강생, 선배 크리에이터, 협력 기관이 함께하는 커뮤니티에 참여합니다. 콜라보, 협찬, 취업 기회가 네트워크에서 나옵니다.</p>
+        <span class="benefit-highlight">졸업 후에도 유지</span>
+      </div>
+      <div class="benefit-card navy fade-in">
+        <div class="benefit-icon">🚀</div>
+        <div class="benefit-tag">취업·창업 연계</div>
+        <h3>헬스케어 취업 연계</h3>
+        <p>웰니스 스타트업, 건강 미디어사, 자연치유 관련 기관과의 채용 연계 프로그램을 운영합니다. 수료 후 바로 현장으로 연결됩니다.</p>
+        <span class="benefit-highlight">협력기관 20+</span>
+      </div>
+      <div class="benefit-card gold fade-in">
+        <div class="benefit-icon">🏅</div>
+        <div class="benefit-tag">자격증</div>
+        <h3>자연건강 지도상담사(2급)<br>응시자격 부여</h3>
+        <p>과정 수료 시 자연건강 지도 상담사 2급 자격증 취득 시험 응시 자격이 부여됩니다. 전문 자격으로 신뢰도 높은 크리에이터 활동이 가능합니다.</p>
+        <span class="benefit-highlight">수료 후 즉시 응시 가능</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 지원 자격 -->
+<section class="section section-bg">
+  <div class="section-inner">
+    <div class="section-header fade-in">
+      <div class="section-tag">Eligibility</div>
+      <h2>지원 자격</h2>
+      <p>아래 요건을 확인하고 지원하세요.</p>
+    </div>
+    <div class="qualify-wrap">
+      <div class="qualify-box fade-in">
+        <h3><span>👤</span>지원 대상</h3>
+        <div class="qualify-list">
+          <div class="qualify-item">
+            <span class="qualify-item-icon">✅</span>
+            <span>경기도 거주 또는 재직 중인 만 19세 이상 성인</span>
+          </div>
+          <div class="qualify-item">
+            <span class="qualify-item-icon">✅</span>
+            <span>건강·자연치유·웰니스 콘텐츠에 관심 있는 분</span>
+          </div>
+          <div class="qualify-item">
+            <span class="qualify-item-icon">✅</span>
+            <span>유튜브·SNS 채널을 시작하고 싶은 예비 크리에이터</span>
+          </div>
+        </div>
+      </div>
+      <div class="qualify-box fade-in">
+        <h3><span>⚠️</span>유의사항</h3>
+        <div class="qualify-list">
+          <div class="qualify-item">
+            <span class="qualify-item-icon">✅</span>
+            <span>16주 전 과정 성실 참여 가능하신 분</span>
+          </div>
+          <div class="qualify-item">
+            <span class="qualify-item-icon">✅</span>
+            <span>스마트폰 기본 조작이 가능하신 분 (고급 장비 불필요)</span>
+          </div>
+          <div class="qualify-item">
+            <span class="qualify-item-icon">✅</span>
+            <span>선발 인원: 회차당 20명 내외</span>
+          </div>
+          <div class="qualify-item">
+            <span class="qualify-item-icon">✅</span>
+            <span>개인 유튜브 계정 생성 필요 (무료)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 신청 방법 스텝 -->
+<section class="section" id="apply">
+  <div class="section-inner">
+    <div class="section-header fade-in" style="text-align:center;">
+      <div class="section-tag">How to Apply</div>
+      <h2>신청 방법</h2>
+      <p>5단계 절차로 쉽고 빠르게 신청하실 수 있습니다.</p>
+    </div>
+    <div class="apply-steps fade-in">
+      <div class="step-item">
+        <div class="step-num">1</div>
+        <div class="step-badge">온라인</div>
+        <h4>사전 정보 확인</h4>
+        <p>홈페이지에서 커리큘럼 및 모집 일정을 확인합니다</p>
+      </div>
+      <div class="step-item">
+        <div class="step-num">2</div>
+        <div class="step-badge">신청서 작성</div>
+        <h4>온라인 신청서 제출</h4>
+        <p>이름·연락처·지원 동기 등 기본 정보를 입력하여 신청서를 제출합니다</p>
+      </div>
+      <div class="step-item">
+        <div class="step-num">3</div>
+        <div class="step-badge">서류 검토</div>
+        <h4>자격 요건 검토</h4>
+        <p>사업단 담당자가 신청 서류를 검토합니다 (영업일 기준 3~5일 소요)</p>
+      </div>
+      <div class="step-item">
+        <div class="step-num">4</div>
+        <div class="step-badge">합격 통보</div>
+        <h4>결과 안내</h4>
+        <p>이메일·문자로 선발 결과 및 오리엔테이션 일정을 안내해 드립니다</p>
+      </div>
+      <div class="step-item">
+        <div class="step-num">5</div>
+        <div class="step-badge">참여 시작</div>
+        <h4>과정 참여 시작</h4>
+        <p>오리엔테이션 후 16주 크리에이터 과정에 참여합니다</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="section section-bg">
+  <div class="section-inner">
+    <div class="section-header fade-in" style="text-align:center;">
+      <div class="section-tag">FAQ</div>
+      <h2>자주 묻는 질문</h2>
+    </div>
+    <div class="faq-list">
+      <div class="faq-item fade-in">
+        <div class="faq-q">
+          <span class="faq-q-icon">Q</span>
+          <span>재학생이 아니어도 신청할 수 있나요?</span>
+          <span class="faq-q-arrow">▼</span>
+        </div>
+        <div class="faq-a">네, 가능합니다. 경기도 거주 또는 재직 중인 만 19세 이상 성인이라면 누구나 신청하실 수 있습니다.</div>
+      </div>
+      <div class="faq-item fade-in">
+        <div class="faq-q">
+          <span class="faq-q-icon">Q</span>
+          <span>교육비는 정말 무료인가요? 환수 조건이 있나요?</span>
+          <span class="faq-q-arrow">▼</span>
+        </div>
+        <div class="faq-a">교육비는 경기 RISE 사업 지원금으로 100% 충당되며, 개인 부담은 전혀 없습니다. 정당한 사유 없이 중도 이탈 시 향후 경기 RISE 관련 사업 참여가 제한될 수 있습니다. 재정적 환수 조건은 없습니다.</div>
+      </div>
+      <div class="faq-item fade-in">
+        <div class="faq-q">
+          <span class="faq-q-icon">Q</span>
+          <span>멘토링은 어떻게 진행되나요?</span>
+          <span class="faq-q-arrow">▼</span>
+        </div>
+        <div class="faq-a">5~6월 채널 성장 단계에서 현직 건강 유튜버, 자연치유 전문가, 콘텐츠 마케터가 수강생 1인 1인을 월 2회 개별 면담합니다. 내 채널 데이터를 함께 분석하고 개인 맞춤 성장 전략을 수립합니다.</div>
+      </div>
+      <div class="faq-item fade-in">
+        <div class="faq-q">
+          <span class="faq-q-icon">Q</span>
+          <span>촬영 장비가 없어도 수강할 수 있나요?</span>
+          <span class="faq-q-arrow">▼</span>
+        </div>
+        <div class="faq-a">네, 없어도 됩니다. 미러리스 카메라, 조명, 마이크 등 전문 장비를 수업 중 무상으로 대여합니다. 스마트폰만 있으면 입과하실 수 있습니다. 집에서 혼자 촬영하는 방법도 상세히 안내합니다.</div>
+      </div>
+      <div class="faq-item fade-in">
+        <div class="faq-q">
+          <span class="faq-q-icon">Q</span>
+          <span>수료 후 취업·창업에 실질적인 도움이 되나요?</span>
+          <span class="faq-q-arrow">▼</span>
+        </div>
+        <div class="faq-a">수료 후 웰니스 스타트업, 건강 미디어사, 자연치유 관련 기관 20개+ 협력사와의 채용 연계 프로그램을 운영합니다. 본인 채널을 통한 크리에이터 창업도 적극 지원합니다. 수료생 커뮤니티는 수료 후에도 지속 유지됩니다.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 신청 CTA -->
+<section class="section">
+  <div class="section-inner">
+    <div class="apply-form-banner fade-in">
+      <div style="font-size:52px;margin-bottom:16px;">📋</div>
+      <h3>지금 바로 신청하세요</h3>
+      <p>선발 인원은 회차당 20명으로 제한됩니다. 마감 전에 신청을 완료하세요.</p>
+      <div class="apply-form-btns">
+        <a href="https://www.joongbu.ac.kr" target="_blank" class="btn-primary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 3h6v6M10 14L21 3M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/></svg>
+          중부대학교 홈페이지
+        </a>
+        <a href="curriculum.html" class="btn-secondary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          교육 과정 먼저 보기
+        </a>
+      </div>
+      <p style="margin-top:20px;font-size:13px;color:var(--text-soft);">문의: chiyu@joongbu.ac.kr · 041-750-6700</p>
+    </div>
+  </div>
+</section>
+
+<!-- Apply CTA 배너 -->
+<section class="section" style="padding-top:0;">
+  <div class="section-inner">
+    <div class="apply-banner fade-in">
+      <div class="apply-text">
+        <h2>궁금한 점이 있으신가요?</h2>
+        <p>담당자가 친절히 안내해 드립니다. 언제든지 연락 주세요.</p>
+      </div>
+      <div class="apply-btns">
+        <a href="about.html" class="apply-btn-white">과정 소개 보기</a>
+        <a href="curriculum.html" class="apply-btn-ghost">커리큘럼 확인</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 푸터 -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <img src="images/joongbu-logo.png" alt="중부대학교" style="height:30px;width:auto;filter:brightness(0) invert(1);opacity:.8;margin-bottom:14px;display:block;">
+        <p>중부대학교 자연치유학과 크리에이터 과정<br>충남 천안시 동남구 목천읍 충절로 1600<br>문의: chiyu@joongbu.ac.kr</p>
+      </div>
+      <div class="footer-col">
+        <h4>과정 소개</h4>
+        <ul>
+          <li><a href="about.html#greeting">담당 교수 인사말</a></li>
+          <li><a href="about.html#intro">과정 특징</a></li>
+          <li><a href="about.html#org">수료 후 진로</a></li>
+          <li><a href="about.html#map">오시는 길</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>교육 정보</h4>
+        <ul>
+          <li><a href="curriculum.html">16주 커리큘럼</a></li>
+          <li><a href="curriculum.html#track1">자연치유 기초</a></li>
+          <li><a href="curriculum.html#track2">콘텐츠 제작</a></li>
+          <li><a href="curriculum.html#track3">채널 성장</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>참여 안내</h4>
+        <ul>
+          <li><a href="benefits.html">참여 혜택</a></li>
+          <li><a href="curriculum.html">교육 과정</a></li>
+          <li><a href="signup.html">신청하기</a></li>
+          <li><a href="notice.html">공지사항</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 중부대학교 자연치유학과 크리에이터 과정. All rights reserved.</span>
+      <div class="footer-bottom-links">
+        <a href="#">개인정보처리방침</a>
+        <a href="#">이용약관</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // 모바일 네비게이션
+  const navToggle = document.getElementById('navToggle');
+  const nav = document.getElementById('nav');
+  navToggle.addEventListener('click', () => nav.classList.toggle('open'));
+
+  // 페이드인 IntersectionObserver
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+  // FAQ 토글
+  document.querySelectorAll('.faq-q').forEach(q => {
+    q.addEventListener('click', () => q.closest('.faq-item').classList.toggle('open'));
+  });
+</script>
+</body>
+</html>

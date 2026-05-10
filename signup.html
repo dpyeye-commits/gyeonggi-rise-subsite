@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>회원가입 — 자연치유학과 크리에이터 과정</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .signup-wrap {
+      min-height: 100vh;
+      background: var(--cream);
+      display: flex; align-items: center; justify-content: center;
+      padding: 80px 24px;
+    }
+    .signup-card {
+      background: #fff;
+      border-radius: var(--r-lg);
+      box-shadow: 0 8px 40px rgba(0,0,0,.1);
+      width: 100%; max-width: 560px;
+      overflow: hidden;
+    }
+    .signup-card-top {
+      background: linear-gradient(135deg, var(--forest) 0%, #1E5C3C 100%);
+      padding: 40px 48px 36px;
+      color: #fff;
+    }
+    .signup-card-top .badge {
+      display: inline-block;
+      background: rgba(255,255,255,.18);
+      border: 1px solid rgba(255,255,255,.3);
+      border-radius: 100px;
+      font-size: 11px; font-weight: 700; letter-spacing: .5px;
+      padding: 4px 12px; margin-bottom: 16px;
+      color: rgba(255,255,255,.9);
+    }
+    .signup-card-top h1 {
+      font-size: 26px; font-weight: 900;
+      letter-spacing: -.5px; line-height: 1.3;
+      margin-bottom: 8px;
+    }
+    .signup-card-top p {
+      font-size: 14px; color: rgba(255,255,255,.75); line-height: 1.7;
+    }
+    .signup-card-body { padding: 40px 48px; }
+
+    .form-group { margin-bottom: 20px; }
+    .form-group label {
+      display: block;
+      font-size: 13px; font-weight: 700; color: var(--text-mid);
+      margin-bottom: 7px;
+    }
+    .form-group label span { color: #ef4444; margin-left: 2px; }
+    .form-control {
+      width: 100%; box-sizing: border-box;
+      padding: 12px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-md);
+      font-family: 'Paperlogy', 'Noto Sans KR', sans-serif;
+      font-size: 15px; color: var(--text);
+      background: #fff;
+      transition: border-color .15s, box-shadow .15s;
+      outline: none;
+    }
+    .form-control:focus {
+      border-color: var(--forest);
+      box-shadow: 0 0 0 3px rgba(23,66,46,.1);
+    }
+    .form-control::placeholder { color: #aaa; }
+    select.form-control { appearance: none; cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 16px center; padding-right: 40px; }
+    textarea.form-control { resize: vertical; min-height: 100px; line-height: 1.7; }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+    .agree-box {
+      background: var(--cream);
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-md);
+      padding: 16px 18px;
+      margin-bottom: 20px;
+    }
+    .agree-item {
+      display: flex; align-items: flex-start; gap: 10px;
+      font-size: 13px; color: var(--text-mid); line-height: 1.6;
+      margin-bottom: 10px;
+    }
+    .agree-item:last-child { margin-bottom: 0; }
+    .agree-item input[type="checkbox"] {
+      width: 16px; height: 16px; flex-shrink: 0;
+      margin-top: 2px; accent-color: var(--forest); cursor: pointer;
+    }
+    .agree-item a { color: var(--forest); text-decoration: underline; }
+    .agree-all {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 14px; font-weight: 700; color: var(--navy);
+      padding-bottom: 12px; margin-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .agree-all input[type="checkbox"] {
+      width: 18px; height: 18px; accent-color: var(--forest); cursor: pointer;
+    }
+
+    .btn-signup {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      width: 100%;
+      background: var(--forest);
+      color: #fff;
+      border: none; cursor: pointer;
+      padding: 16px;
+      border-radius: var(--r-md);
+      font-family: 'Paperlogy', 'Noto Sans KR', sans-serif;
+      font-size: 16px; font-weight: 800;
+      letter-spacing: -.2px;
+      box-shadow: 0 4px 20px rgba(23,66,46,.3);
+      transition: background .15s, transform .15s;
+    }
+    .btn-signup:hover { background: #0f2e1f; transform: translateY(-1px); }
+
+    .signup-footer-note {
+      text-align: center;
+      font-size: 13px; color: var(--text-soft);
+      margin-top: 20px;
+    }
+    .signup-footer-note a { color: var(--forest); font-weight: 700; text-decoration: none; }
+
+    .info-chips {
+      display: flex; gap: 10px; flex-wrap: wrap;
+      margin-top: 16px;
+    }
+    .info-chip {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 12px; color: rgba(255,255,255,.85);
+    }
+    .info-chip svg { opacity: .7; }
+
+    @media (max-width: 600px) {
+      .signup-card-top, .signup-card-body { padding: 28px 24px; }
+      .form-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- 탑바 -->
+<div class="topbar">
+  <div class="topbar-inner">
+    <span>중부대학교 자연치유학과 × 경기 RISE 지원 교육과정</span>
+    <div class="topbar-links">
+      <a href="notice.html">공지사항</a>
+      <a href="signup.html">회원가입</a>
+      <a href="https://www.joongbu.ac.kr" target="_blank">중부대학교</a>
+    </div>
+  </div>
+</div>
+
+<!-- 헤더 -->
+<header>
+  <div class="header-inner">
+    <a class="logo-block" href="index.html">
+      <img src="images/joongbu-logo.png" alt="중부대학교 로고">
+      <div class="logo-sep"></div>
+      <div>
+        <div class="logo-tag">자연치유학과 크리에이터 과정</div>
+        <span class="logo-sub">중부대학교 자연치유학과 × 경기 RISE</span>
+      </div>
+    </a>
+    <nav id="main-nav">
+      <a href="about.html">과정 소개</a>
+      <a href="curriculum.html">교육 과정</a>
+      <a href="benefits.html">참여 혜택</a>
+      <a href="notice.html">공지사항</a>
+      <a href="https://chiyu.joongbu.ac.kr" target="_blank" class="nav-member">회원홈페이지</a>
+    </nav>
+    <a href="signup.html" class="btn-apply">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      회원가입
+    </a>
+    <button class="nav-toggle" id="nav-toggle" aria-label="메뉴 열기">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<div class="signup-wrap">
+  <div class="signup-card">
+    <!-- 상단 컬러 영역 -->
+    <div class="signup-card-top">
+      <div class="badge">경기 RISE 지원 · 수강료 100% 무료</div>
+      <h1>자연치유 크리에이터<br>과정 회원가입</h1>
+      <p>아래 정보를 입력하시면 담당자가 3영업일 이내 연락드립니다.</p>
+      <div class="info-chips">
+        <span class="info-chip">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+          교육비 전액 무료
+        </span>
+        <span class="info-chip">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+          16주 집중 과정
+        </span>
+        <span class="info-chip">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+          선착순 20명
+        </span>
+      </div>
+    </div>
+
+    <!-- 폼 영역 -->
+    <div class="signup-card-body">
+      <form id="signup-form" novalidate>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>이름 <span>*</span></label>
+            <input type="text" class="form-control" placeholder="홍길동" required>
+          </div>
+          <div class="form-group">
+            <label>생년월일 <span>*</span></label>
+            <input type="text" class="form-control" placeholder="예) 19900101" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>이메일 <span>*</span></label>
+          <input type="email" class="form-control" placeholder="example@email.com" required>
+        </div>
+
+        <div class="form-group">
+          <label>연락처 <span>*</span></label>
+          <input type="tel" class="form-control" placeholder="010-0000-0000" required>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>거주 지역 <span>*</span></label>
+            <select class="form-control" required>
+              <option value="" disabled selected>시/도 선택</option>
+              <option>경기도</option>
+              <option>서울특별시</option>
+              <option>인천광역시</option>
+              <option>충청남도</option>
+              <option>기타</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>중부대 재학/졸업 여부</label>
+            <select class="form-control">
+              <option value="" disabled selected>선택</option>
+              <option>재학생</option>
+              <option>졸업생</option>
+              <option>해당 없음</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>지원 동기 <span>*</span></label>
+          <textarea class="form-control" placeholder="자연치유 크리에이터 과정에 지원하게 된 동기를 간단히 적어주세요." required></textarea>
+        </div>
+
+        <!-- 동의 -->
+        <div class="agree-box">
+          <label class="agree-all">
+            <input type="checkbox" id="agree-all">
+            전체 동의합니다
+          </label>
+          <div class="agree-item">
+            <input type="checkbox" class="agree-item-check">
+            <span>[필수] <a href="#">개인정보 수집·이용 동의</a> — 과정 안내 및 선발 심사 목적으로 수집하며, 과정 종료 후 즉시 파기합니다.</span>
+          </div>
+          <div class="agree-item">
+            <input type="checkbox" class="agree-item-check">
+            <span>[선택] 과정 관련 이메일·문자 수신 동의</span>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-signup">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          회원가입 신청하기
+        </button>
+
+        <p class="signup-footer-note">
+          이미 계정이 있으신가요? <a href="#">로그인</a> &nbsp;·&nbsp;
+          문의 <a href="mailto:chiyu@joongbu.ac.kr">chiyu@joongbu.ac.kr</a>
+        </p>
+
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  /* 전체 동의 */
+  const agreeAll = document.getElementById('agree-all');
+  const items = document.querySelectorAll('.agree-item-check');
+  agreeAll.addEventListener('change', () => items.forEach(c => c.checked = agreeAll.checked));
+  items.forEach(c => c.addEventListener('change', () => {
+    agreeAll.checked = [...items].every(i => i.checked);
+  }));
+
+  /* 폼 제출 */
+  document.getElementById('signup-form').addEventListener('submit', e => {
+    e.preventDefault();
+    const required = e.target.querySelectorAll('[required]');
+    let valid = true;
+    required.forEach(el => {
+      if (!el.value.trim()) { el.style.borderColor = '#ef4444'; valid = false; }
+      else el.style.borderColor = '';
+    });
+    if (!valid) return;
+    alert('신청이 완료되었습니다!\n담당자가 3영업일 이내 연락드리겠습니다.');
+    e.target.reset();
+  });
+
+  /* 모바일 메뉴 */
+  const navToggle = document.getElementById('nav-toggle');
+  if (navToggle) navToggle.addEventListener('click', () => document.getElementById('main-nav').classList.toggle('open'));
+</script>
+
+</body>
+</html>

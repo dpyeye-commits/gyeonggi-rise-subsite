@@ -272,6 +272,93 @@
 
     @media (max-width: 900px) { .panel-grid { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 540px)  { .panel-grid { grid-template-columns: 1fr; } .member-banner-inner { flex-direction: column; align-items: flex-start; } }
+
+    /* ── 로그인 게이트 ── */
+    .login-gate-wrap {
+      min-height: calc(100vh - 120px);
+      background: var(--cream);
+      display: flex; align-items: center; justify-content: center;
+      padding: 60px 24px;
+    }
+    .login-gate-card {
+      background: #fff;
+      border-radius: var(--r-xl);
+      box-shadow: 0 8px 40px rgba(0,0,0,.1);
+      width: 100%; max-width: 440px;
+      overflow: hidden;
+    }
+    .lgc-top {
+      background: linear-gradient(135deg, var(--forest) 0%, #1E5C3C 100%);
+      padding: 36px 40px 32px;
+      color: #fff; text-align: center;
+    }
+    .lgc-icon { font-size: 52px; margin-bottom: 12px; }
+    .lgc-top h2 { font-size: 24px; font-weight: 900; letter-spacing: -.4px; margin-bottom: 8px; }
+    .lgc-top p { font-size: 14px; color: rgba(255,255,255,.75); line-height: 1.6; }
+    .lgc-body { padding: 32px 40px; }
+    .lgc-status { text-align: center; }
+    .lgc-status h3 { font-size: 20px; font-weight: 800; color: var(--text); margin: 16px 0 10px; }
+    .lgc-status p { font-size: 14px; color: var(--text-soft); line-height: 1.7; margin-bottom: 16px; }
+    .lg-group { margin-bottom: 16px; }
+    .lg-group label { display: block; font-size: 13px; font-weight: 700; color: var(--text-mid); margin-bottom: 7px; }
+    .lg-input {
+      width: 100%; box-sizing: border-box; padding: 12px 16px;
+      border: 1.5px solid var(--border); border-radius: var(--r-md);
+      font-family: 'Paperlogy', 'Noto Sans KR', sans-serif;
+      font-size: 15px; color: var(--text); outline: none;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    .lg-input:focus { border-color: var(--forest); box-shadow: 0 0 0 3px rgba(23,66,46,.1); }
+    .lg-btn {
+      width: 100%; padding: 14px; background: var(--forest); color: #fff;
+      border: none; cursor: pointer; border-radius: var(--r-md);
+      font-family: 'Paperlogy', 'Noto Sans KR', sans-serif;
+      font-size: 16px; font-weight: 800;
+      box-shadow: 0 4px 16px rgba(23,66,46,.25);
+      transition: background .15s, transform .15s; margin-top: 8px;
+    }
+    .lg-btn:hover { background: #0f2e1f; transform: translateY(-1px); }
+    .lg-error {
+      background: #fee2e2; color: #991b1b; border-radius: var(--r-sm);
+      padding: 10px 14px; font-size: 13px; font-weight: 600;
+      margin-top: 12px; display: none; line-height: 1.5;
+    }
+    .lg-links { text-align: center; font-size: 13px; color: var(--text-soft); margin-top: 20px; }
+    .lg-links a { color: var(--forest); font-weight: 700; text-decoration: none; }
+    .lg-status-box {
+      background: var(--cream); border: 1.5px solid var(--border);
+      border-radius: var(--r-md); padding: 14px 16px;
+      margin: 12px 0 16px; font-size: 13px; color: var(--text-mid); text-align: left;
+    }
+    .lg-status-box div { margin-bottom: 4px; }
+    .lg-status-box div:last-child { margin-bottom: 0; }
+    .lg-back {
+      width: 100%; padding: 12px; background: var(--cream); color: var(--text);
+      border: 1.5px solid var(--border); cursor: pointer; border-radius: var(--r-md);
+      font-family: 'Paperlogy', 'Noto Sans KR', sans-serif;
+      font-size: 14px; font-weight: 700; transition: background .15s; margin-top: 8px;
+    }
+    .lg-back:hover { background: #e5e7e5; }
+    .lg-pill-pending  { display: inline-block; background: #fef3c7; color: #92400e; border-radius: 100px; font-size: 12px; font-weight: 700; padding: 4px 14px; }
+    .lg-pill-rejected { display: inline-block; background: #fee2e2; color: #991b1b; border-radius: 100px; font-size: 12px; font-weight: 700; padding: 4px 14px; }
+    .lg-mailto {
+      display: block; text-align: center; width: 100%; padding: 13px;
+      background: var(--forest); color: #fff; border-radius: var(--r-md);
+      font-size: 14px; font-weight: 700; text-decoration: none;
+      box-shadow: 0 4px 16px rgba(23,66,46,.2); margin-top: 4px;
+    }
+    .lg-mailto:hover { background: #0f2e1f; }
+
+    /* 로그아웃 버튼 (배너 안) */
+    .member-logout-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3);
+      color: #fff; padding: 10px 20px; border-radius: var(--r-md);
+      font-family: 'Paperlogy', 'Noto Sans KR', sans-serif;
+      font-size: 14px; font-weight: 700; cursor: pointer;
+      transition: background .15s; flex-shrink: 0;
+    }
+    .member-logout-btn:hover { background: rgba(255,255,255,.25); }
   </style>
 </head>
 <body>
@@ -314,17 +401,72 @@
   </div>
 </header>
 
+<!-- ── 로그인 게이트 ── -->
+<div class="login-gate-wrap" id="login-gate">
+  <div class="login-gate-card">
+    <div class="lgc-top">
+      <div class="lgc-icon">🌿</div>
+      <h2>회원 로그인</h2>
+      <p>승인된 회원만 접근할 수 있는<br>전용 페이지입니다.</p>
+    </div>
+
+    <!-- 로그인 폼 -->
+    <div class="lgc-body" id="lgc-form">
+      <div class="lg-group">
+        <label>이메일</label>
+        <input type="email" id="lg-email" class="lg-input" placeholder="신청 시 입력한 이메일">
+      </div>
+      <div class="lg-group">
+        <label>이름</label>
+        <input type="text" id="lg-name" class="lg-input" placeholder="이름">
+      </div>
+      <button class="lg-btn" id="lg-btn">로그인</button>
+      <div class="lg-error" id="lg-error"></div>
+      <div class="lg-links">
+        아직 신청 전이라면? <a href="signup.html">회원가입 신청</a>
+      </div>
+    </div>
+
+    <!-- 검토 중 화면 -->
+    <div class="lgc-body lgc-status" id="lgc-pending" style="display:none">
+      <div style="font-size:52px;">⏳</div>
+      <div class="lg-pill-pending">검토 중</div>
+      <h3>신청서를 검토 중입니다</h3>
+      <p>담당자가 검토 후 최대 3영업일 이내<br>승인 여부를 안내드립니다.</p>
+      <div class="lg-status-box" id="lgc-pending-info"></div>
+      <button class="lg-back" id="lgc-back-pending">← 다시 로그인</button>
+    </div>
+
+    <!-- 거절 화면 -->
+    <div class="lgc-body lgc-status" id="lgc-rejected" style="display:none">
+      <div style="font-size:52px;">😔</div>
+      <div class="lg-pill-rejected">선발 미완료</div>
+      <h3>이번 기수에 선발되지 않으셨습니다</h3>
+      <p>차기 과정을 기대해 주세요.<br>궁금한 점은 담당자에게 문의하세요.</p>
+      <a class="lg-mailto" href="mailto:chiyu@joongbu.ac.kr">📧 담당자에게 문의</a>
+      <button class="lg-back" id="lgc-back-rejected">← 다시 로그인</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── 회원 전용 콘텐츠 (로그인 후 표시) ── -->
+<div id="main-content" style="display:none">
+
 <!-- 회원 배너 -->
 <div class="member-banner">
   <div class="member-banner-inner">
     <div class="member-banner-left">
-      <div class="member-banner-icon">🔐</div>
+      <div class="member-banner-icon">🏡</div>
       <div>
         <div class="member-banner-eyebrow">MEMBER PORTAL</div>
         <h2>회원 전용 홈페이지</h2>
-        <p>수강생 전용공간 - 회원 홈페이지 소개</p>
+        <p id="member-welcome">수강생 전용공간 - 회원 홈페이지</p>
       </div>
     </div>
+    <button class="member-logout-btn" id="logout-btn">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      로그아웃
+    </button>
   </div>
 </div>
 
@@ -399,6 +541,8 @@
   </div>
 </footer>
 
+</div><!-- /#main-content -->
+
 <script>
 /* 헤더 스크롤 */
 window.addEventListener('scroll', () => {
@@ -407,6 +551,110 @@ window.addEventListener('scroll', () => {
 document.getElementById('nav-toggle').addEventListener('click', () => {
   document.getElementById('main-nav').classList.toggle('open');
 });
+
+/* ── 세션 / 로그인 관리 ── */
+const SESSION_KEY = 'rise_session';
+const MEMBERS_KEY_MBR = 'rise_members';
+
+function loadMembersDB() {
+  try { return JSON.parse(localStorage.getItem(MEMBERS_KEY_MBR) || '[]'); } catch { return []; }
+}
+function getSession() {
+  try { return JSON.parse(sessionStorage.getItem(SESSION_KEY)); } catch { return null; }
+}
+function setSession(m) {
+  sessionStorage.setItem(SESSION_KEY, JSON.stringify({ id: m.id, name: m.name, email: m.email }));
+}
+function clearSession() { sessionStorage.removeItem(SESSION_KEY); }
+
+function fmtDateShort(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function showContent(member) {
+  document.getElementById('login-gate').style.display = 'none';
+  document.getElementById('main-content').style.display = 'block';
+  document.getElementById('member-welcome').textContent = `${member.name}님, 환영합니다 👋`;
+  renderGrid();
+}
+
+function doLogout() {
+  clearSession();
+  document.getElementById('main-content').style.display = 'none';
+  document.getElementById('lgc-form').style.display = 'block';
+  document.getElementById('lgc-pending').style.display = 'none';
+  document.getElementById('lgc-rejected').style.display = 'none';
+  document.getElementById('lg-email').value = '';
+  document.getElementById('lg-name').value = '';
+  document.getElementById('lg-error').style.display = 'none';
+  document.getElementById('login-gate').style.display = 'flex';
+}
+
+function doLogin() {
+  const email  = document.getElementById('lg-email').value.trim().toLowerCase();
+  const name   = document.getElementById('lg-name').value.trim();
+  const errEl  = document.getElementById('lg-error');
+
+  if (!email || !name) {
+    errEl.textContent = '이메일과 이름을 모두 입력해 주세요.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  const members = loadMembersDB();
+  const m = members.find(x => x.email.toLowerCase() === email && x.name === name);
+
+  errEl.style.display = 'none';
+
+  if (!m) {
+    errEl.textContent = '일치하는 신청 내역이 없습니다. 이메일과 이름을 다시 확인해 주세요.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  if (m.status === 'approved') {
+    setSession(m);
+    showContent(m);
+  } else if (m.status === 'pending') {
+    document.getElementById('lgc-form').style.display = 'none';
+    document.getElementById('lgc-pending-info').innerHTML =
+      `<div>회원 ID&nbsp;: <strong>${m.id}</strong></div>` +
+      `<div>신청일&nbsp;&nbsp;: ${fmtDateShort(m.submittedAt)}</div>`;
+    document.getElementById('lgc-pending').style.display = 'block';
+  } else {
+    document.getElementById('lgc-form').style.display = 'none';
+    document.getElementById('lgc-rejected').style.display = 'block';
+  }
+}
+
+/* 초기 세션 확인 */
+(function initAuth() {
+  const session = getSession();
+  if (session) {
+    const members = loadMembersDB();
+    const m = members.find(x => x.id === session.id && x.email === session.email);
+    if (m && m.status === 'approved') { showContent(m); return; }
+    clearSession();
+  }
+  document.getElementById('login-gate').style.display = 'flex';
+  document.getElementById('main-content').style.display = 'none';
+})();
+
+document.getElementById('lg-btn').addEventListener('click', doLogin);
+['lg-email', 'lg-name'].forEach(id => {
+  document.getElementById(id).addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+});
+document.getElementById('lgc-back-pending').addEventListener('click', () => {
+  document.getElementById('lgc-pending').style.display = 'none';
+  document.getElementById('lgc-form').style.display = 'block';
+});
+document.getElementById('lgc-back-rejected').addEventListener('click', () => {
+  document.getElementById('lgc-rejected').style.display = 'none';
+  document.getElementById('lgc-form').style.display = 'block';
+});
+document.getElementById('logout-btn').addEventListener('click', doLogout);
 
 /* ── 기본 패널 데이터 ── */
 const PRESETS = [
@@ -556,8 +804,6 @@ document.getElementById('modal-save').addEventListener('click', () => {
 document.getElementById('p-url').addEventListener('keydown', e => {
   if (e.key === 'Enter') document.getElementById('modal-save').click();
 });
-
-renderGrid();
 
 </script>
 </body>

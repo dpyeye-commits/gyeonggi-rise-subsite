@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>관리자 대시보드 — 자연치유 크리에이터 과정</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; background: #f0f2f5; color: #1a1a2e; min-height: 100vh; }
+
+    /* ── 비밀번호 게이트 ── */
+    .gate-overlay {
+      position: fixed; inset: 0;
+      background: linear-gradient(135deg, #17422e 0%, #1e5c3c 100%);
+      display: flex; align-items: center; justify-content: center; z-index: 9999;
+    }
+    .gate-card {
+      background: #fff; border-radius: 20px; padding: 48px 40px;
+      width: 100%; max-width: 400px; text-align: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,.3);
+    }
+    .gate-icon { font-size: 52px; margin-bottom: 16px; }
+    .gate-card h1 { font-size: 22px; font-weight: 900; color: #17422e; margin-bottom: 8px; }
+    .gate-card p { font-size: 14px; color: #666; line-height: 1.7; margin-bottom: 28px; }
+    .gate-input {
+      width: 100%; padding: 14px 16px; border: 2px solid #e0e0e0; border-radius: 10px;
+      font-size: 16px; outline: none; text-align: center; letter-spacing: 4px;
+      transition: border-color .15s; font-family: inherit;
+    }
+    .gate-input:focus { border-color: #17422e; }
+    .gate-btn {
+      margin-top: 12px; width: 100%; padding: 14px;
+      background: #17422e; color: #fff; border: none; border-radius: 10px;
+      font-size: 16px; font-weight: 700; cursor: pointer; transition: background .15s; font-family: inherit;
+    }
+    .gate-btn:hover { background: #0f2e1f; }
+    .gate-error { color: #ef4444; font-size: 13px; margin-top: 10px; min-height: 20px; }
+
+    /* ── 메인 앱 ── */
+    #app { display: none; }
+
+    /* ── 상단바 ── */
+    .adm-topbar {
+      background: #17422e; color: #fff; padding: 0 28px;
+      height: 58px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .adm-topbar-left { display: flex; align-items: center; gap: 12px; }
+    .adm-badge {
+      background: rgba(255,255,255,.18); border-radius: 6px;
+      padding: 4px 10px; font-size: 11px; font-weight: 700; letter-spacing: .5px;
+    }
+    .adm-topbar h1 { font-size: 16px; font-weight: 800; }
+    .adm-logout {
+      background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.25);
+      color: #fff; border-radius: 8px; padding: 8px 16px;
+      font-size: 13px; font-weight: 600; cursor: pointer; transition: background .15s; font-family: inherit;
+    }
+    .adm-logout:hover { background: rgba(255,255,255,.25); }
+
+    /* ── 본문 ── */
+    .adm-body { max-width: 1160px; margin: 0 auto; padding: 32px 24px 60px; }
+
+    /* ── 통계 카드 ── */
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
+    .stat-card {
+      background: #fff; border-radius: 14px; padding: 20px 22px;
+      box-shadow: 0 2px 12px rgba(0,0,0,.06);
+      display: flex; align-items: center; gap: 16px;
+    }
+    .stat-icon { font-size: 30px; }
+    .stat-label { font-size: 12px; color: #888; margin-bottom: 3px; }
+    .stat-num { font-size: 30px; font-weight: 900; color: #1a1a2e; }
+    .stat-card.st-pending .stat-num { color: #d97706; }
+    .stat-card.st-approved .stat-num { color: #16a34a; }
+    .stat-card.st-rejected .stat-num { color: #dc2626; }
+
+    /* ── 컨트롤 바 ── */
+    .ctrl-bar { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; }
+    .filter-tabs {
+      display: flex; background: #fff; border-radius: 10px;
+      padding: 4px; box-shadow: 0 2px 8px rgba(0,0,0,.06); gap: 2px;
+    }
+    .ftab {
+      padding: 8px 18px; border: none; background: none; border-radius: 7px;
+      font-size: 13px; font-weight: 600; color: #666; cursor: pointer;
+      transition: all .15s; white-space: nowrap; font-family: inherit;
+    }
+    .ftab.active { background: #17422e; color: #fff; }
+    .search-box {
+      flex: 1; min-width: 200px; padding: 10px 16px;
+      border: 2px solid #e8e8e8; border-radius: 10px;
+      font-size: 14px; outline: none; transition: border-color .15s; font-family: inherit;
+    }
+    .search-box:focus { border-color: #17422e; }
+    .btn-csv {
+      padding: 10px 18px; background: #fff; border: 2px solid #e8e8e8;
+      border-radius: 10px; font-size: 13px; font-weight: 600; color: #555;
+      cursor: pointer; transition: all .15s; white-space: nowrap; font-family: inherit;
+    }
+    .btn-csv:hover { border-color: #17422e; color: #17422e; }
+
+    /* ── 테이블 ── */
+    .table-wrap { background: #fff; border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,.06); overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; }
+    thead th {
+      background: #f8f9fa; padding: 13px 16px;
+      font-size: 11px; font-weight: 700; color: #888;
+      text-align: left; border-bottom: 1px solid #eee; white-space: nowrap;
+    }
+    tbody tr { border-bottom: 1px solid #f0f0f0; transition: background .1s; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: #f8fffe; }
+    tbody td { padding: 13px 16px; font-size: 14px; color: #333; vertical-align: middle; }
+    .td-name { font-weight: 700; color: #1a1a2e; }
+    .td-mono { font-family: monospace; font-size: 11px; color: #bbb; }
+    .td-date { font-size: 12px; color: #999; white-space: nowrap; }
+    .td-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+
+    /* ── 상태 뱃지 ── */
+    .badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 10px; border-radius: 100px;
+      font-size: 12px; font-weight: 700; white-space: nowrap;
+    }
+    .b-pending  { background: #fef3c7; color: #92400e; }
+    .b-approved { background: #dcfce7; color: #166534; }
+    .b-rejected { background: #fee2e2; color: #991b1b; }
+
+    /* ── 액션 버튼 ── */
+    .btn-sm {
+      padding: 5px 11px; border-radius: 7px;
+      font-size: 12px; font-weight: 700; cursor: pointer; border: none;
+      transition: all .15s; white-space: nowrap; font-family: inherit;
+    }
+    .bsa { background: #dcfce7; color: #166534; }
+    .bsa:hover { background: #16a34a; color: #fff; }
+    .bsr { background: #fee2e2; color: #991b1b; }
+    .bsr:hover { background: #dc2626; color: #fff; }
+    .bsd { background: #e0f2fe; color: #0369a1; }
+    .bsd:hover { background: #0284c7; color: #fff; }
+    .bsx { background: #f0f0f0; color: #888; }
+    .bsx:hover { background: #ddd; color: #333; }
+
+    /* ── 빈 상태 ── */
+    .empty-state { text-align: center; padding: 60px 20px; color: #bbb; }
+    .empty-state .ei { font-size: 48px; margin-bottom: 16px; }
+    .empty-state p { font-size: 15px; margin-bottom: 6px; }
+    .empty-state small { font-size: 13px; }
+
+    /* ── 상세 모달 ── */
+    .modal-bg {
+      position: fixed; inset: 0; background: rgba(0,0,0,.5);
+      display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px;
+    }
+    .modal-bg.hidden { display: none; }
+    .modal-wrap {
+      background: #fff; border-radius: 20px;
+      width: 100%; max-width: 580px; max-height: 88vh; overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,.25);
+    }
+    .modal-head {
+      padding: 22px 28px 18px; border-bottom: 1px solid #eee;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; background: #fff; z-index: 1;
+      border-radius: 20px 20px 0 0;
+    }
+    .modal-head h2 { font-size: 18px; font-weight: 800; color: #1a1a2e; }
+    .modal-x {
+      width: 32px; height: 32px; background: #f0f0f0; border: none;
+      border-radius: 50%; font-size: 18px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; color: #555; font-family: inherit;
+    }
+    .modal-x:hover { background: #ddd; }
+    .modal-content { padding: 22px 28px; }
+    .modal-foot {
+      padding: 18px 28px; border-top: 1px solid #eee;
+      display: flex; gap: 10px; justify-content: flex-end;
+      position: sticky; bottom: 0; background: #fff;
+      border-radius: 0 0 20px 20px;
+    }
+
+    .d-section { margin-bottom: 22px; }
+    .d-section h4 {
+      font-size: 11px; font-weight: 700; color: #bbb;
+      letter-spacing: .5px; text-transform: uppercase; margin-bottom: 12px;
+    }
+    .d-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .d-item label { font-size: 11px; color: #999; display: block; margin-bottom: 2px; }
+    .d-item span { font-size: 14px; font-weight: 600; color: #1a1a2e; }
+    .d-motivation {
+      background: #f8f9fa; border-radius: 10px; padding: 14px;
+      font-size: 14px; color: #333; line-height: 1.7;
+    }
+    .d-note {
+      width: 100%; padding: 12px 14px; border: 2px solid #e8e8e8;
+      border-radius: 10px; font-size: 14px; resize: vertical; min-height: 80px;
+      outline: none; font-family: inherit; transition: border-color .15s;
+    }
+    .d-note:focus { border-color: #17422e; }
+
+    .btn-primary {
+      padding: 11px 24px; background: #17422e; color: #fff; border: none;
+      border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit;
+    }
+    .btn-primary:hover { background: #0f2e1f; }
+    .btn-danger {
+      padding: 11px 24px; background: #dc2626; color: #fff; border: none;
+      border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit;
+    }
+    .btn-danger:hover { background: #b91c1c; }
+    .btn-sec {
+      padding: 11px 24px; background: #f0f0f0; color: #555; border: none;
+      border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit;
+    }
+    .btn-sec:hover { background: #e0e0e0; }
+
+    @media (max-width: 768px) {
+      .stats-row { grid-template-columns: 1fr 1fr; }
+      .adm-topbar h1 { font-size: 13px; }
+      thead th:nth-child(4), tbody td:nth-child(4) { display: none; }
+    }
+    @media (max-width: 500px) {
+      .stats-row { grid-template-columns: 1fr 1fr; }
+      thead th, tbody td { padding: 10px 10px; }
+      thead th:nth-child(5), tbody td:nth-child(5) { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── 비밀번호 게이트 ── -->
+<div class="gate-overlay" id="gate-overlay">
+  <div class="gate-card">
+    <div class="gate-icon">🌿</div>
+    <h1>관리자 로그인</h1>
+    <p>자연치유 크리에이터 과정<br>관리자 전용 페이지입니다.</p>
+    <input type="password" class="gate-input" id="gate-pw" placeholder="비밀번호 입력" autocomplete="off">
+    <button class="gate-btn" id="gate-btn">로그인</button>
+    <p class="gate-error" id="gate-error"></p>
+  </div>
+</div>
+
+<!-- ── 메인 앱 ── -->
+<div id="app">
+
+  <!-- 상단바 -->
+  <div class="adm-topbar">
+    <div class="adm-topbar-left">
+      <span class="adm-badge">ADMIN</span>
+      <h1>🌿 자연치유 크리에이터 과정 — 관리자 대시보드</h1>
+    </div>
+    <button class="adm-logout" id="adm-logout">로그아웃</button>
+  </div>
+
+  <div class="adm-body">
+
+    <!-- 통계 -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-icon">📋</div>
+        <div><div class="stat-label">총 신청</div><div class="stat-num" id="s-total">0</div></div>
+      </div>
+      <div class="stat-card st-pending">
+        <div class="stat-icon">⏳</div>
+        <div><div class="stat-label">검토 중</div><div class="stat-num" id="s-pending">0</div></div>
+      </div>
+      <div class="stat-card st-approved">
+        <div class="stat-icon">✅</div>
+        <div><div class="stat-label">승인 완료</div><div class="stat-num" id="s-approved">0</div></div>
+      </div>
+      <div class="stat-card st-rejected">
+        <div class="stat-icon">❌</div>
+        <div><div class="stat-label">거절</div><div class="stat-num" id="s-rejected">0</div></div>
+      </div>
+    </div>
+
+    <!-- 컨트롤 -->
+    <div class="ctrl-bar">
+      <div class="filter-tabs">
+        <button class="ftab active" data-f="all">전체</button>
+        <button class="ftab" data-f="pending">대기 중</button>
+        <button class="ftab" data-f="approved">승인 완료</button>
+        <button class="ftab" data-f="rejected">거절</button>
+      </div>
+      <input type="search" class="search-box" id="search-box" placeholder="이름 · 이메일 · 연락처 검색…">
+      <button class="btn-csv" id="btn-csv">⬇ CSV 내보내기</button>
+    </div>
+
+    <!-- 테이블 -->
+    <div class="table-wrap">
+      <table id="main-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>이름</th>
+            <th>이메일</th>
+            <th>연락처</th>
+            <th>지역</th>
+            <th>신청일</th>
+            <th>상태</th>
+            <th>관리</th>
+          </tr>
+        </thead>
+        <tbody id="main-tbody"></tbody>
+      </table>
+      <div class="empty-state" id="empty-state" style="display:none">
+        <div class="ei">📭</div>
+        <p>아직 신청자가 없습니다</p>
+        <small>회원가입 링크를 공유하면 여기에 신청 목록이 나타납니다</small>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── 상세 모달 ── -->
+<div class="modal-bg hidden" id="detail-modal">
+  <div class="modal-wrap">
+    <div class="modal-head">
+      <h2 id="modal-title">회원 상세 정보</h2>
+      <button class="modal-x" id="modal-x">×</button>
+    </div>
+    <div class="modal-content">
+      <div class="d-section">
+        <h4>기본 정보</h4>
+        <div class="d-grid">
+          <div class="d-item"><label>이름</label><span id="d-name"></span></div>
+          <div class="d-item"><label>생년월일</label><span id="d-birth"></span></div>
+          <div class="d-item"><label>이메일</label><span id="d-email"></span></div>
+          <div class="d-item"><label>연락처</label><span id="d-phone"></span></div>
+          <div class="d-item"><label>거주 지역</label><span id="d-region"></span></div>
+          <div class="d-item"><label>중부대 재학/졸업</label><span id="d-joongbu"></span></div>
+          <div class="d-item"><label>회원 ID</label><span id="d-id" style="font-family:monospace;font-size:12px;color:#999;"></span></div>
+          <div class="d-item"><label>신청일</label><span id="d-date"></span></div>
+        </div>
+      </div>
+      <div class="d-section">
+        <h4>지원 동기</h4>
+        <div class="d-motivation" id="d-motivation"></div>
+      </div>
+      <div class="d-section">
+        <h4>관리자 메모 (내부용)</h4>
+        <textarea class="d-note" id="d-note" placeholder="선발 근거, 특이 사항 등…"></textarea>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-sec" id="modal-close">닫기</button>
+      <button class="btn-danger" id="modal-reject">거절</button>
+      <button class="btn-primary" id="modal-approve">승인</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const MEMBERS_KEY  = 'rise_members';
+const ADMIN_PW     = 'chiyu2025';
+let curFilter  = 'all';
+let curSearch  = '';
+let curId      = null;
+
+/* ── 스토리지 ── */
+function load()      { try { return JSON.parse(localStorage.getItem(MEMBERS_KEY) || '[]'); } catch { return []; } }
+function store(arr)  { localStorage.setItem(MEMBERS_KEY, JSON.stringify(arr)); }
+
+/* ── 인증 ── */
+const gateEl = document.getElementById('gate-overlay');
+const appEl  = document.getElementById('app');
+
+if (sessionStorage.getItem('rise_admin') === '1') { unlock(); }
+
+function unlock() {
+  gateEl.style.display = 'none';
+  appEl.style.display  = 'block';
+  renderAll();
+}
+
+function tryLogin() {
+  if (document.getElementById('gate-pw').value === ADMIN_PW) {
+    sessionStorage.setItem('rise_admin', '1');
+    unlock();
+  } else {
+    document.getElementById('gate-error').textContent = '비밀번호가 올바르지 않습니다.';
+    document.getElementById('gate-pw').value = '';
+    document.getElementById('gate-pw').focus();
+  }
+}
+
+document.getElementById('gate-btn').addEventListener('click', tryLogin);
+document.getElementById('gate-pw').addEventListener('keydown', e => { if (e.key === 'Enter') tryLogin(); });
+document.getElementById('adm-logout').addEventListener('click', () => {
+  sessionStorage.removeItem('rise_admin');
+  location.reload();
+});
+
+/* ── 날짜 포맷 ── */
+function fmtDate(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+}
+
+/* ── 뱃지 HTML ── */
+function badgeHtml(status) {
+  const m = { pending: 'b-pending ⏳ 대기 중', approved: 'b-approved ✅ 승인', rejected: 'b-rejected ❌ 거절' }[status] || '';
+  const [cls, ...rest] = m.split(' ');
+  return `<span class="badge ${cls}">${rest.join(' ')}</span>`;
+}
+
+/* ── 통계 갱신 ── */
+function updateStats() {
+  const ms = load();
+  document.getElementById('s-total').textContent    = ms.length;
+  document.getElementById('s-pending').textContent  = ms.filter(m => m.status === 'pending').length;
+  document.getElementById('s-approved').textContent = ms.filter(m => m.status === 'approved').length;
+  document.getElementById('s-rejected').textContent = ms.filter(m => m.status === 'rejected').length;
+}
+
+/* ── 테이블 렌더 ── */
+function renderTable() {
+  let ms = load();
+  if (curFilter !== 'all') ms = ms.filter(m => m.status === curFilter);
+  if (curSearch) {
+    const q = curSearch.toLowerCase();
+    ms = ms.filter(m => m.name.includes(q) || m.email.toLowerCase().includes(q) || m.phone.includes(q));
+  }
+
+  const tbody  = document.getElementById('main-tbody');
+  const emptyEl = document.getElementById('empty-state');
+
+  if (ms.length === 0) {
+    tbody.innerHTML = '';
+    emptyEl.style.display = 'block';
+    return;
+  }
+  emptyEl.style.display = 'none';
+
+  tbody.innerHTML = ms.map(m => `
+    <tr>
+      <td class="td-mono">${m.id}</td>
+      <td class="td-name">${m.name}</td>
+      <td style="font-size:13px;color:#555;">${m.email}</td>
+      <td>${m.phone}</td>
+      <td>${m.region}</td>
+      <td class="td-date">${fmtDate(m.submittedAt)}</td>
+      <td>${badgeHtml(m.status)}</td>
+      <td>
+        <div class="td-actions">
+          ${m.status !== 'approved' ? `<button class="btn-sm bsa" data-id="${m.id}" data-a="approve">승인</button>` : ''}
+          ${m.status !== 'rejected' ? `<button class="btn-sm bsr" data-id="${m.id}" data-a="reject">거절</button>` : ''}
+          <button class="btn-sm bsd" data-id="${m.id}" data-a="detail">상세</button>
+          <button class="btn-sm bsx" data-id="${m.id}" data-a="delete">삭제</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+
+  tbody.querySelectorAll('[data-a]').forEach(btn => {
+    btn.addEventListener('click', () => doAction(btn.dataset.a, btn.dataset.id));
+  });
+}
+
+function renderAll() { updateStats(); renderTable(); }
+
+/* ── 액션 ── */
+function doAction(action, id) {
+  const ms  = load();
+  const idx = ms.findIndex(m => m.id === id);
+  if (idx === -1) return;
+
+  if (action === 'approve') {
+    ms[idx].status = 'approved';
+    ms[idx].reviewedAt = new Date().toISOString();
+    store(ms); renderAll();
+  } else if (action === 'reject') {
+    if (confirm(`${ms[idx].name}님의 신청을 거절하시겠습니까?`)) {
+      ms[idx].status = 'rejected';
+      ms[idx].reviewedAt = new Date().toISOString();
+      store(ms); renderAll();
+    }
+  } else if (action === 'delete') {
+    if (confirm(`${ms[idx].name}님 데이터를 완전히 삭제합니다.\n이 작업은 되돌릴 수 없습니다.`)) {
+      ms.splice(idx, 1);
+      store(ms); renderAll();
+    }
+  } else if (action === 'detail') {
+    openDetail(ms[idx]);
+  }
+}
+
+/* ── 상세 모달 ── */
+function openDetail(m) {
+  curId = m.id;
+  document.getElementById('modal-title').innerHTML = `${m.name} &nbsp; ${badgeHtml(m.status)}`;
+  document.getElementById('d-name').textContent     = m.name;
+  document.getElementById('d-birth').textContent    = m.birthdate;
+  document.getElementById('d-email').textContent    = m.email;
+  document.getElementById('d-phone').textContent    = m.phone;
+  document.getElementById('d-region').textContent   = m.region;
+  document.getElementById('d-joongbu').textContent  = m.joongbu || '—';
+  document.getElementById('d-id').textContent       = m.id;
+  document.getElementById('d-date').textContent     = fmtDate(m.submittedAt);
+  document.getElementById('d-motivation').textContent = m.motivation;
+  document.getElementById('d-note').value           = m.adminNote || '';
+  document.getElementById('modal-approve').style.display = m.status !== 'approved' ? '' : 'none';
+  document.getElementById('modal-reject').style.display  = m.status !== 'rejected' ? '' : 'none';
+  document.getElementById('detail-modal').classList.remove('hidden');
+}
+
+function closeDetail() {
+  if (curId) {
+    const ms  = load();
+    const idx = ms.findIndex(m => m.id === curId);
+    if (idx !== -1) {
+      ms[idx].adminNote = document.getElementById('d-note').value;
+      store(ms);
+    }
+  }
+  document.getElementById('detail-modal').classList.add('hidden');
+  curId = null;
+}
+
+document.getElementById('modal-x').addEventListener('click', closeDetail);
+document.getElementById('modal-close').addEventListener('click', closeDetail);
+document.getElementById('detail-modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('detail-modal')) closeDetail();
+});
+document.getElementById('modal-approve').addEventListener('click', () => {
+  if (curId) { doAction('approve', curId); closeDetail(); }
+});
+document.getElementById('modal-reject').addEventListener('click', () => {
+  if (curId) { doAction('reject', curId); closeDetail(); }
+});
+
+/* ── 필터 / 검색 ── */
+document.querySelectorAll('.ftab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.ftab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    curFilter = tab.dataset.f;
+    renderTable();
+  });
+});
+document.getElementById('search-box').addEventListener('input', e => {
+  curSearch = e.target.value.trim();
+  renderTable();
+});
+
+/* ── CSV 내보내기 ── */
+document.getElementById('btn-csv').addEventListener('click', () => {
+  const ms = load();
+  const headers = ['ID','이름','생년월일','이메일','연락처','지역','재학/졸업','지원동기','상태','신청일','검토일','관리자메모'];
+  const rows = ms.map(m => [
+    m.id, m.name, m.birthdate, m.email, m.phone, m.region, m.joongbu,
+    `"${(m.motivation||'').replace(/"/g,'""')}"`,
+    m.status === 'pending' ? '대기중' : m.status === 'approved' ? '승인' : '거절',
+    fmtDate(m.submittedAt), fmtDate(m.reviewedAt),
+    `"${(m.adminNote||'').replace(/"/g,'""')}"`
+  ]);
+  const csv = '﻿' + [headers, ...rows].map(r => r.join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+  a.download = `rise-members-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+});
+</script>
+</body>
+</html>

@@ -8,9 +8,17 @@
   <style>
     /* ── 회원 배너 ── */
     .member-banner {
-      background: linear-gradient(135deg, #0f2547 0%, #1a3a6e 100%);
+      position: relative;
+      background: url('images/dept-healing.png') center center / cover no-repeat;
       padding: clamp(40px,6vw,64px) 24px;
+      overflow: hidden;
     }
+    .member-banner::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(10,30,20,.78) 0%, rgba(15,50,30,.65) 100%);
+    }
+    .member-banner-inner { position: relative; z-index: 1; }
     .member-banner-inner {
       max-width: var(--max-w);
       margin: 0 auto;
@@ -76,44 +84,62 @@
       overflow: hidden;
       transition: box-shadow .2s, transform .2s;
       position: relative;
+      display: flex; flex-direction: column;
     }
-    .panel-card:hover { box-shadow: 0 6px 24px rgba(23,66,46,.1); transform: translateY(-2px); }
-    .panel-card-head {
-      padding: 18px 20px 14px;
-      display: flex; align-items: center; gap: 12px;
-      border-bottom: 1px solid var(--border);
+    .panel-card:hover { box-shadow: 0 8px 28px rgba(23,66,46,.12); transform: translateY(-3px); }
+
+    /* 썸네일 */
+    .panel-thumb {
+      position: relative; width: 100%; height: 170px;
+      background: var(--cream); overflow: hidden; flex-shrink: 0;
     }
-    .panel-card-icon {
-      width: 38px; height: 38px; border-radius: var(--r-sm);
-      display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;
+    .panel-thumb img {
+      width: 100%; height: 100%; object-fit: cover; object-position: top;
+      display: block; transition: opacity .3s;
     }
-    .panel-card-head h4 { font-size: 14px; font-weight: 800; color: var(--text); }
-    .panel-card-head p  { font-size: 12px; color: var(--text-soft); margin-top: 2px; }
-    .panel-card-body { padding: 16px 20px 18px; }
-    .panel-card-body p { font-size: 13px; color: var(--text-soft); line-height: 1.7; }
-    .panel-link {
-      display: inline-flex; align-items: center; gap: 4px;
-      font-size: 13px; font-weight: 700; color: var(--forest);
-      text-decoration: none; margin-top: 12px;
+    .panel-thumb img.loading { opacity: 0; }
+    .panel-thumb-fallback {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 8px; color: var(--text-soft);
     }
-    .panel-link:hover { text-decoration: underline; }
+    .panel-thumb-fallback .tf-icon { font-size: 32px; opacity: .5; }
+    .panel-thumb-fallback span { font-size: 11px; opacity: .5; }
+
+    /* 썸네일 링크 래퍼 */
+    .panel-thumb-link { display: block; text-decoration: none; }
+
+    /* 카드 하단 정보 */
+    .panel-card-info {
+      padding: 12px 14px 13px;
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    }
+    .panel-card-meta { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+    .panel-card-name {
+      font-size: 13px; font-weight: 700; color: var(--text);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .panel-card-url {
+      font-size: 11px; color: #3b7bd4; font-weight: 500;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
     /* 삭제 버튼 */
     .panel-del {
-      position: absolute; top: 10px; right: 10px;
-      width: 22px; height: 22px; border-radius: 50%;
+      width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
       background: rgba(239,68,68,.1); color: #ef4444;
       border: none; cursor: pointer; font-size: 14px; line-height: 1;
       display: none; align-items: center; justify-content: center;
       transition: background .15s;
     }
-    .panel-del:hover { background: rgba(239,68,68,.2); }
+    .panel-del:hover { background: rgba(239,68,68,.25); }
     .panel-card:hover .panel-del { display: flex; }
 
     /* ── + 패널 추가 카드 ── */
     .panel-add-card {
       border: 2px dashed var(--border);
       border-radius: var(--r-lg);
-      min-height: 160px;
+      min-height: 260px;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
       gap: 10px; cursor: pointer; background: none;
       transition: border-color .2s, background .2s; color: var(--text-soft);
@@ -305,36 +331,6 @@
 <!-- 대시보드 -->
 <div class="dashboard">
 
-  <!-- 홈페이지 카드 -->
-  <div class="home-card">
-    <div class="home-card-head">
-      <div>
-        <div class="home-card-label">MY HOMEPAGE</div>
-        <h3>최재용 홈페이지</h3>
-        <p>choi-beta.vercel.app</p>
-      </div>
-      <a href="https://choi-beta.vercel.app/#channels" target="_blank" rel="noopener" class="home-card-btn">
-        새 탭으로 열기
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-      </a>
-    </div>
-    <div class="home-card-iframe-wrap">
-      <div class="home-card-overlay" id="home-overlay">
-        <div class="hov-icon">🌐</div>
-        <p>홈페이지를 불러오는 중이거나 직접 접속이 필요합니다.</p>
-        <a href="https://choi-beta.vercel.app/#channels" target="_blank" rel="noopener" class="hov-btn">
-          홈페이지 바로가기 →
-        </a>
-      </div>
-      <iframe
-        id="home-iframe"
-        src="https://choi-beta.vercel.app/#channels"
-        title="내 홈페이지"
-        style="display:none; width:100%; height:100%; border:none;"
-      ></iframe>
-    </div>
-  </div>
-
   <!-- 섹션: 패널 -->
   <div>
     <div class="dash-section-head">
@@ -414,8 +410,9 @@ document.getElementById('nav-toggle').addEventListener('click', () => {
 
 /* ── 기본 패널 데이터 ── */
 const PRESETS = [
-  { id: 'ph1', emoji: '○', name: '○○○', desc: '패널을 추가해 바로가기를 만드세요', url: '#', iconBg: 'rgba(0,0,0,.04)', placeholder: true },
-  { id: 'ph2', emoji: '○', name: '○○○', desc: '패널을 추가해 바로가기를 만드세요', url: '#', iconBg: 'rgba(0,0,0,.04)', placeholder: true },
+  { id: 'home',  emoji: '🌐', name: '최재용 홈페이지',     desc: 'choi-beta.vercel.app',   url: 'https://choi-beta.vercel.app/#channels', external: true, preset: true },
+  { id: 'joongbu', emoji: '🏛️', name: '자연치유심리학과', desc: 'www.joongbu.ac.kr',        url: 'https://www.joongbu.ac.kr/menu.es?mid=a70107020100', external: true, preset: true, thumb: 'images/dept-psychology.png' },
+  { id: 'healing', emoji: '🌿', name: '자연치유학과',     desc: 'www.joongbu.ac.kr',        url: 'https://www.joongbu.ac.kr/menu.es?mid=a70103011300', external: true, preset: true, thumb: 'images/dept-healing.png' },
 ];
 
 const EMOJIS = ['📚','🗓️','🎥','💡','🌿','🔗','📊','🏫','📧','🖥️','✏️','🧪','🎙️','📰','🏷️','⭐','🔖','💬','🧩','🎯'];
@@ -433,36 +430,62 @@ function renderGrid() {
 
   all.forEach(p => {
     const card = document.createElement('div');
-    if (p.placeholder) {
-      card.className = 'panel-add-card panel-placeholder';
-      card.style.cssText = 'border-style:dashed; min-height:160px; cursor:pointer;';
-      card.innerHTML = `
-        <div class="add-circle" style="background:rgba(0,0,0,.05); font-size:16px; color:#999;">○○○</div>
-        <span style="color:#bbb; font-size:13px; font-weight:700;">○○○</span>
-        <span style="color:#ccc; font-size:11px;">클릭하여 패널 추가</span>
-      `;
-      card.addEventListener('click', openModal);
-      grid.appendChild(card);
-      return;
-    }
     card.className = 'panel-card';
+    const safeId = p.id.replace(/[^a-zA-Z0-9]/g, '_');
+
     card.innerHTML = `
-      <div class="panel-card-head">
-        <div class="panel-card-icon" style="background:${p.iconBg || 'rgba(23,66,46,.08)'};">${p.emoji}</div>
-        <div>
-          <h4>${p.name}</h4>
-          ${p.desc ? `<p>${p.desc}</p>` : ''}
+      <a href="${p.url}" ${p.external ? 'target="_blank" rel="noopener"' : ''} class="panel-thumb-link">
+        <div class="panel-thumb" id="thumb-${safeId}">
+          <div class="panel-thumb-fallback" id="tf-${safeId}">
+            <div class="tf-icon">${p.emoji}</div>
+            <span>미리보기 로딩 중…</span>
+          </div>
         </div>
+      </a>
+      <div class="panel-card-info">
+        <div class="panel-card-meta">
+          <span class="panel-card-name">${p.name}</span>
+          <span class="panel-card-url">${p.url !== '#' ? p.url.replace(/^https?:\/\//, '').split('/')[0] : ''}</span>
+        </div>
+        ${!PRESETS.find(pr => pr.id === p.id)
+          ? `<button class="panel-del" data-id="${p.id}" title="삭제">×</button>` : ''}
       </div>
-      <div class="panel-card-body">
-        <a href="${p.url}" ${p.external ? 'target="_blank" rel="noopener"' : ''} class="panel-link">
-          바로가기
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </a>
-      </div>
-      ${!PRESETS.find(pr => pr.id === p.id)
-        ? `<button class="panel-del" data-id="${p.id}" title="삭제">×</button>` : ''}
     `;
+
+    /* 썸네일 로드 — 로컬 이미지 우선, 없으면 microlink 캡처 */
+    const thumb    = card.querySelector(`#thumb-${safeId}`);
+    const fallback = card.querySelector(`#tf-${safeId}`);
+
+    if (p.thumb) {
+      /* 로컬 이미지 직접 사용 */
+      const img = document.createElement('img');
+      img.src = p.thumb;
+      img.alt = p.name;
+      img.className = 'loading';
+      img.onload  = () => { img.classList.remove('loading'); fallback.style.display = 'none'; };
+      img.onerror = () => { fallback.querySelector('span').textContent = '이미지 없음'; };
+      thumb.appendChild(img);
+    } else if (p.url && p.url !== '#') {
+      /* microlink 스크린샷 — 해시/쿼리 제거 후 루트 메인 페이지 캡처 */
+      const mainUrl = p.url.replace(/#.*$/, '').replace(/\?.*$/, '').replace(/\/$/, '');
+      fetch(`https://api.microlink.io/?url=${encodeURIComponent(mainUrl)}&screenshot=true&meta=false&viewport.width=1280&viewport.height=800`)
+        .then(r => r.json())
+        .then(data => {
+          if (data.status === 'success' && data.data.screenshot) {
+            const img = document.createElement('img');
+            img.src = data.data.screenshot.url;
+            img.alt = p.name;
+            img.className = 'loading';
+            img.onload  = () => { img.classList.remove('loading'); fallback.style.display = 'none'; };
+            img.onerror = () => { fallback.querySelector('span').textContent = '미리보기 없음'; };
+            thumb.appendChild(img);
+          } else {
+            fallback.querySelector('span').textContent = '미리보기 없음';
+          }
+        })
+        .catch(() => { fallback.querySelector('span').textContent = '미리보기 없음'; });
+    }
+
     grid.appendChild(card);
   });
 
@@ -536,16 +559,6 @@ document.getElementById('p-url').addEventListener('keydown', e => {
 
 renderGrid();
 
-/* 홈페이지 iframe 로드 시도 */
-const hIframe  = document.getElementById('home-iframe');
-const hOverlay = document.getElementById('home-overlay');
-hIframe.addEventListener('load', () => {
-  try {
-    const d = hIframe.contentDocument || hIframe.contentWindow.document;
-    if (d && d.body) { hIframe.style.display = 'block'; hOverlay.style.display = 'none'; }
-  } catch (e) { /* X-Frame-Options 차단 — overlay 유지 */ }
-});
-hIframe.src = hIframe.getAttribute('src');
 </script>
 </body>
 </html>

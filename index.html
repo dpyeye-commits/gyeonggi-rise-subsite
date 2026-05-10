@@ -339,7 +339,7 @@
     </div>
     <div class="topbar-links">
       <a href="notice.html">공지사항</a>
-      <a href="signup.html">회원가입</a>
+      <a href="member.html">로그인</a>
       <a href="https://www.joongbu.ac.kr" target="_blank">중부대학교</a>
     </div>
   </div>
@@ -361,11 +361,11 @@
       <a href="curriculum.html">교육 과정</a>
       <a href="benefits.html">참여 혜택</a>
       <a href="notice.html">공지사항</a>
-      <a href="https://chiyu.joongbu.ac.kr" target="_blank" class="nav-member">회원홈페이지</a>
+      <a href="member.html" class="nav-member">회원홈페이지</a>
     </nav>
-    <a href="signup.html" class="btn-apply">
+    <a href="member.html" class="btn-apply">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-      회원가입
+      로그인
     </a>
     <button class="nav-toggle" id="nav-toggle" aria-label="메뉴 열기">
       <span></span><span></span><span></span>
@@ -412,7 +412,7 @@
         </li>
       </ul>
       <div class="hero-card-div"></div>
-      <a href="signup.html" class="hero-card-apply">📝 회원가입</a>
+      <a href="member.html" class="hero-card-apply">🔐 로그인</a>
     </div>
   </div>
 </section>
@@ -763,42 +763,56 @@
   </div>
 </section>
 
-<!-- 회원홈페이지 바로가기 -->
-<section class="section fade-in">
+<!-- 회원홈페이지 패널 -->
+<section class="section section-bg fade-in">
   <div class="section-inner">
-    <div style="
-      background: linear-gradient(135deg, #0f2547 0%, #1a3a6e 100%);
-      border-radius: var(--r-xl);
-      padding: clamp(32px,5vw,52px) clamp(28px,5vw,60px);
-      display: flex; align-items: center; justify-content: space-between; gap: 32px;
-      flex-wrap: wrap;
-    ">
-      <div style="display:flex;align-items:center;gap:20px;">
-        <div style="
-          width:56px;height:56px;border-radius:50%;flex-shrink:0;
-          background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);
-          display:flex;align-items:center;justify-content:center;font-size:26px;
-        ">🔐</div>
-        <div>
-          <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,.5);letter-spacing:.8px;margin-bottom:6px;">MEMBER PORTAL</div>
-          <div style="font-size:clamp(18px,2.5vw,24px);font-weight:900;color:#fff;letter-spacing:-.3px;margin-bottom:6px;">회원 전용 홈페이지</div>
-          <div style="font-size:14px;color:rgba(255,255,255,.6);line-height:1.6;">강의 자료·공지사항·자료실을 수강생 전용 페이지에서 확인하세요.</div>
+    <div class="section-header" style="text-align:center;">
+      <span class="section-tag">MEMBER PORTAL</span>
+      <h2>회원 전용 홈페이지</h2>
+      <p style="margin:10px auto 0;text-align:center;">수강생이라면 회원 전용 페이지에서 모든 학습 자원을 이용할 수 있습니다.</p>
+    </div>
+
+    <div class="member-portal-grid">
+      <!-- 자료실 -->
+      <div class="mp-card">
+        <div class="mp-icon" style="background:rgba(23,66,46,.08);color:var(--forest);">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
         </div>
+        <h4>강의 자료실</h4>
+        <p>회차별 강의 슬라이드·실습 파일·참고 문헌을 다운로드하세요.</p>
       </div>
-      <a href="https://chiyu.joongbu.ac.kr" target="_blank" style="
-        display:inline-flex;align-items:center;gap:8px;
-        background:#fff;color:#0f2547;
-        padding:14px 28px;border-radius:var(--r-md);
-        font-size:15px;font-weight:800;letter-spacing:-.2px;
-        text-decoration:none;white-space:nowrap;flex-shrink:0;
-        box-shadow:0 4px 20px rgba(0,0,0,.25);
-        transition:transform .15s,box-shadow .15s;
-      "
-      onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 28px rgba(0,0,0,.35)';"
-      onmouseout="this.style.transform='';this.style.boxShadow='0 4px 20px rgba(0,0,0,.25)';">
+      <!-- 공지사항 -->
+      <div class="mp-card">
+        <div class="mp-icon" style="background:rgba(30,111,224,.08);color:#1e6fe0;">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 17H2a3 3 0 0 0 3-3V9a7 7 0 0 1 14 0v5a3 3 0 0 0 3 3z"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        </div>
+        <h4>공지·일정 관리</h4>
+        <p>출석 확인·수업 일정 변경·행사 공지를 실시간으로 확인하세요.</p>
+      </div>
+      <!-- 커뮤니티 -->
+      <div class="mp-card">
+        <div class="mp-icon" style="background:rgba(200,150,42,.1);color:#b8860b;">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <h4>수강생 커뮤니티</h4>
+        <p>동기들과 질문·스터디·과제를 공유하며 함께 성장하세요.</p>
+      </div>
+      <!-- 수료증 -->
+      <div class="mp-card">
+        <div class="mp-icon" style="background:rgba(139,62,47,.08);color:#8b3e2f;">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
+        </div>
+        <h4>수료증 발급</h4>
+        <p>과정 이수 후 수료증을 온라인으로 즉시 출력·다운로드할 수 있습니다.</p>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin-top:40px;">
+      <a href="https://chiyu.joongbu.ac.kr" target="_blank" class="mp-login-btn">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
         회원 로그인 바로가기
       </a>
+      <p style="margin-top:14px;font-size:13px;color:var(--text-soft);">수강 신청 후 담당자가 계정을 발급해드립니다.</p>
     </div>
   </div>
 </section>
@@ -814,7 +828,7 @@
       <div class="apply-btns">
         <a href="signup.html" class="apply-btn-white">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-          회원가입
+          수강 신청
         </a>
         <a href="curriculum.html" class="apply-btn-ghost">교육 과정 보기</a>
       </div>
@@ -837,7 +851,7 @@
           <li><a href="about.html">과정 소개</a></li>
           <li><a href="curriculum.html">교육 과정</a></li>
           <li><a href="benefits.html">참여 혜택</a></li>
-          <li><a href="signup.html">회원가입</a></li>
+          <li><a href="member.html">로그인</a></li>
         </ul>
       </div>
       <div class="footer-col">

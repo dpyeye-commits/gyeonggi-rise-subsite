@@ -101,6 +101,11 @@
       transition: background .15s;
     }
     .search-btn:hover { background: var(--navy-mid); }
+    .notice-no-result {
+      text-align: center; padding: 40px 20px;
+      color: var(--text-soft); font-size: 15px;
+      border-top: 1px solid var(--border);
+    }
 
     /* ── 보도자료 카드 (media) ── */
     .media-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; }
@@ -598,6 +603,10 @@
         </div>
 
       </div><!-- /notice-list -->
+
+      <div class="notice-no-result" id="notice-no-result" style="display:none">
+        검색 결과가 없습니다.
+      </div>
 
       <div class="pagination fade-in">
         <button class="page-btn arrow">‹</button>
@@ -1172,6 +1181,37 @@
       document.getElementById('detail-' + btn.dataset.close).classList.remove('open');
     });
   });
+
+  // 공지사항 검색
+  (function() {
+    const searchInput = document.getElementById('searchInput');
+    const searchBtn   = document.getElementById('searchBtn');
+    const noResult    = document.getElementById('notice-no-result');
+    const pagination  = document.querySelector('#tab-notice .pagination');
+
+    function doSearch() {
+      const q = searchInput.value.trim().toLowerCase();
+      const rows = document.querySelectorAll('#tab-notice .notice-row');
+      let found = 0;
+      rows.forEach(row => {
+        const idx    = row.dataset.idx;
+        const detail = document.getElementById('detail-' + idx);
+        const title  = (row.querySelector('.notice-title')?.textContent || '').toLowerCase();
+        const body   = (detail?.querySelector('.notice-detail-body')?.textContent || '').toLowerCase();
+        const match  = !q || title.includes(q) || body.includes(q);
+        row.style.display    = match ? '' : 'none';
+        if (detail) detail.style.display = match ? '' : 'none';
+        if (match) found++;
+      });
+      const hasQuery = q.length > 0;
+      noResult.style.display   = (hasQuery && found === 0) ? '' : 'none';
+      if (pagination) pagination.style.display = hasQuery ? 'none' : '';
+    }
+
+    searchBtn.addEventListener('click', doSearch);
+    searchInput.addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
+    searchInput.addEventListener('input', () => { if (!searchInput.value.trim()) doSearch(); });
+  })();
 
   // 페이지네이션 버튼 active 토글
   document.querySelectorAll('.page-btn:not(.arrow)').forEach(btn => {

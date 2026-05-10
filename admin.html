@@ -235,6 +235,46 @@
       font-size: 14px; font-weight: 700; color: #17422e; letter-spacing: .3px;
     }
 
+    /* ── 비밀번호 변경 모달 ── */
+    .pw-modal-bg {
+      position: fixed; inset: 0; background: rgba(0,0,0,.5);
+      display: flex; align-items: center; justify-content: center; z-index: 2000;
+      padding: 20px;
+    }
+    .pw-modal-bg.hidden { display: none; }
+    .pw-modal {
+      background: #fff; border-radius: 20px;
+      width: 100%; max-width: 420px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.25);
+      overflow: hidden;
+    }
+    .pw-modal-head {
+      padding: 22px 28px 18px; border-bottom: 1px solid #eee;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .pw-modal-head h2 { font-size: 18px; font-weight: 800; color: #1a1a2e; }
+    .pw-modal-body { padding: 22px 28px; display: flex; flex-direction: column; gap: 16px; }
+    .pw-field label { display: block; font-size: 12px; font-weight: 700; color: #888; margin-bottom: 6px; }
+    .pw-field input {
+      width: 100%; padding: 12px 14px;
+      border: 2px solid #e8e8e8; border-radius: 10px;
+      font-size: 15px; outline: none; font-family: inherit;
+      transition: border-color .15s; letter-spacing: 2px;
+    }
+    .pw-field input:focus { border-color: #17422e; }
+    .pw-modal-error { color: #dc2626; font-size: 13px; min-height: 20px; }
+    .pw-modal-foot {
+      padding: 16px 28px; border-top: 1px solid #eee;
+      display: flex; gap: 10px; justify-content: flex-end;
+    }
+    .adm-pw-btn {
+      background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.25);
+      color: #fff; border-radius: 8px; padding: 8px 16px;
+      font-size: 13px; font-weight: 600; cursor: pointer;
+      transition: background .15s; font-family: inherit; margin-right: 8px;
+    }
+    .adm-pw-btn:hover { background: rgba(255,255,255,.25); }
+
     @media (max-width: 768px) {
       .stats-row { grid-template-columns: 1fr 1fr; }
       .adm-topbar h1 { font-size: 13px; }
@@ -276,7 +316,10 @@
       <span class="adm-badge">ADMIN</span>
       <h1>🌿 자연치유 크리에이터 과정 — 관리자 대시보드</h1>
     </div>
-    <button class="adm-logout" id="adm-logout">로그아웃</button>
+    <div style="display:flex;align-items:center;gap:0;">
+      <button class="adm-pw-btn" id="adm-pw-btn">🔑 비밀번호 변경</button>
+      <button class="adm-logout" id="adm-logout">로그아웃</button>
+    </div>
   </div>
 
   <div class="adm-body">
@@ -378,6 +421,35 @@
   </div>
 </div>
 
+<!-- ── 비밀번호 변경 모달 ── -->
+<div class="pw-modal-bg hidden" id="pw-modal-bg">
+  <div class="pw-modal">
+    <div class="pw-modal-head">
+      <h2>🔑 관리자 비밀번호 변경</h2>
+      <button class="modal-x" id="pw-modal-x">×</button>
+    </div>
+    <div class="pw-modal-body">
+      <div class="pw-field">
+        <label>현재 비밀번호</label>
+        <input type="password" id="pw-cur" placeholder="현재 비밀번호" autocomplete="current-password">
+      </div>
+      <div class="pw-field">
+        <label>새 비밀번호</label>
+        <input type="password" id="pw-new" placeholder="새 비밀번호 (4자 이상)" autocomplete="new-password">
+      </div>
+      <div class="pw-field">
+        <label>새 비밀번호 확인</label>
+        <input type="password" id="pw-confirm" placeholder="새 비밀번호 재입력" autocomplete="new-password">
+      </div>
+      <p class="pw-modal-error" id="pw-modal-error"></p>
+    </div>
+    <div class="pw-modal-foot">
+      <button class="btn-sec" id="pw-cancel">취소</button>
+      <button class="btn-primary" id="pw-submit">변경</button>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 const { createClient } = window.supabase;
@@ -386,7 +458,7 @@ const sb = createClient(
   'sb_publishable_xyA4rNrKXrOK0Yy_qPgL5w_8UbP7Vaa'
 );
 
-const ADMIN_PW = 'chiyu2025';
+let _cachedPw = null;
 let curFilter = 'all';
 let curSearch = '';
 let curId = null;
@@ -401,6 +473,24 @@ function hideLoading() {
   document.getElementById('loading-overlay').classList.add('hidden');
 }
 
+/* ── 비밀번호 관리 (Supabase settings 테이블, 없으면 기본값 사용) ── */
+async function getAdminPw() {
+  if (_cachedPw !== null) return _cachedPw;
+  try {
+    const { data } = await sb.from('settings').select('value').eq('key', 'admin_password').single();
+    _cachedPw = data?.value || 'chiyu2025';
+  } catch {
+    _cachedPw = 'chiyu2025';
+  }
+  return _cachedPw;
+}
+
+async function updateAdminPw(newPw) {
+  const { error } = await sb.from('settings').upsert({ key: 'admin_password', value: newPw });
+  if (!error) _cachedPw = newPw;
+  return error;
+}
+
 /* ── 인증 ── */
 const gateEl = document.getElementById('gate-overlay');
 const appEl  = document.getElementById('app');
@@ -413,8 +503,10 @@ async function unlock() {
   await renderAll();
 }
 
-function tryLogin() {
-  if (document.getElementById('gate-pw').value === ADMIN_PW) {
+async function tryLogin() {
+  const inputPw  = document.getElementById('gate-pw').value;
+  const adminPw  = await getAdminPw();
+  if (inputPw === adminPw) {
     sessionStorage.setItem('rise_admin', '1');
     unlock();
   } else {
@@ -429,6 +521,51 @@ document.getElementById('gate-pw').addEventListener('keydown', e => { if (e.key 
 document.getElementById('adm-logout').addEventListener('click', () => {
   sessionStorage.removeItem('rise_admin');
   location.reload();
+});
+
+/* ── 비밀번호 변경 모달 ── */
+const pwModalBg = document.getElementById('pw-modal-bg');
+
+document.getElementById('adm-pw-btn').addEventListener('click', () => {
+  document.getElementById('pw-cur').value = '';
+  document.getElementById('pw-new').value = '';
+  document.getElementById('pw-confirm').value = '';
+  document.getElementById('pw-modal-error').textContent = '';
+  pwModalBg.classList.remove('hidden');
+  document.getElementById('pw-cur').focus();
+});
+
+function closePwModal() { pwModalBg.classList.add('hidden'); }
+document.getElementById('pw-modal-x').addEventListener('click', closePwModal);
+document.getElementById('pw-cancel').addEventListener('click', closePwModal);
+pwModalBg.addEventListener('click', e => { if (e.target === pwModalBg) closePwModal(); });
+
+document.getElementById('pw-submit').addEventListener('click', async () => {
+  const cur     = document.getElementById('pw-cur').value;
+  const newPw   = document.getElementById('pw-new').value;
+  const confirm = document.getElementById('pw-confirm').value;
+  const errEl   = document.getElementById('pw-modal-error');
+  errEl.textContent = '';
+
+  if (!cur || !newPw || !confirm) { errEl.textContent = '모든 항목을 입력해주세요.'; return; }
+  if (newPw.length < 4) { errEl.textContent = '새 비밀번호는 4자 이상이어야 합니다.'; return; }
+  if (newPw !== confirm) { errEl.textContent = '새 비밀번호가 일치하지 않습니다.'; return; }
+
+  const adminPw = await getAdminPw();
+  if (cur !== adminPw) { errEl.textContent = '현재 비밀번호가 올바르지 않습니다.'; return; }
+
+  const submitBtn = document.getElementById('pw-submit');
+  submitBtn.disabled = true; submitBtn.textContent = '변경 중…';
+
+  const error = await updateAdminPw(newPw);
+  submitBtn.disabled = false; submitBtn.textContent = '변경';
+
+  if (error) {
+    errEl.textContent = '저장 실패: Supabase settings 테이블을 먼저 생성해주세요.';
+    return;
+  }
+  closePwModal();
+  alert('비밀번호가 변경되었습니다.');
 });
 
 /* ── 날짜 포맷 ── */

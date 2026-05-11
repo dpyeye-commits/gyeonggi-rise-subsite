@@ -60,7 +60,7 @@
     }
 
 
-    .intro-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; }
+    .intro-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 24px; }
     .intro-card {
       border-radius: var(--r-lg); padding: 32px;
       background: #fff; border: 1px solid var(--border);
@@ -69,6 +69,41 @@
     .intro-card-icon { font-size: 36px; margin-bottom: 14px; }
     .intro-card h3 { font-size: 18px; font-weight: 800; color: var(--navy); margin-bottom: 10px; }
     .intro-card p { font-size: 14px; color: var(--text-soft); line-height: 1.8; }
+
+    /* 자연치유 커리큘럼 확장 카드 */
+    .curri-card {
+      grid-column: 1 / -1;
+      border-radius: var(--r-lg); padding: 40px;
+      background: #fff; border: 1px solid var(--border);
+      box-shadow: var(--sh-card);
+    }
+    .curri-card-header { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 28px; }
+    .curri-card-header-icon { font-size: 40px; flex-shrink: 0; }
+    .curri-card-header h3 { font-size: 22px; font-weight: 900; color: var(--navy); margin-bottom: 8px; letter-spacing: -.3px; }
+    .curri-card-header p { font-size: 14.5px; color: var(--text-soft); line-height: 1.8; }
+    .curri-subjects { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    .curri-subject {
+      border-radius: var(--r-md); padding: 20px 18px;
+      background: var(--cream); border: 1px solid var(--border);
+      transition: box-shadow .2s, transform .2s;
+    }
+    .curri-subject:hover { box-shadow: 0 6px 24px rgba(15,37,71,.1); transform: translateY(-2px); }
+    .curri-subject-icon { font-size: 26px; margin-bottom: 10px; }
+    .curri-subject-name { font-size: 14px; font-weight: 800; color: var(--navy); margin-bottom: 6px; letter-spacing: -.2px; }
+    .curri-subject-desc { font-size: 12.5px; color: var(--text-soft); line-height: 1.7; }
+    .curri-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 24px; }
+    .curri-tag {
+      font-size: 12px; font-weight: 700; padding: 5px 14px;
+      border-radius: 100px; background: rgba(23,66,46,.07);
+      color: var(--forest); border: 1px solid rgba(23,66,46,.12);
+    }
+    @media (max-width: 900px) {
+      .curri-subjects { grid-template-columns: repeat(2, 1fr); }
+      .intro-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 520px) {
+      .curri-subjects { grid-template-columns: 1fr 1fr; }
+    }
 
     .org-chart { background: var(--cream); }
     .org-box {
@@ -257,11 +292,67 @@
       <p>전문 지식 + 크리에이터 기술 + 실전 멘토링의 3박자를 갖춘 국내 유일의 자연치유 콘텐츠 크리에이터 양성 과정입니다.</p>
     </div>
     <div class="intro-grid">
-      <div class="intro-card fade-in">
-        <div class="intro-card-icon">🌿</div>
-        <h3>자연치유 전문 커리큘럼</h3>
-        <p>허브·아로마·식이요법·명상 등 자연치유 핵심 이론을 현장 전문가에게 직접 배웁니다. 콘텐츠의 깊이가 달라집니다.</p>
+
+      <!-- 자연치유 전문 커리큘럼 — 확장 카드 -->
+      <div class="curri-card fade-in">
+        <div class="curri-card-header">
+          <div class="curri-card-header-icon">🌿</div>
+          <div>
+            <h3>자연치유 전문 커리큘럼</h3>
+            <p>허브·아로마·식이요법·명상 등 자연치유 8대 분야를 현장 전문가에게 직접 배웁니다.<br>학문적 깊이가 콘텐츠의 신뢰와 구독자를 만듭니다.</p>
+          </div>
+        </div>
+        <div class="curri-subjects">
+          <div class="curri-subject">
+            <div class="curri-subject-icon">🌱</div>
+            <div class="curri-subject-name">허브·식물치유학</div>
+            <div class="curri-subject-desc">약용식물의 효능·채취·처방, 국내외 허브 블렌딩 이론과 실습</div>
+          </div>
+          <div class="curri-subject">
+            <div class="curri-subject-icon">💧</div>
+            <div class="curri-subject-name">아로마테라피</div>
+            <div class="curri-subject-desc">에센셜 오일 특성·안전 사용법, 향기치유 프로토콜 설계</div>
+          </div>
+          <div class="curri-subject">
+            <div class="curri-subject-icon">🥗</div>
+            <div class="curri-subject-name">자연식이·영양요법</div>
+            <div class="curri-subject-desc">식품치유 원리, 채식·자연식·해독요법, 영양 상담 기초</div>
+          </div>
+          <div class="curri-subject">
+            <div class="curri-subject-icon">🧘</div>
+            <div class="curri-subject-name">명상·마음챙김</div>
+            <div class="curri-subject-desc">MBSR 기반 마음챙김, 호흡명상·바디스캔, 스트레스 관리 프로그램</div>
+          </div>
+          <div class="curri-subject">
+            <div class="curri-subject-icon">🏃</div>
+            <div class="curri-subject-name">운동치유·기공</div>
+            <div class="curri-subject-desc">기공·태극권·치유요가, 특수체육 기반 움직임 처방 원리</div>
+          </div>
+          <div class="curri-subject">
+            <div class="curri-subject-icon">🌻</div>
+            <div class="curri-subject-name">원예·산림치유</div>
+            <div class="curri-subject-desc">치유정원 설계, 원예요법 프로그램, 산림욕·숲치유 이론</div>
+          </div>
+          <div class="curri-subject">
+            <div class="curri-subject-icon">🎵</div>
+            <div class="curri-subject-name">예술·색채치유</div>
+            <div class="curri-subject-desc">음악·미술·색채를 활용한 정서 표현과 심리 치유 기법</div>
+          </div>
+          <div class="curri-subject">
+            <div class="curri-subject-icon">💆</div>
+            <div class="curri-subject-name">손치유·바디워크</div>
+            <div class="curri-subject-desc">두개천골요법·경락마사지·이완요법 등 신체 접촉 치유 기초</div>
+          </div>
+        </div>
+        <div class="curri-tags">
+          <span class="curri-tag">총 16주 과정</span>
+          <span class="curri-tag">이론 + 실습 병행</span>
+          <span class="curri-tag">현장 전문가 직강</span>
+          <span class="curri-tag">자연치유학 박사 지도</span>
+          <span class="curri-tag">콘텐츠 제작 연계</span>
+        </div>
       </div>
+
       <div class="intro-card fade-in">
         <div class="intro-card-icon">📱</div>
         <h3>실전 콘텐츠 제작</h3>
@@ -272,6 +363,7 @@
         <h3>채널 성장 전략</h3>
         <p>알고리즘 이해, 구독자 증가 전략, 수익화 방법까지 실제 채널을 운영하며 성과를 만드는 법을 배웁니다.</p>
       </div>
+
     </div>
   </div>
 </section>

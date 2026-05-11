@@ -163,6 +163,41 @@ nav a.active::after {
 .nav-member::before { content: '🔐'; font-size: 12px; }
 .nav-member:hover { background: #0a1c38; }
 
+/* ── 회원 포털 패널 ── */
+.member-portal-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+.mp-card {
+  background: #fff;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--border);
+  padding: 28px 24px 24px;
+  display: flex; flex-direction: column; gap: 10px;
+  transition: box-shadow .2s, transform .2s;
+}
+.mp-card:hover { box-shadow: 0 8px 32px rgba(23,66,46,.1); transform: translateY(-3px); }
+.mp-icon {
+  width: 52px; height: 52px; border-radius: var(--r-md);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-bottom: 4px;
+}
+.mp-card h4 { font-size: 16px; font-weight: 800; color: var(--text); letter-spacing: -.3px; }
+.mp-card p { font-size: 13.5px; color: var(--text-soft); line-height: 1.7; }
+.mp-login-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--navy); color: #fff;
+  padding: 15px 36px; border-radius: var(--r-md);
+  font-size: 16px; font-weight: 800; letter-spacing: -.2px;
+  text-decoration: none;
+  box-shadow: 0 4px 20px rgba(15,37,71,.25);
+  transition: background .15s, transform .15s, box-shadow .15s;
+}
+.mp-login-btn:hover { background: #0a1c38; transform: translateY(-2px); box-shadow: 0 8px 28px rgba(15,37,71,.35); }
+@media (max-width: 900px) { .member-portal-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 520px) { .member-portal-grid { grid-template-columns: 1fr; } }
+
 .nav-toggle { display: none; border: none; background: none; cursor: pointer; padding: 8px; }
 .nav-toggle span { display: block; width: 22px; height: 2px; background: var(--text); margin: 5px 0; border-radius: 2px; transition: all .2s; }
 

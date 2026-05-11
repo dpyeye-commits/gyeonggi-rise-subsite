@@ -1472,9 +1472,15 @@
       submitBtn.textContent = '처리 중…';
 
       if (_editId) {
-        await sb.from('posts').update({
+        const { error } = await sb.from('posts').update({
           title, content, updated_at: new Date().toISOString()
         }).eq('id', _editId);
+        if (error) {
+          alert('수정에 실패했습니다: ' + error.message);
+          submitBtn.disabled = false;
+          submitBtn.textContent = '수정 완료';
+          return;
+        }
       } else {
         const session = getSession();
         if (!session) {
@@ -1483,13 +1489,19 @@
           submitBtn.textContent = '등록';
           return;
         }
-        await sb.from('posts').insert({
+        const { error } = await sb.from('posts').insert({
           id: uid(),
           author_name: session.name,
           author_id: String(session.id),
           title,
           content
         });
+        if (error) {
+          alert('글 등록에 실패했습니다: ' + error.message);
+          submitBtn.disabled = false;
+          submitBtn.textContent = '등록';
+          return;
+        }
       }
 
       submitBtn.disabled = false;

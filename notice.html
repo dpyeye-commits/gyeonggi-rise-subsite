@@ -695,10 +695,12 @@
       }
 
       list.innerHTML = _posts.map((p, i) => {
-        const adminBtns = admin
+        const isOwner = session && String(session.id) === String(p.author_id);
+        const canEdit = admin || isOwner;
+        const adminBtns = canEdit
           ? `<div class="board-admin-btns">
-               <button class="board-admin-btn edit" data-edit="${escHtml(p.id)}">수정</button>
-               <button class="board-admin-btn del" data-del="${escHtml(p.id)}">삭제</button>
+               <button class="board-admin-btn edit" data-edit="${escHtml(p.id)}">✏️ 수정</button>
+               <button class="board-admin-btn del" data-del="${escHtml(p.id)}">🗑 삭제</button>
              </div>`
           : '<div></div>';
         return `
@@ -778,12 +780,14 @@
         });
       });
 
-      // 관리자 수정
+      // 수정 (작성자 본인 또는 관리자)
       list.querySelectorAll('[data-edit]').forEach(btn => {
         btn.addEventListener('click', (e) => {
           e.stopPropagation();
           const p = _posts.find(x => x.id === btn.dataset.edit);
           if (!p) return;
+          const s = getSession();
+          if (!isAdmin() && !(s && String(s.id) === String(p.author_id))) return;
           _editId = p.id;
           document.getElementById('bmodal-title').textContent = '글 수정';
           document.getElementById('bmodal-ttl').value = p.title;
@@ -793,10 +797,14 @@
         });
       });
 
-      // 관리자 삭제
+      // 삭제 (작성자 본인 또는 관리자)
       list.querySelectorAll('[data-del]').forEach(btn => {
         btn.addEventListener('click', async (e) => {
           e.stopPropagation();
+          const p = _posts.find(x => x.id === btn.dataset.del);
+          if (!p) return;
+          const s = getSession();
+          if (!isAdmin() && !(s && String(s.id) === String(p.author_id))) return;
           if (!confirm('이 게시글을 삭제하시겠습니까?')) return;
           await sb.from('posts').delete().eq('id', btn.dataset.del);
           await loadPosts();

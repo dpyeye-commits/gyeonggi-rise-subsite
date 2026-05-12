@@ -282,6 +282,23 @@
     .gwrite-field textarea { min-height: 120px; }
     .gwrite-hint { font-size: 11px; color: var(--text-soft); margin-top: 4px; }
     .gwrite-preview { width: 100%; aspect-ratio: 16/9; object-fit: cover; border-radius: var(--r-sm); margin-top: 8px; display: none; }
+    .gw-file-area {
+      border: 2px dashed var(--border); border-radius: var(--r-sm);
+      cursor: pointer; transition: border-color .15s; overflow: hidden;
+    }
+    .gw-file-area:hover { border-color: var(--blue); }
+    .gw-file-area.dragover { border-color: var(--blue); background: #eff6ff; }
+    .gw-file-placeholder {
+      padding: 28px; text-align: center;
+      font-size: 14px; color: var(--text-soft);
+    }
+    .gw-file-progress {
+      display: none; height: 4px; background: #e2e8f0; border-radius: 2px; margin-top: 8px;
+    }
+    .gw-file-progress-bar {
+      height: 100%; background: var(--blue); border-radius: 2px;
+      width: 0%; transition: width .2s;
+    }
     .gwrite-msg { font-size: 13px; text-align: center; margin-top: 10px; }
     .gwrite-btns { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
     .gwrite-cancel {
@@ -627,10 +644,16 @@
       <textarea id="gw-story" placeholder="사진과 함께 나누고 싶은 이야기를 적어주세요"></textarea>
     </div>
     <div class="gwrite-field">
-      <label>사진 URL (선택)</label>
-      <input type="url" id="gw-imgurl" placeholder="https://...">
-      <p class="gwrite-hint">Google Drive, Imgur, 또는 직접 접근 가능한 이미지 URL을 붙여넣으세요.</p>
-      <img class="gwrite-preview" id="gw-preview" alt="미리보기">
+      <label>사진 (선택)</label>
+      <div class="gw-file-area" id="gw-file-area">
+        <input type="file" id="gw-file" accept="image/*" style="display:none">
+        <div class="gw-file-placeholder" id="gw-file-placeholder">📷 클릭하거나 사진을 여기에 끌어다 놓으세요</div>
+        <img class="gwrite-preview" id="gw-preview" alt="미리보기">
+      </div>
+      <div class="gw-file-progress" id="gw-file-progress">
+        <div class="gw-file-progress-bar" id="gw-file-progress-bar"></div>
+      </div>
+      <p class="gwrite-hint">JPG, PNG, GIF, WebP · 최대 5MB</p>
     </div>
     <p class="gwrite-msg" id="gw-msg"></p>
     <div class="gwrite-btns">
@@ -957,12 +980,38 @@
   if(_gwc) _gwc.addEventListener('click', function(){ if(_wo) _wo.classList.remove('open'); });
   if(_wo) _wo.addEventListener('click', function(e){ if(e.target===_wo) _wo.classList.remove('open'); });
 
-  // 이미지 미리보기
-  var _gu = document.getElementById('gw-imgurl');
-  if(_gu) _gu.addEventListener('input', function(){
-    var prev=document.getElementById('gw-preview'); if(!prev) return;
-    var url=_gu.value.trim(); if(url){prev.src=url;prev.style.display='block';} else prev.style.display='none';
-  });
+  // 파일 선택 영역
+  var _gfa = document.getElementById('gw-file-area');
+  var _gfi = document.getElementById('gw-file');
+  var _gfph = document.getElementById('gw-file-placeholder');
+  var _gprev = document.getElementById('gw-preview');
+
+  function setFilePreview(file) {
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      if (_gprev) { _gprev.src = e.target.result; _gprev.style.display = 'block'; }
+      if (_gfph) _gfph.style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  if (_gfa) {
+    _gfa.addEventListener('click', function(e) { if(e.target !== _gfi) _gfi.click(); });
+    _gfa.addEventListener('dragover', function(e) { e.preventDefault(); _gfa.classList.add('dragover'); });
+    _gfa.addEventListener('dragleave', function() { _gfa.classList.remove('dragover'); });
+    _gfa.addEventListener('drop', function(e) {
+      e.preventDefault(); _gfa.classList.remove('dragover');
+      var f = e.dataTransfer.files[0];
+      if (f && f.type.startsWith('image/')) { _gfi.files; setFilePreview(f); _gfi._droppedFile = f; }
+    });
+  }
+  if (_gfi) {
+    _gfi.addEventListener('change', function() {
+      _gfi._droppedFile = null;
+      if (_gfi.files[0]) setFilePreview(_gfi.files[0]);
+    });
+  }
 
   // 올리기 제출
   var _gsub = document.getElementById('gw-submit');
@@ -971,37 +1020,75 @@
     var SB_KEY = 'sb_publishable_xyA4rNrKXrOK0Yy_qPgL5w_8UbP7Vaa';
     var session; try { session = JSON.parse(sessionStorage.getItem('rise_session')); } catch(e){}
     if (!session) { alert('로그인 후 이용할 수 있습니다.'); return; }
-    var title  = (document.getElementById('gw-title')||{}).value||'';
-    var story  = (document.getElementById('gw-story')||{}).value||'';
-    var imgUrl = (document.getElementById('gw-imgurl')||{}).value||'';
-    var msg    = document.getElementById('gw-msg');
-    title=title.trim(); story=story.trim(); imgUrl=imgUrl.trim();
+    var title = ((document.getElementById('gw-title')||{}).value||'').trim();
+    var story = ((document.getElementById('gw-story')||{}).value||'').trim();
+    var msg   = document.getElementById('gw-msg');
+    var file  = (_gfi && _gfi._droppedFile) ? _gfi._droppedFile : (_gfi && _gfi.files[0] ? _gfi.files[0] : null);
+
     if (!title) { if(msg){msg.style.color='#ef4444';msg.textContent='제목을 입력해 주세요.';} return; }
-    _gsub.disabled=true; if(msg){msg.style.color='var(--blue)';msg.textContent='올리는 중…';}
-    fetch(SB_URL+'/rest/v1/gallery', {
-      method:'POST',
-      headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
-      body:JSON.stringify({title:title,story:story||null,image_url:imgUrl||null,author_name:session.name||session.email||'익명',author_id:String(session.id)})
-    })
-    .then(function(r){
-      _gsub.disabled=false;
-      if(r.ok){
-        if(msg){msg.style.color='#16a34a';msg.textContent='✅ 올리기 완료!';}
-        var tf=document.getElementById('gw-title'),sf=document.getElementById('gw-story'),uf=document.getElementById('gw-imgurl'),pf=document.getElementById('gw-preview');
-        if(tf)tf.value='';if(sf)sf.value='';if(uf)uf.value='';if(pf)pf.style.display='none';
-        loadGallery();
-        setTimeout(function(){ if(_wo) _wo.classList.remove('open'); },1200);
-      } else {
-        r.json().then(function(body){
-          var errMsg = '올리기 실패. 다시 시도해 주세요.';
-          if(r.status===401 || r.status===403 || (body&&body.code==='42501')) {
-            errMsg = '권한이 없습니다. 담당자에게 문의해 주세요.';
-          }
-          if(msg){msg.style.color='#ef4444';msg.textContent=errMsg;}
-        }).catch(function(){ if(msg){msg.style.color='#ef4444';msg.textContent='올리기 실패. 다시 시도해 주세요.';} });
-      }
-    })
-    .catch(function(){ _gsub.disabled=false; if(msg){msg.style.color='#ef4444';msg.textContent='네트워크 오류. 연결을 확인해 주세요.';} });
+    if (file && file.size > 5 * 1024 * 1024) { if(msg){msg.style.color='#ef4444';msg.textContent='파일이 5MB를 초과합니다.';} return; }
+
+    _gsub.disabled = true;
+
+    function saveRecord(imageUrl) {
+      fetch(SB_URL+'/rest/v1/gallery', {
+        method: 'POST',
+        headers: {'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
+        body: JSON.stringify({title:title, story:story||null, image_url:imageUrl||null, author_name:session.name||session.email||'익명', author_id:String(session.id)})
+      })
+      .then(function(r) {
+        _gsub.disabled = false;
+        var prog = document.getElementById('gw-file-progress');
+        if (prog) prog.style.display = 'none';
+        if (r.ok) {
+          if(msg){msg.style.color='#16a34a';msg.textContent='✅ 올리기 완료!';}
+          var tf=document.getElementById('gw-title'),sf=document.getElementById('gw-story'),pf=document.getElementById('gw-preview');
+          if(tf)tf.value=''; if(sf)sf.value='';
+          if(pf){pf.src='';pf.style.display='none';}
+          if(_gfi){_gfi.value='';_gfi._droppedFile=null;}
+          if(_gfph)_gfph.style.display='';
+          loadGallery();
+          setTimeout(function(){ if(_wo) _wo.classList.remove('open'); },1200);
+        } else {
+          r.json().then(function(body){
+            var errMsg = '올리기 실패. 다시 시도해 주세요.';
+            if(r.status===401||r.status===403||(body&&body.code==='42501')) errMsg='권한이 없습니다. 담당자에게 문의해 주세요.';
+            if(msg){msg.style.color='#ef4444';msg.textContent=errMsg;}
+          }).catch(function(){ if(msg){msg.style.color='#ef4444';msg.textContent='올리기 실패. 다시 시도해 주세요.';} });
+        }
+      })
+      .catch(function(){ _gsub.disabled=false; if(msg){msg.style.color='#ef4444';msg.textContent='네트워크 오류. 연결을 확인해 주세요.';} });
+    }
+
+    if (file) {
+      if(msg){msg.style.color='var(--blue)';msg.textContent='사진 올리는 중…';}
+      var prog = document.getElementById('gw-file-progress');
+      var progBar = document.getElementById('gw-file-progress-bar');
+      if (prog) prog.style.display = 'block';
+      if (progBar) progBar.style.width = '30%';
+      var ext = file.name.split('.').pop().toLowerCase();
+      var fileName = Date.now() + '_' + Math.random().toString(36).slice(2) + '.' + ext;
+      fetch(SB_URL+'/storage/v1/object/gallery/'+fileName, {
+        method: 'POST',
+        headers: {'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':file.type,'x-upsert':'true'},
+        body: file
+      })
+      .then(function(r) {
+        if (progBar) progBar.style.width = '80%';
+        if (!r.ok) throw new Error('upload_fail');
+        var publicUrl = SB_URL+'/storage/v1/object/public/gallery/'+fileName;
+        if (progBar) progBar.style.width = '100%';
+        saveRecord(publicUrl);
+      })
+      .catch(function() {
+        _gsub.disabled = false;
+        if (prog) prog.style.display = 'none';
+        if(msg){msg.style.color='#ef4444';msg.textContent='사진 업로드 실패. 다시 시도해 주세요.';}
+      });
+    } else {
+      if(msg){msg.style.color='var(--blue)';msg.textContent='올리는 중…';}
+      saveRecord(null);
+    }
   });
 </script>
 </body>

@@ -79,6 +79,13 @@
 
     /* ── 자료실 업로드 버튼 & 모달 ── */
     .data-upload-bar { display: flex; justify-content: flex-end; margin-bottom: 14px; }
+    .gdetail-edit {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer;
+      font-size: 13px; font-weight: 700; font-family: inherit;
+      background: #1E6FE0; color: #fff; transition: background .15s;
+    }
+    .gdetail-edit:hover { background: #1558b8; }
     .data-upload-btn {
       display: inline-flex; align-items: center; gap: 6px;
       background: #16a34a; color: #fff; font-size: 13px; font-weight: 700;
@@ -651,12 +658,33 @@
   <div class="gdetail" id="gdetail-box">
     <div id="gdetail-img-wrap"></div>
     <div class="gdetail-body">
-      <div class="gdetail-title" id="gdetail-title"></div>
-      <div class="gdetail-meta" id="gdetail-meta"></div>
-      <div class="gdetail-story" id="gdetail-story"></div>
-      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:24px;">
-        <button class="gdetail-del" id="gdetail-del" style="display:none;">🗑 삭제</button>
-        <button class="gdetail-close" id="gdetail-close">닫기</button>
+      <!-- 보기 모드 -->
+      <div id="gdetail-view">
+        <div class="gdetail-title" id="gdetail-title"></div>
+        <div class="gdetail-meta" id="gdetail-meta"></div>
+        <div class="gdetail-story" id="gdetail-story"></div>
+        <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:24px;">
+          <button class="gdetail-del" id="gdetail-del" style="display:none;">🗑 삭제</button>
+          <button class="gdetail-edit" id="gdetail-edit" style="display:none;">✏️ 수정</button>
+          <button class="gdetail-close" id="gdetail-close">닫기</button>
+        </div>
+      </div>
+      <!-- 수정 모드 -->
+      <div id="gdetail-edit-form" style="display:none;">
+        <p style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:16px;">✏️ 게시물 수정</p>
+        <div class="gwrite-field">
+          <label>제목 *</label>
+          <input type="text" id="gedit-title" maxlength="100">
+        </div>
+        <div class="gwrite-field">
+          <label>이야기</label>
+          <textarea id="gedit-story" rows="4" placeholder="내용을 입력하세요"></textarea>
+        </div>
+        <p class="gwrite-msg" id="gedit-msg"></p>
+        <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px;">
+          <button class="gwrite-cancel" id="gedit-cancel">취소</button>
+          <button class="gwrite-submit" id="gedit-save">저장</button>
+        </div>
       </div>
     </div>
   </div>
@@ -1032,14 +1060,79 @@
       if(t) t.textContent = item.title;
       if(m) m.textContent = (item.author_name||'익명')+' · '+fmt(item.created_at);
       if(s) s.textContent = item.story||'';
-      // 삭제 버튼: 관리자이거나 본인 글일 때 표시
+      // 보기 모드로 초기화
+      var viewEl = document.getElementById('gdetail-view');
+      var editEl = document.getElementById('gdetail-edit-form');
+      if(viewEl) viewEl.style.display = '';
+      if(editEl) editEl.style.display = 'none';
+      // 삭제·수정 버튼: 관리자이거나 본인 글일 때 표시
       var sess = getSession();
+      var canEdit = isAdmin() || (sess && String(sess.id) === String(item.author_id));
       var delBtn = document.getElementById('gdetail-del');
-      if (delBtn) {
-        var canDelete = isAdmin() || (sess && String(sess.id) === String(item.author_id));
-        delBtn.style.display = canDelete ? 'inline-flex' : 'none';
-      }
+      var editBtn = document.getElementById('gdetail-edit');
+      if (delBtn) delBtn.style.display = canEdit ? 'inline-flex' : 'none';
+      if (editBtn) editBtn.style.display = canEdit ? 'inline-flex' : 'none';
       if(o) o.classList.add('open');
+    }
+
+    // 수정 버튼 클릭 → 수정 폼 표시
+    var _editBtn = document.getElementById('gdetail-edit');
+    if (_editBtn) {
+      _editBtn.addEventListener('click', function() {
+        if (!_curItem) return;
+        document.getElementById('gedit-title').value = _curItem.title || '';
+        document.getElementById('gedit-story').value = _curItem.story || '';
+        document.getElementById('gedit-msg').textContent = '';
+        document.getElementById('gdetail-view').style.display = 'none';
+        document.getElementById('gdetail-edit-form').style.display = '';
+      });
+    }
+
+    // 수정 취소
+    var _geditCancel = document.getElementById('gedit-cancel');
+    if (_geditCancel) {
+      _geditCancel.addEventListener('click', function() {
+        document.getElementById('gdetail-view').style.display = '';
+        document.getElementById('gdetail-edit-form').style.display = 'none';
+      });
+    }
+
+    // 수정 저장
+    var _geditSave = document.getElementById('gedit-save');
+    if (_geditSave) {
+      _geditSave.addEventListener('click', function() {
+        if (!_curItem) return;
+        var newTitle = document.getElementById('gedit-title').value.trim();
+        var newStory = document.getElementById('gedit-story').value.trim();
+        var msgEl = document.getElementById('gedit-msg');
+        if (!newTitle) { msgEl.textContent = '제목을 입력해 주세요.'; return; }
+        _geditSave.disabled = true;
+        msgEl.textContent = '저장 중…';
+        fetch(SB_URL+'/rest/v1/gallery?id=eq.'+encodeURIComponent(_curItem.id), {
+          method: 'PATCH',
+          headers: {
+            'apikey': SB_KEY, 'Authorization': 'Bearer '+SB_KEY,
+            'Content-Type': 'application/json', 'Prefer': 'return=representation'
+          },
+          body: JSON.stringify({ title: newTitle, story: newStory })
+        })
+        .then(function(r) { return r.json().then(function(d){ return { ok: r.ok, data: d }; }); })
+        .then(function(res) {
+          _geditSave.disabled = false;
+          if (res.ok) {
+            _curItem.title = newTitle;
+            _curItem.story = newStory;
+            document.getElementById('gdetail-title').textContent = newTitle;
+            document.getElementById('gdetail-story').textContent = newStory;
+            document.getElementById('gdetail-view').style.display = '';
+            document.getElementById('gdetail-edit-form').style.display = 'none';
+            loadGallery();
+          } else {
+            msgEl.textContent = '저장 실패: ' + JSON.stringify(res.data);
+          }
+        })
+        .catch(function() { _geditSave.disabled = false; document.getElementById('gedit-msg').textContent = '네트워크 오류'; });
+      });
     }
 
     // 삭제 처리

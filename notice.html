@@ -253,6 +253,12 @@
     .bmodal-submit:hover { background: var(--navy-mid); }
     .bmodal-submit:disabled { opacity: .6; cursor: not-allowed; }
 
+    /* ── 보도자료 카드 확장 ── */
+    .media-card-expandable { cursor: pointer; }
+    .media-card-expandable.press-active { outline: 2px solid var(--blue); box-shadow: var(--sh-hover); }
+    .media-card .press-admin-btns { display: flex; gap: 6px; padding: 0 20px 16px; }
+    @media (max-width: 768px) { .media-grid { grid-template-columns: 1fr; } }
+
     /* ── 댓글 ── */
     .comment-section {
       margin-top: 20px; padding-top: 20px;
@@ -410,62 +416,14 @@
 
     <!-- ── 보도자료 탭 ── -->
     <div class="notice-panel" id="tab-media">
-      <div class="media-grid fade-in">
-        <a class="media-card" href="#">
-          <div class="media-thumb">📰</div>
-          <div class="media-body">
-            <div class="media-source">충청일보</div>
-            <h4>중부대, 자연치유 크리에이터 양성 과정 출범… 경기 RISE 지원 16주 무료</h4>
-            <p>중부대학교 자연치유학과가 건강콘텐츠 크리에이터 양성 과정을 신설하고 첫 수강생 모집에 나선다...</p>
-            <div class="media-date">2026. 03. 05</div>
-          </div>
-        </a>
-        <a class="media-card" href="#">
-          <div class="media-thumb">🖥️</div>
-          <div class="media-body">
-            <div class="media-source">연합뉴스</div>
-            <h4>경기 RISE 사업, 건강·웰니스 분야로 확대… 자연치유 콘텐츠 인재 육성</h4>
-            <p>경기 RISE 사업이 건강·웰니스 크리에이터 양성으로 지원 분야를 확대하며 새로운 인재 생태계 조성에 나선다...</p>
-            <div class="media-date">2026. 02. 20</div>
-          </div>
-        </a>
-        <a class="media-card" href="#">
-          <div class="media-thumb">📡</div>
-          <div class="media-body">
-            <div class="media-source">헬스조선</div>
-            <h4>자연치유 전문 지식을 유튜브로… 건강 크리에이터 시장 급성장</h4>
-            <p>건강·웰니스 유튜브 채널의 구독자 성장률이 타 분야 대비 3배 이상 높게 나타나며 전문 크리에이터 수요가 증가하고 있다...</p>
-            <div class="media-date">2026. 01. 15</div>
-          </div>
-        </a>
-        <a class="media-card" href="#">
-          <div class="media-thumb">🏛️</div>
-          <div class="media-body">
-            <div class="media-source">대학저널</div>
-            <h4>교육부 RISE 사업 전국 확대… 지역 대학 특화 교육 강화</h4>
-            <p>교육부가 지역혁신중심 대학지원체계(RISE)를 전국 17개 시도로 확대 적용한다고 밝혔다...</p>
-            <div class="media-date">2025. 12. 10</div>
-          </div>
-        </a>
-        <a class="media-card" href="#">
-          <div class="media-thumb">💡</div>
-          <div class="media-body">
-            <div class="media-source">동아일보</div>
-            <h4>허브·아로마·명상 전문가의 유튜브 도전… 자연치유 콘텐츠의 힘</h4>
-            <p>자연치유 전문가들이 유튜브를 통해 대중과 소통하며 새로운 수익 모델을 만들어 가고 있다...</p>
-            <div class="media-date">2025. 11. 18</div>
-          </div>
-        </a>
-        <a class="media-card" href="#">
-          <div class="media-thumb">🎓</div>
-          <div class="media-body">
-            <div class="media-source">중부대학교 뉴스</div>
-            <h4>자연치유학과, 건강콘텐츠 크리에이터 과정 협약 기관 20개사 확보</h4>
-            <p>중부대 자연치유학과가 헬스케어 기업·웰니스 스타트업 등 20개 기관과 수료생 취업 연계 협약을 체결했다...</p>
-            <div class="media-date">2025. 10. 30</div>
-          </div>
-        </a>
+      <div class="board-topbar fade-in" style="margin-bottom:20px;">
+        <div id="press-count" style="font-size:14px;color:var(--text-soft);">보도자료 0건</div>
+        <button class="board-write-btn" id="press-write-btn" style="display:none;">📰 보도자료 등록</button>
       </div>
+      <div class="media-grid fade-in" id="media-dyn-grid">
+        <div class="board-empty" id="press-loading" style="grid-column:1/-1;">불러오는 중…</div>
+      </div>
+      <div id="press-detail-panel" style="display:none;margin-top:20px;padding:24px;background:var(--cream);border-radius:var(--r-lg);border:1px solid var(--border);"></div>
     </div><!-- /tab-media -->
 
 
@@ -498,8 +456,20 @@
       <input type="text" id="bmodal-ttl" placeholder="제목을 입력하세요" maxlength="100">
     </div>
     <div class="bmodal-field">
-      <label>내용</label>
+      <label id="bmodal-body-label">내용</label>
       <textarea id="bmodal-body" placeholder="내용을 입력하세요"></textarea>
+    </div>
+    <div class="bmodal-field" id="bmodal-source-field" style="display:none;">
+      <label>매체명</label>
+      <input type="text" id="bmodal-source" placeholder="예: 연합뉴스, 헬스조선" maxlength="100">
+    </div>
+    <div class="bmodal-field" id="bmodal-url-field" style="display:none;">
+      <label>외부 기사 링크 <span style="font-weight:400;color:var(--text-soft);">(선택 — 있으면 새 탭으로 열림)</span></label>
+      <input type="url" id="bmodal-url" placeholder="https://...">
+    </div>
+    <div class="bmodal-field" id="bmodal-emoji-field" style="display:none;">
+      <label>이모지 아이콘 <span style="font-weight:400;color:var(--text-soft);">(기본 📰)</span></label>
+      <input type="text" id="bmodal-emoji" placeholder="📰" maxlength="4" style="max-width:100px;">
     </div>
     <div class="bmodal-field" id="bmodal-cat-field" style="display:none;">
       <label>카테고리</label>
@@ -633,6 +603,7 @@
 
     let _posts = [];
     let _notices = [];
+    let _press = [];
     let _editId = null;
     let _modalTable = 'posts';
 
@@ -840,9 +811,14 @@
       document.getElementById('bmodal-title').textContent = '글쓰기';
       document.getElementById('bmodal-ttl').value = '';
       document.getElementById('bmodal-body').value = '';
+      document.getElementById('bmodal-body-label').textContent = '내용';
+      document.getElementById('bmodal-body').placeholder = '내용을 입력하세요';
       document.getElementById('bmodal-submit').textContent = '등록';
       document.getElementById('bmodal-cat-field').style.display = 'none';
       document.getElementById('bmodal-pin-field').style.display = 'none';
+      document.getElementById('bmodal-source-field').style.display = 'none';
+      document.getElementById('bmodal-url-field').style.display = 'none';
+      document.getElementById('bmodal-emoji-field').style.display = 'none';
       document.getElementById('bmodal-bg').classList.add('open');
     });
 
@@ -890,6 +866,32 @@
         submitBtn.textContent = _editId ? '수정 완료' : '등록';
         document.getElementById('bmodal-bg').classList.remove('open');
         await loadNotices();
+      } else if (_modalTable === 'press') {
+        const source = document.getElementById('bmodal-source').value.trim();
+        const url = document.getElementById('bmodal-url').value.trim();
+        const emoji = document.getElementById('bmodal-emoji').value.trim() || '📰';
+        if (_editId) {
+          const { error } = await sb.from('press_releases').update({
+            source, title, excerpt: content, url: url || null, emoji,
+            updated_at: new Date().toISOString()
+          }).eq('id', _editId);
+          if (error) {
+            alert('수정에 실패했습니다: ' + error.message);
+            submitBtn.disabled = false; submitBtn.textContent = '수정 완료'; return;
+          }
+        } else {
+          const { error } = await sb.from('press_releases').insert({
+            id: uid(), source, title, excerpt: content, url: url || null, emoji
+          });
+          if (error) {
+            alert('보도자료 등록에 실패했습니다: ' + error.message);
+            submitBtn.disabled = false; submitBtn.textContent = '등록'; return;
+          }
+        }
+        submitBtn.disabled = false;
+        submitBtn.textContent = _editId ? '수정 완료' : '등록';
+        document.getElementById('bmodal-bg').classList.remove('open');
+        await loadPress();
       } else {
         if (_editId) {
           const { error } = await sb.from('posts').update({
@@ -1039,10 +1041,168 @@
       document.getElementById('bmodal-title').textContent = '공지 작성';
       document.getElementById('bmodal-ttl').value = '';
       document.getElementById('bmodal-body').value = '';
+      document.getElementById('bmodal-body-label').textContent = '내용';
+      document.getElementById('bmodal-body').placeholder = '내용을 입력하세요';
       document.getElementById('bmodal-cat').value = '안내';
       document.getElementById('bmodal-pin').checked = false;
       document.getElementById('bmodal-cat-field').style.display = '';
       document.getElementById('bmodal-pin-field').style.display = '';
+      document.getElementById('bmodal-source-field').style.display = 'none';
+      document.getElementById('bmodal-url-field').style.display = 'none';
+      document.getElementById('bmodal-emoji-field').style.display = 'none';
+      document.getElementById('bmodal-submit').textContent = '등록';
+      document.getElementById('bmodal-bg').classList.add('open');
+    });
+
+    // ── 보도자료 ──
+    async function loadPress() {
+      const el = document.getElementById('press-loading');
+      if (el) el.textContent = '불러오는 중…';
+      const { data, error } = await sb.from('press_releases').select('*')
+        .order('created_at', { ascending: false });
+      _press = error ? [] : (data || []);
+      renderPress(_press);
+    }
+
+    function renderPress(list) {
+      const grid = document.getElementById('media-dyn-grid');
+      const admin = isAdmin();
+
+      document.getElementById('press-write-btn').style.display = admin ? '' : 'none';
+      document.getElementById('press-count').textContent = `보도자료 ${_press.length}건`;
+
+      if (list.length === 0) {
+        grid.innerHTML = '<div class="board-empty" style="grid-column:1/-1;">등록된 보도자료가 없습니다.</div>';
+        document.getElementById('press-detail-panel').style.display = 'none';
+        return;
+      }
+
+      grid.innerHTML = list.map(p => {
+        const emoji = p.emoji || '📰';
+        const adminBtns = admin
+          ? `<div class="press-admin-btns">
+               <button class="board-admin-btn edit" data-pedit="${escHtml(p.id)}">수정</button>
+               <button class="board-admin-btn del" data-pdel="${escHtml(p.id)}">삭제</button>
+             </div>`
+          : '';
+        if (p.url) {
+          return `
+            <a class="media-card" href="${escHtml(p.url)}" target="_blank" rel="noopener">
+              <div class="media-thumb">${emoji}</div>
+              <div class="media-body">
+                <div class="media-source">${escHtml(p.source || '')}</div>
+                <h4>${escHtml(p.title)}</h4>
+                <p>${escHtml(p.excerpt || '')}</p>
+                <div class="media-date">${fmtDate(p.created_at)}</div>
+              </div>
+              ${adminBtns}
+            </a>`;
+        } else {
+          return `
+            <div class="media-card media-card-expandable" data-pressid="${escHtml(p.id)}">
+              <div class="media-thumb">${emoji}</div>
+              <div class="media-body">
+                <div class="media-source">${escHtml(p.source || '')}</div>
+                <h4>${escHtml(p.title)}</h4>
+                <p>${escHtml(p.excerpt || '')}</p>
+                <div class="media-date">${fmtDate(p.created_at)}</div>
+              </div>
+              ${adminBtns}
+            </div>`;
+        }
+      }).join('');
+
+      // 클릭 펼치기 (URL 없는 카드)
+      const panel = document.getElementById('press-detail-panel');
+      grid.querySelectorAll('.media-card-expandable').forEach(card => {
+        card.addEventListener('click', (e) => {
+          if (e.target.closest('[data-pedit],[data-pdel]')) return;
+          const pid = card.dataset.pressid;
+          const p = _press.find(x => x.id === pid);
+          if (!p) return;
+          if (panel.dataset.open === pid) {
+            panel.style.display = 'none';
+            panel.dataset.open = '';
+            card.classList.remove('press-active');
+            return;
+          }
+          panel.innerHTML = `
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--border);">
+              <div>
+                <div style="font-size:11px;font-weight:700;color:var(--gold);margin-bottom:4px;">${escHtml(p.source || '')}</div>
+                <div style="font-size:17px;font-weight:800;color:var(--navy);">${escHtml(p.title)}</div>
+                <div style="font-size:12px;color:var(--text-soft);margin-top:4px;">${fmtDate(p.created_at)}</div>
+              </div>
+              <button id="press-panel-close" class="board-detail-close">▲ 닫기</button>
+            </div>
+            <div style="font-size:15px;color:var(--text-mid);line-height:1.95;white-space:pre-wrap;">${escHtml(p.excerpt || '')}</div>
+          `;
+          panel.style.display = 'block';
+          panel.dataset.open = pid;
+          grid.querySelectorAll('.media-card-expandable').forEach(c => c.classList.remove('press-active'));
+          card.classList.add('press-active');
+          document.getElementById('press-panel-close').addEventListener('click', () => {
+            panel.style.display = 'none';
+            panel.dataset.open = '';
+            card.classList.remove('press-active');
+          });
+        });
+      });
+
+      // 관리자 수정
+      grid.querySelectorAll('[data-pedit]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault(); e.stopPropagation();
+          const p = _press.find(x => x.id === btn.dataset.pedit);
+          if (!p) return;
+          _modalTable = 'press';
+          _editId = p.id;
+          document.getElementById('bmodal-title').textContent = '보도자료 수정';
+          document.getElementById('bmodal-ttl').value = p.title;
+          document.getElementById('bmodal-body').value = p.excerpt || '';
+          document.getElementById('bmodal-body-label').textContent = '요약';
+          document.getElementById('bmodal-body').placeholder = '기사 내용을 간략히 입력하세요';
+          document.getElementById('bmodal-source').value = p.source || '';
+          document.getElementById('bmodal-url').value = p.url || '';
+          document.getElementById('bmodal-emoji').value = p.emoji || '📰';
+          document.getElementById('bmodal-cat-field').style.display = 'none';
+          document.getElementById('bmodal-pin-field').style.display = 'none';
+          document.getElementById('bmodal-source-field').style.display = '';
+          document.getElementById('bmodal-url-field').style.display = '';
+          document.getElementById('bmodal-emoji-field').style.display = '';
+          document.getElementById('bmodal-submit').textContent = '수정 완료';
+          document.getElementById('bmodal-bg').classList.add('open');
+        });
+      });
+
+      // 관리자 삭제
+      grid.querySelectorAll('[data-pdel]').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          e.preventDefault(); e.stopPropagation();
+          if (!confirm('이 보도자료를 삭제하시겠습니까?')) return;
+          await sb.from('press_releases').delete().eq('id', btn.dataset.pdel);
+          await loadPress();
+        });
+      });
+    }
+
+    // 보도자료 등록 버튼 (관리자 전용)
+    document.getElementById('press-write-btn').addEventListener('click', () => {
+      _modalTable = 'press';
+      _editId = null;
+      document.getElementById('bmodal-title').textContent = '보도자료 등록';
+      document.getElementById('bmodal-ttl').value = '';
+      document.getElementById('bmodal-body').value = '';
+      document.getElementById('bmodal-body-label').textContent = '요약';
+      document.getElementById('bmodal-body').placeholder = '기사 내용을 간략히 입력하세요';
+      document.getElementById('bmodal-source').value = '';
+      document.getElementById('bmodal-url').value = '';
+      document.getElementById('bmodal-emoji').value = '📰';
+      document.getElementById('bmodal-cat-field').style.display = 'none';
+      document.getElementById('bmodal-pin-field').style.display = 'none';
+      document.getElementById('bmodal-source-field').style.display = '';
+      document.getElementById('bmodal-url-field').style.display = '';
+      document.getElementById('bmodal-emoji-field').style.display = '';
       document.getElementById('bmodal-submit').textContent = '등록';
       document.getElementById('bmodal-bg').classList.add('open');
     });
@@ -1072,9 +1232,10 @@
       if (e.key === 'Enter') searchNotices();
     });
 
-    // 페이지 로드 시 게시글 + 공지 불러오기
+    // 페이지 로드 시 게시글 + 공지 + 보도자료 불러오기
     loadPosts();
     loadNotices();
+    loadPress();
   })();
 
 

@@ -847,8 +847,8 @@
 
     loadResources();
 
-    // 로그인 회원 업로드 버튼
-    if (sessionStorage.getItem('rise_session'))
+    // 로그인 회원(일반/관리자) 업로드 버튼
+    if (sessionStorage.getItem('rise_session') || sessionStorage.getItem('rise_admin') === '1')
       document.getElementById('data-upload-bar').style.display = 'flex';
 
     // 모달 열기/닫기

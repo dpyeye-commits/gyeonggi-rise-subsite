@@ -214,6 +214,52 @@
     }
     .btn-sec:hover { background: #e0e0e0; }
 
+    /* ── 자료실 관리 ── */
+    .res-section { margin-top: 40px; }
+    .res-section-title {
+      font-size: 17px; font-weight: 800; color: #1a1a2e;
+      margin-bottom: 18px; display: flex; align-items: center; gap: 10px;
+    }
+    .res-add-form {
+      background: #fff; border-radius: 16px; padding: 24px;
+      box-shadow: 0 2px 12px rgba(0,0,0,.06); margin-bottom: 20px;
+    }
+    .res-add-form h3 { font-size: 14px; font-weight: 700; color: #555; margin-bottom: 16px; }
+    .res-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .res-field { display: flex; flex-direction: column; gap: 5px; }
+    .res-field.full { grid-column: 1 / -1; }
+    .res-field label { font-size: 11px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: .3px; }
+    .res-field input, .res-field select, .res-field textarea {
+      padding: 10px 14px; border: 2px solid #e8e8e8; border-radius: 10px;
+      font-size: 14px; outline: none; transition: border-color .15s; font-family: inherit;
+    }
+    .res-field input:focus, .res-field select:focus, .res-field textarea:focus { border-color: #17422e; }
+    .res-field textarea { resize: vertical; min-height: 64px; }
+    .res-add-btn {
+      margin-top: 14px; padding: 11px 28px; background: #17422e; color: #fff;
+      border: none; border-radius: 10px; font-size: 14px; font-weight: 700;
+      cursor: pointer; font-family: inherit;
+    }
+    .res-add-btn:hover { background: #0f2e1f; }
+    .res-list { display: flex; flex-direction: column; gap: 10px; }
+    .res-row {
+      background: #fff; border-radius: 12px; padding: 16px 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.05);
+      display: flex; align-items: center; gap: 14px;
+    }
+    .res-row-icon { font-size: 24px; flex-shrink: 0; }
+    .res-row-meta { flex: 1; min-width: 0; }
+    .res-row-meta strong { font-size: 14px; font-weight: 700; color: #1a1a2e; display: block; margin-bottom: 2px; }
+    .res-row-meta span { font-size: 12px; color: #888; }
+    .res-row-url { font-size: 11px; color: #999; font-family: monospace; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .res-del-btn {
+      padding: 6px 14px; background: #fee2e2; color: #991b1b; border: none;
+      border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit;
+      flex-shrink: 0;
+    }
+    .res-del-btn:hover { background: #dc2626; color: #fff; }
+    .res-empty { text-align: center; padding: 36px; color: #bbb; font-size: 14px; }
+
     /* ── 로딩 오버레이 ── */
     .loading-overlay {
       position: fixed; inset: 0; z-index: 8000;
@@ -377,6 +423,53 @@
         <div class="ei">📭</div>
         <p>아직 신청자가 없습니다</p>
         <small>회원가입 링크를 공유하면 여기에 신청 목록이 나타납니다</small>
+      </div>
+    </div>
+
+    <!-- ── 자료실 관리 ── -->
+    <div class="res-section">
+      <div class="res-section-title">📂 자료실 관리</div>
+
+      <div class="res-add-form">
+        <h3>＋ 새 자료 등록</h3>
+        <div class="res-form-grid">
+          <div class="res-field full">
+            <label>자료 제목 *</label>
+            <input type="text" id="res-title" placeholder="예: 2026년 크리에이터 과정 운영 계획서">
+          </div>
+          <div class="res-field full">
+            <label>설명 (선택)</label>
+            <textarea id="res-desc" placeholder="자료에 대한 간략한 설명"></textarea>
+          </div>
+          <div class="res-field">
+            <label>파일 형식</label>
+            <select id="res-type">
+              <option value="pdf">PDF</option>
+              <option value="hwp">HWP</option>
+              <option value="ppt">PPT / PPTX</option>
+              <option value="word">Word (DOC / DOCX)</option>
+              <option value="zip">ZIP</option>
+              <option value="img">이미지 (JPG / PNG)</option>
+              <option value="etc">기타</option>
+            </select>
+          </div>
+          <div class="res-field">
+            <label>파일 크기 (선택)</label>
+            <input type="text" id="res-size" placeholder="예: 3.8 MB">
+          </div>
+          <div class="res-field full">
+            <label>다운로드 URL *</label>
+            <input type="url" id="res-url" placeholder="Google Drive 공유 링크 또는 직접 URL">
+          </div>
+        </div>
+        <button class="res-add-btn" id="res-add-btn">등록</button>
+        <p style="font-size:11px;color:#aaa;margin-top:10px;">
+          💡 Google Drive: 파일 우클릭 → 공유 → 링크 복사 후 붙여넣기
+        </p>
+      </div>
+
+      <div class="res-list" id="res-list">
+        <div class="res-empty">불러오는 중…</div>
       </div>
     </div>
 
@@ -742,6 +835,75 @@ document.getElementById('btn-csv').addEventListener('click', () => {
   a.download = `rise-members-${new Date().toISOString().slice(0,10)}.csv`;
   a.click();
 });
+
+/* ── 자료실 관리 ── */
+(function() {
+  const ICON_MAP = { pdf:'📄', hwp:'📝', ppt:'📊', word:'📃', zip:'🗜️', img:'🖼️', etc:'📁' };
+
+  function renderResList(items) {
+    const el = document.getElementById('res-list');
+    if (!items.length) { el.innerHTML = '<div class="res-empty">등록된 자료가 없습니다.</div>'; return; }
+    el.innerHTML = items.map(r => `
+      <div class="res-row">
+        <div class="res-row-icon">${ICON_MAP[r.file_type] || '📁'}</div>
+        <div class="res-row-meta">
+          <strong>${r.title}</strong>
+          <span>${r.description || ''} ${r.file_size_label ? '· ' + r.file_size_label : ''}</span>
+          <div class="res-row-url">${r.file_url}</div>
+        </div>
+        <a href="${r.file_url}" target="_blank" rel="noopener"
+           style="padding:6px 14px;background:#e0f2fe;color:#0369a1;border-radius:8px;font-size:12px;font-weight:700;text-decoration:none;flex-shrink:0;">
+          미리보기
+        </a>
+        <button class="res-del-btn" data-id="${r.id}">삭제</button>
+      </div>`).join('');
+
+    el.querySelectorAll('.res-del-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        if (!confirm('이 자료를 삭제하시겠습니까?')) return;
+        const { error } = await sb.from('resources').delete().eq('id', btn.dataset.id);
+        if (error) { alert('삭제 실패: ' + error.message); return; }
+        await loadResList();
+      });
+    });
+  }
+
+  async function loadResList() {
+    const { data, error } = await sb.from('resources').select('*').order('created_at', { ascending: false });
+    renderResList(error ? [] : (data || []));
+  }
+
+  document.getElementById('res-add-btn').addEventListener('click', async () => {
+    const title    = document.getElementById('res-title').value.trim();
+    const desc     = document.getElementById('res-desc').value.trim();
+    const fileType = document.getElementById('res-type').value;
+    const sizeLabel= document.getElementById('res-size').value.trim();
+    const url      = document.getElementById('res-url').value.trim();
+
+    if (!title) { alert('자료 제목을 입력해 주세요.'); return; }
+    if (!url)   { alert('다운로드 URL을 입력해 주세요.'); return; }
+
+    const btn = document.getElementById('res-add-btn');
+    btn.disabled = true; btn.textContent = '등록 중…';
+
+    const { error } = await sb.from('resources').insert({
+      title, description: desc || null,
+      file_type: fileType, file_size_label: sizeLabel || null, file_url: url
+    });
+
+    btn.disabled = false; btn.textContent = '등록';
+
+    if (error) { alert('등록 실패: ' + error.message); return; }
+
+    document.getElementById('res-title').value = '';
+    document.getElementById('res-desc').value  = '';
+    document.getElementById('res-size').value  = '';
+    document.getElementById('res-url').value   = '';
+    await loadResList();
+  });
+
+  loadResList();
+})();
 </script>
 </body>
 </html>

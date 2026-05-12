@@ -680,73 +680,14 @@
     <!-- ── 자료실 탭 ── -->
     <div class="notice-panel" id="tab-data">
       <div class="search-bar fade-in">
-        <input class="search-input" type="text" placeholder="자료명으로 검색하세요">
-        <button class="search-btn">검색</button>
+        <input class="search-input" type="text" id="data-search-input" placeholder="자료명으로 검색하세요">
+        <button class="search-btn" id="data-search-btn">검색</button>
       </div>
-      <div class="data-list fade-in">
-        <a class="data-item" href="#">
-          <div class="data-icon pdf">📄</div>
-          <div class="data-meta">
-            <h4>2026년 크리에이터 과정 운영 계획서</h4>
-            <p>2026년 전체 과정 운영 계획, 교육 일정, 강사진 구성 계획서 (공고용)</p>
-          </div>
-          <div class="data-size">PDF · 3.8 MB</div>
-          <a class="data-dl" href="#">⬇ 다운로드</a>
-        </a>
-        <a class="data-item" href="#">
-          <div class="data-icon hwp">📝</div>
-          <div class="data-meta">
-            <h4>수강 신청서 양식 (HWP)</h4>
-            <p>크리에이터 과정 온라인 신청 전 참고용 양식</p>
-          </div>
-          <div class="data-size">HWP · 0.6 MB</div>
-          <a class="data-dl" href="#">⬇ 다운로드</a>
-        </a>
-        <a class="data-item" href="#">
-          <div class="data-icon pdf">📄</div>
-          <div class="data-meta">
-            <h4>자연치유학과 크리에이터 과정 소개 브로셔 2026</h4>
-            <p>과정 개요, 커리큘럼, 지원 혜택을 담은 홍보용 브로셔</p>
-          </div>
-          <div class="data-size">PDF · 5.4 MB</div>
-          <a class="data-dl" href="#">⬇ 다운로드</a>
-        </a>
-        <a class="data-item" href="#">
-          <div class="data-icon zip">🗜️</div>
-          <div class="data-meta">
-            <h4>1~2월 자연치유 기초 강의 자료 패키지</h4>
-            <p>1기 1~2월 자연치유 이론 전 회차 강의 자료 묶음 (PPT, 참고자료 포함)</p>
-          </div>
-          <div class="data-size">ZIP · 32.7 MB</div>
-          <a class="data-dl" href="#">⬇ 다운로드</a>
-        </a>
-        <a class="data-item" href="#">
-          <div class="data-icon zip">🗜️</div>
-          <div class="data-meta">
-            <h4>3~4월 콘텐츠 제작 강의 자료 패키지</h4>
-            <p>1기 3~4월 영상 제작·편집 전 회차 강의 자료 묶음</p>
-          </div>
-          <div class="data-size">ZIP · 45.2 MB</div>
-          <a class="data-dl" href="#">⬇ 다운로드</a>
-        </a>
-        <a class="data-item" href="#">
-          <div class="data-icon pdf">📄</div>
-          <div class="data-meta">
-            <h4>2026년 1기 수료식 결과 보고서</h4>
-            <p>2026년 8월 28일 수료식 결과 및 수료생 채널 성과 사진 자료</p>
-          </div>
-          <div class="data-size">PDF · 8.1 MB</div>
-          <a class="data-dl" href="#">⬇ 다운로드</a>
-        </a>
-        <a class="data-item" href="#">
-          <div class="data-icon hwp">📝</div>
-          <div class="data-meta">
-            <h4>채널 기획서 작성 가이드 (템플릿)</h4>
-            <p>수강생이 자신의 자연치유 채널 컨셉과 방향성을 정리하는 기획서 양식</p>
-          </div>
-          <div class="data-size">HWP · 0.9 MB</div>
-          <a class="data-dl" href="#">⬇ 다운로드</a>
-        </a>
+      <div class="data-list fade-in" id="data-list">
+        <div style="text-align:center;padding:48px 0;color:#aaa;">
+          <div style="font-size:32px;margin-bottom:12px;">📂</div>
+          <p style="font-size:14px;">불러오는 중…</p>
+        </div>
       </div>
     </div><!-- /tab-data -->
 
@@ -1512,6 +1453,81 @@
 
     // 페이지 로드 시 게시글 불러오기
     loadPosts();
+  })();
+
+  // ── 자료실 동적 로딩 ──
+  (function() {
+    const { createClient } = window.supabase;
+    const sb = createClient(
+      'https://mvbxcrxykyyshdwtuedl.supabase.co',
+      'sb_publishable_xyA4rNrKXrOK0Yy_qPgL5w_8UbP7Vaa'
+    );
+
+    const list = document.getElementById('data-list');
+    let _allResources = [];
+
+    const ICON_MAP = {
+      pdf:  { emoji: '📄', cls: 'pdf' },
+      hwp:  { emoji: '📝', cls: 'hwp' },
+      zip:  { emoji: '🗜️', cls: 'zip' },
+      ppt:  { emoji: '📊', cls: 'pdf' },
+      word: { emoji: '📃', cls: 'hwp' },
+      img:  { emoji: '🖼️', cls: 'zip' },
+      etc:  { emoji: '📁', cls: 'zip' },
+    };
+
+    function renderList(items) {
+      if (items.length === 0) {
+        list.innerHTML = `
+          <div style="text-align:center;padding:48px 0;color:#aaa;">
+            <div style="font-size:32px;margin-bottom:12px;">📂</div>
+            <p style="font-size:14px;">등록된 자료가 없습니다.</p>
+          </div>`;
+        return;
+      }
+      list.innerHTML = items.map(r => {
+        const ic = ICON_MAP[r.file_type] || ICON_MAP.etc;
+        return `
+          <div class="data-item">
+            <div class="data-icon ${ic.cls}">${ic.emoji}</div>
+            <div class="data-meta">
+              <h4>${r.title}</h4>
+              ${r.description ? `<p>${r.description}</p>` : ''}
+            </div>
+            ${r.file_size_label ? `<div class="data-size">${r.file_size_label}</div>` : ''}
+            <a class="data-dl" href="${r.file_url}" target="_blank" rel="noopener" download>⬇ 다운로드</a>
+          </div>`;
+      }).join('');
+    }
+
+    async function loadResources() {
+      const { data, error } = await sb
+        .from('resources')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (error) {
+        list.innerHTML = `<div style="text-align:center;padding:48px 0;color:#aaa;"><p style="font-size:14px;">자료를 불러오는 데 실패했습니다.</p></div>`;
+        return;
+      }
+      _allResources = data || [];
+      renderList(_allResources);
+    }
+
+    // 검색
+    function doDataSearch() {
+      const q = document.getElementById('data-search-input').value.trim().toLowerCase();
+      if (!q) { renderList(_allResources); return; }
+      renderList(_allResources.filter(r =>
+        r.title.toLowerCase().includes(q) ||
+        (r.description || '').toLowerCase().includes(q)
+      ));
+    }
+    document.getElementById('data-search-btn').addEventListener('click', doDataSearch);
+    document.getElementById('data-search-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter') doDataSearch();
+    });
+
+    loadResources();
   })();
 </script>
 </body>

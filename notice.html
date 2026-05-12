@@ -9,16 +9,17 @@
   <style>
     /* ── 탭 ── */
     .notice-tabs {
-      display: flex; gap: 6px;
+      display: flex; gap: 6px; flex-wrap: wrap;
       border-bottom: 2px solid var(--border); margin-bottom: 32px;
+      overflow-x: auto;
     }
     .ntab {
-      padding: 11px 22px; border: none; background: none; cursor: pointer;
-      font-size: 14px; font-weight: 700; color: var(--text-soft);
+      padding: 11px 16px; border: none; background: none; cursor: pointer;
+      font-size: 13px; font-weight: 700; color: var(--text-soft);
       border-radius: var(--r-sm) var(--r-sm) 0 0;
       position: relative; bottom: -2px;
       border-bottom: 2px solid transparent;
-      transition: color .15s;
+      transition: color .15s; white-space: nowrap;
       font-family: 'Paperlogy', 'Noto Sans KR', sans-serif;
     }
     .ntab:hover { color: var(--navy); }
@@ -159,6 +160,52 @@
       text-decoration: none; transition: background .15s;
     }
     .data-dl:hover { background: var(--navy-mid); }
+
+    /* ── 자료실 업로드 버튼 & 모달 ── */
+    .data-upload-bar { display: flex; justify-content: flex-end; margin-bottom: 14px; }
+    .data-upload-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--green); color: #fff; font-size: 13px; font-weight: 700;
+      padding: 9px 18px; border-radius: var(--r-sm); border: none; cursor: pointer;
+      transition: background .15s;
+    }
+    .data-upload-btn:hover { background: #15803d; }
+    .data-modal-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45);
+      z-index: 1000; align-items: center; justify-content: center;
+    }
+    .data-modal-overlay.open { display: flex; }
+    .data-modal {
+      background: #fff; border-radius: var(--r-lg); padding: 32px 28px;
+      width: min(480px, 94vw); box-shadow: 0 20px 60px rgba(0,0,0,.2);
+      max-height: 90vh; overflow-y: auto;
+    }
+    .data-modal h3 { font-size: 17px; font-weight: 900; color: var(--navy); margin-bottom: 20px; }
+    .dm-field { margin-bottom: 14px; }
+    .dm-field label { display: block; font-size: 12px; font-weight: 700; color: var(--text-mid); margin-bottom: 5px; }
+    .dm-field input, .dm-field select, .dm-field textarea {
+      width: 100%; padding: 9px 12px; border: 1.5px solid var(--border);
+      border-radius: var(--r-sm); font-size: 14px; font-family: inherit;
+      transition: border-color .15s; box-sizing: border-box;
+    }
+    .dm-field input:focus, .dm-field select:focus, .dm-field textarea:focus {
+      outline: none; border-color: var(--blue);
+    }
+    .dm-field textarea { resize: vertical; min-height: 72px; }
+    .dm-hint { font-size: 11px; color: var(--text-soft); margin-top: 4px; }
+    .dm-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+    .dm-cancel {
+      padding: 9px 18px; border-radius: var(--r-sm); border: 1.5px solid var(--border);
+      background: #fff; font-size: 13px; font-weight: 700; color: var(--text-mid); cursor: pointer;
+    }
+    .dm-submit {
+      padding: 9px 22px; border-radius: var(--r-sm); border: none;
+      background: var(--blue); color: #fff; font-size: 13px; font-weight: 700; cursor: pointer;
+      transition: background .15s;
+    }
+    .dm-submit:hover { background: var(--navy-mid); }
+    .dm-submit:disabled { opacity: .5; cursor: default; }
+    .dm-msg { font-size: 13px; margin-top: 10px; text-align: center; }
 
     /* ── AI Tool 카드 ── */
     .aitool-intro {
@@ -337,6 +384,138 @@
     .bmodal-submit:hover { background: var(--navy-mid); }
     .bmodal-submit:disabled { opacity: .6; cursor: not-allowed; }
 
+    /* ── 포포갤러리 ── */
+    .gallery-topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .gallery-topbar-info { font-size: 14px; color: var(--text-soft); }
+    .gallery-write-btn {
+      display: none; align-items: center; gap: 6px;
+      padding: 9px 18px; border-radius: var(--r-sm); border: none;
+      background: var(--blue); color: #fff; font-size: 13px; font-weight: 700;
+      cursor: pointer; font-family: 'Paperlogy', 'Noto Sans KR', sans-serif;
+      transition: background .15s;
+    }
+    .gallery-write-btn.visible { display: inline-flex; }
+    .gallery-write-btn:hover { background: var(--navy-mid); }
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+    .gcard {
+      border-radius: var(--r-md); overflow: hidden;
+      background: #fff; border: 1px solid var(--border);
+      box-shadow: var(--sh-card); cursor: pointer;
+      transition: box-shadow .2s, transform .2s;
+      display: flex; flex-direction: column;
+    }
+    .gcard:hover { box-shadow: var(--sh-hover); transform: translateY(-3px); }
+    .gcard-img {
+      width: 100%; aspect-ratio: 4/3; object-fit: cover;
+      background: var(--cream); flex-shrink: 0;
+    }
+    .gcard-img-placeholder {
+      width: 100%; aspect-ratio: 4/3;
+      background: linear-gradient(135deg, var(--sky) 0%, #e0f2fe 100%);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 40px; flex-shrink: 0;
+    }
+    .gcard-body { padding: 16px; flex: 1; display: flex; flex-direction: column; gap: 6px; }
+    .gcard-title { font-size: 14px; font-weight: 700; color: var(--navy); line-height: 1.4; }
+    .gcard-story {
+      font-size: 13px; color: var(--text-soft); line-height: 1.6;
+      display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+      overflow: hidden; flex: 1;
+    }
+    .gcard-meta { font-size: 11px; color: #bbb; margin-top: 8px; }
+    .gallery-empty {
+      text-align: center; padding: 60px 0; color: #aaa;
+      grid-column: 1/-1;
+    }
+    .gallery-empty .g-empty-icon { font-size: 40px; margin-bottom: 12px; }
+
+    /* 갤러리 상세 모달 */
+    .gdetail-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,.55); z-index: 2000;
+      align-items: center; justify-content: center; padding: 20px;
+    }
+    .gdetail-overlay.open { display: flex; }
+    .gdetail {
+      background: #fff; border-radius: var(--r-lg);
+      max-width: 620px; width: 100%; max-height: 90vh; overflow-y: auto;
+      box-shadow: 0 24px 64px rgba(0,0,0,.28);
+    }
+    .gdetail-img { width: 100%; max-height: 360px; object-fit: cover; border-radius: var(--r-lg) var(--r-lg) 0 0; }
+    .gdetail-img-placeholder {
+      width: 100%; height: 200px;
+      background: linear-gradient(135deg, var(--sky) 0%, #e0f2fe 100%);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 56px; border-radius: var(--r-lg) var(--r-lg) 0 0;
+    }
+    .gdetail-body { padding: 28px 32px; }
+    .gdetail-title { font-size: 20px; font-weight: 900; color: var(--navy); margin-bottom: 8px; }
+    .gdetail-meta { font-size: 13px; color: var(--text-soft); margin-bottom: 20px; }
+    .gdetail-story { font-size: 15px; line-height: 1.8; color: var(--text); white-space: pre-wrap; }
+    .gdetail-close {
+      display: block; margin: 24px auto 0; padding: 10px 28px;
+      border-radius: var(--r-sm); border: 1.5px solid var(--border);
+      background: #fff; font-size: 14px; font-weight: 700; color: var(--text-mid);
+      cursor: pointer; font-family: 'Paperlogy', 'Noto Sans KR', sans-serif;
+      transition: border-color .15s;
+    }
+    .gdetail-close:hover { border-color: var(--navy); }
+
+    /* 갤러리 작성 모달 */
+    .gwrite-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,.5); z-index: 2100;
+      align-items: center; justify-content: center; padding: 20px;
+    }
+    .gwrite-overlay.open { display: flex; }
+    .gwrite {
+      background: #fff; border-radius: var(--r-lg);
+      padding: 32px; max-width: 540px; width: 100%; max-height: 88vh; overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,.25);
+    }
+    .gwrite h3 { font-size: 18px; font-weight: 900; color: var(--navy); margin-bottom: 20px; }
+    .gwrite-field { margin-bottom: 14px; }
+    .gwrite-field label { display: block; font-size: 12px; font-weight: 700; color: var(--text-mid); margin-bottom: 5px; }
+    .gwrite-field input, .gwrite-field textarea {
+      width: 100%; box-sizing: border-box;
+      padding: 10px 14px; border: 1.5px solid var(--border); border-radius: var(--r-sm);
+      font-size: 14px; font-family: 'Paperlogy', 'Noto Sans KR', sans-serif;
+      outline: none; transition: border-color .15s; resize: vertical;
+    }
+    .gwrite-field input:focus, .gwrite-field textarea:focus { border-color: var(--blue); }
+    .gwrite-field textarea { min-height: 120px; }
+    .gwrite-hint { font-size: 11px; color: var(--text-soft); margin-top: 4px; }
+    .gwrite-preview {
+      width: 100%; aspect-ratio: 16/9; object-fit: cover;
+      border-radius: var(--r-sm); margin-top: 8px; display: none;
+    }
+    .gwrite-msg { font-size: 13px; text-align: center; margin-top: 10px; }
+    .gwrite-btns { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+    .gwrite-cancel {
+      padding: 10px 22px; border-radius: var(--r-sm);
+      border: 1.5px solid var(--border); background: #fff; color: var(--text-mid);
+      font-size: 13px; font-weight: 700; cursor: pointer;
+      font-family: 'Paperlogy', 'Noto Sans KR', sans-serif;
+    }
+    .gwrite-submit {
+      padding: 10px 22px; border-radius: var(--r-sm); border: none;
+      background: var(--blue); color: #fff; font-size: 13px; font-weight: 700;
+      cursor: pointer; font-family: 'Paperlogy', 'Noto Sans KR', sans-serif;
+      transition: background .15s;
+    }
+    .gwrite-submit:hover { background: var(--navy-mid); }
+    .gwrite-submit:disabled { opacity: .5; cursor: default; }
+
+    @media (max-width: 768px) { .gallery-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 480px) { .gallery-grid { grid-template-columns: 1fr; } }
+
     /* ── 댓글 ── */
     .comment-section {
       margin-top: 20px; padding-top: 20px;
@@ -473,6 +652,7 @@
       <button class="ntab" data-ntab="tab-data">자료실</button>
       <button class="ntab" data-ntab="tab-aitool">🤖 AI Tool</button>
       <button class="ntab" data-ntab="tab-board">💬 자유게시판</button>
+      <button class="ntab" data-ntab="tab-gallery">📸 포포갤러리</button>
     </div>
 
     <!-- ── 공지사항 탭 ── -->
@@ -683,6 +863,10 @@
         <input class="search-input" type="text" id="data-search-input" placeholder="자료명으로 검색하세요">
         <button class="search-btn" id="data-search-btn">검색</button>
       </div>
+      <!-- 로그인 회원에게만 표시 -->
+      <div class="data-upload-bar fade-in" id="data-upload-bar" style="display:none;">
+        <button class="data-upload-btn" id="data-upload-open-btn">＋ 자료 올리기</button>
+      </div>
       <div class="data-list fade-in" id="data-list">
         <div style="text-align:center;padding:48px 0;color:#aaa;">
           <div style="font-size:32px;margin-bottom:12px;">📂</div>
@@ -690,6 +874,47 @@
         </div>
       </div>
     </div><!-- /tab-data -->
+
+    <!-- ── 자료 업로드 모달 ── -->
+    <div class="data-modal-overlay" id="data-modal-overlay">
+      <div class="data-modal">
+        <h3>📤 자료 올리기</h3>
+        <div class="dm-field">
+          <label>제목 *</label>
+          <input type="text" id="dm-title" placeholder="자료 제목을 입력하세요">
+        </div>
+        <div class="dm-field">
+          <label>설명 (선택)</label>
+          <textarea id="dm-desc" placeholder="간단한 설명을 입력하세요"></textarea>
+        </div>
+        <div class="dm-field">
+          <label>파일 종류 *</label>
+          <select id="dm-type">
+            <option value="pdf">PDF</option>
+            <option value="ppt">PPT / Google Slides</option>
+            <option value="hwp">HWP</option>
+            <option value="word">Word</option>
+            <option value="zip">ZIP</option>
+            <option value="img">이미지</option>
+            <option value="etc">기타</option>
+          </select>
+        </div>
+        <div class="dm-field">
+          <label>파일 URL *</label>
+          <input type="url" id="dm-url" placeholder="https://drive.google.com/...">
+          <p class="dm-hint">Google Drive 공유 링크, Google Slides 링크, 또는 직접 다운로드 URL을 입력하세요.</p>
+        </div>
+        <div class="dm-field">
+          <label>파일 크기/라벨 (선택)</label>
+          <input type="text" id="dm-size" placeholder="예: 2.4 MB, Google Slides">
+        </div>
+        <p class="dm-msg" id="dm-msg" style="color:var(--blue);"></p>
+        <div class="dm-actions">
+          <button class="dm-cancel" id="dm-cancel-btn">취소</button>
+          <button class="dm-submit" id="dm-submit-btn">올리기</button>
+        </div>
+      </div>
+    </div>
 
     <!-- ── AI Tool 탭 ── -->
     <div class="notice-panel" id="tab-aitool">
@@ -995,8 +1220,63 @@
 
     </div><!-- /tab-board -->
 
+    <!-- ── 포포갤러리 탭 ── -->
+    <div class="notice-panel" id="tab-gallery">
+
+      <div class="gallery-topbar fade-in">
+        <div class="gallery-topbar-info" id="gallery-count">불러오는 중…</div>
+        <button class="gallery-write-btn" id="gallery-write-btn">📸 사진·이야기 올리기</button>
+      </div>
+      <div class="gallery-grid fade-in" id="gallery-grid">
+        <div class="gallery-empty">
+          <div class="g-empty-icon">📷</div>
+          <p>불러오는 중…</p>
+        </div>
+      </div>
+
+    </div><!-- /tab-gallery -->
+
   </div>
 </section>
+
+<!-- ── 갤러리 상세 모달 ── -->
+<div class="gdetail-overlay" id="gdetail-overlay">
+  <div class="gdetail" id="gdetail-box">
+    <div id="gdetail-img-wrap"></div>
+    <div class="gdetail-body">
+      <div class="gdetail-title" id="gdetail-title"></div>
+      <div class="gdetail-meta" id="gdetail-meta"></div>
+      <div class="gdetail-story" id="gdetail-story"></div>
+      <button class="gdetail-close" id="gdetail-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── 갤러리 작성 모달 ── -->
+<div class="gwrite-overlay" id="gwrite-overlay">
+  <div class="gwrite">
+    <h3>📸 사진·이야기 올리기</h3>
+    <div class="gwrite-field">
+      <label>제목 *</label>
+      <input type="text" id="gw-title" placeholder="제목을 입력하세요" maxlength="100">
+    </div>
+    <div class="gwrite-field">
+      <label>이야기 (선택)</label>
+      <textarea id="gw-story" placeholder="사진과 함께 나누고 싶은 이야기를 적어주세요"></textarea>
+    </div>
+    <div class="gwrite-field">
+      <label>사진 URL (선택)</label>
+      <input type="url" id="gw-imgurl" placeholder="https://...">
+      <p class="gwrite-hint">Google Drive, Imgur, 또는 직접 접근 가능한 이미지 URL을 붙여넣으세요.</p>
+      <img class="gwrite-preview" id="gw-preview" alt="미리보기">
+    </div>
+    <p class="gwrite-msg" id="gw-msg"></p>
+    <div class="gwrite-btns">
+      <button class="gwrite-cancel" id="gw-cancel">취소</button>
+      <button class="gwrite-submit" id="gw-submit">올리기</button>
+    </div>
+  </div>
+</div>
 
 <!-- 글쓰기/수정 모달 -->
 <div class="bmodal-bg" id="bmodal-bg">
@@ -1528,6 +1808,243 @@
     });
 
     loadResources();
+
+    // ── 로그인 회원 업로드 버튼 표시 ──
+    (function showUploadIfLoggedIn() {
+      const session = getSession();
+      if (session) {
+        document.getElementById('data-upload-bar').style.display = 'flex';
+      }
+    })();
+
+    // ── 모달 열기/닫기 ──
+    document.getElementById('data-upload-open-btn').addEventListener('click', () => {
+      document.getElementById('data-modal-overlay').classList.add('open');
+      document.getElementById('dm-msg').textContent = '';
+    });
+    document.getElementById('dm-cancel-btn').addEventListener('click', () => {
+      document.getElementById('data-modal-overlay').classList.remove('open');
+    });
+    document.getElementById('data-modal-overlay').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('data-modal-overlay')) {
+        document.getElementById('data-modal-overlay').classList.remove('open');
+      }
+    });
+
+    // ── 자료 업로드 제출 ──
+    document.getElementById('dm-submit-btn').addEventListener('click', async () => {
+      const session = getSession();
+      if (!session) { alert('로그인 후 이용할 수 있습니다.'); return; }
+
+      const title = document.getElementById('dm-title').value.trim();
+      const desc  = document.getElementById('dm-desc').value.trim();
+      const type  = document.getElementById('dm-type').value;
+      const url   = document.getElementById('dm-url').value.trim();
+      const size  = document.getElementById('dm-size').value.trim();
+      const msg   = document.getElementById('dm-msg');
+
+      if (!title) { msg.style.color = '#ef4444'; msg.textContent = '제목을 입력해 주세요.'; return; }
+      if (!url)   { msg.style.color = '#ef4444'; msg.textContent = '파일 URL을 입력해 주세요.'; return; }
+
+      const btn = document.getElementById('dm-submit-btn');
+      btn.disabled = true;
+      msg.style.color = 'var(--blue)';
+      msg.textContent = '업로드 중…';
+
+      const { error } = await sb.from('resources').insert({
+        title,
+        description: desc || null,
+        file_type: type,
+        file_url: url,
+        file_size_label: size || null,
+      });
+
+      btn.disabled = false;
+      if (error) {
+        msg.style.color = '#ef4444';
+        msg.textContent = '업로드 실패: ' + (error.message || '다시 시도해 주세요.');
+      } else {
+        msg.style.color = '#16a34a';
+        msg.textContent = '✅ 업로드 완료!';
+        document.getElementById('dm-title').value = '';
+        document.getElementById('dm-desc').value = '';
+        document.getElementById('dm-url').value = '';
+        document.getElementById('dm-size').value = '';
+        await loadResources();
+        setTimeout(() => {
+          document.getElementById('data-modal-overlay').classList.remove('open');
+        }, 1200);
+      }
+    });
+  })();
+
+  // ── 포포갤러리 ──
+  (function() {
+    const { createClient } = window.supabase;
+    const sb = createClient(
+      'https://mvbxcrxykyyshdwtuedl.supabase.co',
+      'sb_publishable_xyA4rNrKXrOK0Yy_qPgL5w_8UbP7Vaa'
+    );
+
+    const grid   = document.getElementById('gallery-grid');
+    const countEl = document.getElementById('gallery-count');
+
+    function escHtml(s) {
+      return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+    function fmtDate(s) {
+      if (!s) return '';
+      const d = new Date(s);
+      return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+    }
+
+    // ── 목록 렌더 ──
+    function renderGallery(items) {
+      countEl.textContent = `총 ${items.length}개`;
+      if (items.length === 0) {
+        grid.innerHTML = `
+          <div class="gallery-empty">
+            <div class="g-empty-icon">📷</div>
+            <p style="font-size:14px;">아직 올라온 사진이 없습니다. 첫 번째로 올려보세요!</p>
+          </div>`;
+        return;
+      }
+      grid.innerHTML = items.map(item => {
+        const imgHtml = item.image_url
+          ? `<img class="gcard-img" src="${escHtml(item.image_url)}" alt="${escHtml(item.title)}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+             <div class="gcard-img-placeholder" style="display:none;">📷</div>`
+          : `<div class="gcard-img-placeholder">📷</div>`;
+        return `
+          <div class="gcard" data-id="${escHtml(item.id)}">
+            ${imgHtml}
+            <div class="gcard-body">
+              <div class="gcard-title">${escHtml(item.title)}</div>
+              ${item.story ? `<div class="gcard-story">${escHtml(item.story)}</div>` : ''}
+              <div class="gcard-meta">${escHtml(item.author_name || '익명')} · ${fmtDate(item.created_at)}</div>
+            </div>
+          </div>`;
+      }).join('');
+
+      // 카드 클릭 → 상세 모달
+      grid.querySelectorAll('.gcard').forEach(card => {
+        card.addEventListener('click', () => {
+          const item = items.find(i => i.id === card.dataset.id);
+          if (!item) return;
+          openDetail(item);
+        });
+      });
+    }
+
+    async function loadGallery() {
+      const { data, error } = await sb
+        .from('gallery')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (error) {
+        grid.innerHTML = `<div class="gallery-empty"><p>불러오기 실패: ${escHtml(error.message)}</p></div>`;
+        return;
+      }
+      renderGallery(data || []);
+    }
+
+    // ── 상세 모달 ──
+    function openDetail(item) {
+      const imgWrap = document.getElementById('gdetail-img-wrap');
+      imgWrap.innerHTML = item.image_url
+        ? `<img class="gdetail-img" src="${escHtml(item.image_url)}" alt="${escHtml(item.title)}">`
+        : `<div class="gdetail-img-placeholder">📷</div>`;
+      document.getElementById('gdetail-title').textContent = item.title;
+      document.getElementById('gdetail-meta').textContent =
+        `${item.author_name || '익명'} · ${fmtDate(item.created_at)}`;
+      document.getElementById('gdetail-story').textContent = item.story || '';
+      document.getElementById('gdetail-overlay').classList.add('open');
+    }
+    document.getElementById('gdetail-close').addEventListener('click', () => {
+      document.getElementById('gdetail-overlay').classList.remove('open');
+    });
+    document.getElementById('gdetail-overlay').addEventListener('click', e => {
+      if (e.target === document.getElementById('gdetail-overlay'))
+        document.getElementById('gdetail-overlay').classList.remove('open');
+    });
+
+    // ── 로그인 회원에게 글쓰기 버튼 표시 ──
+    function showWriteBtn() {
+      try {
+        const s = JSON.parse(sessionStorage.getItem('rise_session'));
+        if (s) document.getElementById('gallery-write-btn').classList.add('visible');
+      } catch {}
+    }
+    showWriteBtn();
+
+    // ── 작성 모달 열기/닫기 ──
+    document.getElementById('gallery-write-btn').addEventListener('click', () => {
+      document.getElementById('gwrite-overlay').classList.add('open');
+      document.getElementById('gw-msg').textContent = '';
+    });
+    document.getElementById('gw-cancel').addEventListener('click', () => {
+      document.getElementById('gwrite-overlay').classList.remove('open');
+    });
+    document.getElementById('gwrite-overlay').addEventListener('click', e => {
+      if (e.target === document.getElementById('gwrite-overlay'))
+        document.getElementById('gwrite-overlay').classList.remove('open');
+    });
+
+    // 이미지 URL 미리보기
+    document.getElementById('gw-imgurl').addEventListener('input', () => {
+      const url = document.getElementById('gw-imgurl').value.trim();
+      const prev = document.getElementById('gw-preview');
+      if (url) { prev.src = url; prev.style.display = 'block'; }
+      else { prev.style.display = 'none'; }
+    });
+
+    // ── 갤러리 올리기 ──
+    document.getElementById('gw-submit').addEventListener('click', async () => {
+      let session;
+      try { session = JSON.parse(sessionStorage.getItem('rise_session')); } catch {}
+      if (!session) { alert('로그인 후 이용할 수 있습니다.'); return; }
+
+      const title   = document.getElementById('gw-title').value.trim();
+      const story   = document.getElementById('gw-story').value.trim();
+      const imgUrl  = document.getElementById('gw-imgurl').value.trim();
+      const msg     = document.getElementById('gw-msg');
+
+      if (!title) { msg.style.color = '#ef4444'; msg.textContent = '제목을 입력해 주세요.'; return; }
+
+      const btn = document.getElementById('gw-submit');
+      btn.disabled = true;
+      msg.style.color = 'var(--blue)';
+      msg.textContent = '올리는 중…';
+
+      const { error } = await sb.from('gallery').insert({
+        title,
+        story:       story   || null,
+        image_url:   imgUrl  || null,
+        author_name: session.name || session.email || '익명',
+        author_id:   String(session.id),
+      });
+
+      btn.disabled = false;
+      if (error) {
+        msg.style.color = '#ef4444';
+        msg.textContent = '실패: ' + (error.message || '다시 시도해 주세요.');
+      } else {
+        msg.style.color = '#16a34a';
+        msg.textContent = '✅ 올리기 완료!';
+        document.getElementById('gw-title').value   = '';
+        document.getElementById('gw-story').value   = '';
+        document.getElementById('gw-imgurl').value  = '';
+        document.getElementById('gw-preview').style.display = 'none';
+        await loadGallery();
+        setTimeout(() => document.getElementById('gwrite-overlay').classList.remove('open'), 1200);
+      }
+    });
+
+    // 탭 전환 시 갤러리 로드
+    document.querySelectorAll('.ntab').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (btn.dataset.ntab === 'tab-gallery') loadGallery();
+      });
+    });
   })();
 </script>
 </body>

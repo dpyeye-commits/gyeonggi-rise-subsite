@@ -122,6 +122,18 @@
     .dm-submit:hover { background: var(--navy-mid); }
     .dm-submit:disabled { opacity: .5; cursor: default; }
     .dm-msg { font-size: 13px; margin-top: 10px; text-align: center; }
+    .dm-file-area {
+      border: 2px dashed var(--border); border-radius: var(--r-sm); padding: 20px;
+      text-align: center; cursor: pointer; transition: border-color .15s, background .15s;
+    }
+    .dm-file-area:hover, .dm-file-area.dragover { border-color: var(--blue); background: #eff6ff; }
+    .dm-file-area input[type=file] { display: none; }
+    .dm-file-chosen { font-size: 13px; color: var(--blue); font-weight: 700; margin-top: 6px; }
+    .dm-section-divider { text-align: center; font-size: 12px; color: var(--text-soft); margin: 12px 0; position: relative; }
+    .dm-section-divider::before { content:''; position:absolute; top:50%; left:0; right:0; height:1px; background:var(--border); }
+    .dm-section-divider span { background:#fff; padding: 0 10px; position:relative; }
+    .dm-progress { height: 4px; background: #e2e8f0; border-radius: 99px; margin-top: 8px; display: none; }
+    .dm-progress-bar { height: 100%; background: var(--blue); border-radius: 99px; width: 0; transition: width .2s; }
 
     /* ── AI Tool 카드 ── */
     .aitool-intro {
@@ -428,7 +440,7 @@
           <textarea id="dm-desc" placeholder="간단한 설명을 입력하세요"></textarea>
         </div>
         <div class="dm-field">
-          <label>파일 종류 *</label>
+          <label>파일 종류</label>
           <select id="dm-type">
             <option value="pdf">PDF</option>
             <option value="ppt">PPT / Google Slides</option>
@@ -440,15 +452,25 @@
           </select>
         </div>
         <div class="dm-field">
-          <label>파일 URL *</label>
+          <label>이미지 직접 올리기 (선택)</label>
+          <div class="dm-file-area" id="dm-file-area">
+            <input type="file" id="dm-file" accept="image/*">
+            <div id="dm-file-placeholder">🖼️ 클릭하거나 이미지를 여기에 끌어다 놓으세요<br><small style="color:#aaa;">JPG, PNG, GIF, WebP · 최대 5MB</small></div>
+            <div class="dm-file-chosen" id="dm-file-chosen" style="display:none;"></div>
+          </div>
+          <div class="dm-progress" id="dm-progress"><div class="dm-progress-bar" id="dm-progress-bar"></div></div>
+        </div>
+        <div class="dm-section-divider"><span>또는</span></div>
+        <div class="dm-field">
+          <label>외부 파일 URL (선택)</label>
           <input type="url" id="dm-url" placeholder="https://drive.google.com/...">
-          <p class="dm-hint">Google Drive 공유 링크, Google Slides 링크, 또는 직접 다운로드 URL을 입력하세요.</p>
+          <p class="dm-hint">Google Drive · Dropbox · 직접 링크 등. 이미지를 올린 경우 비워도 됩니다.</p>
         </div>
         <div class="dm-field">
           <label>파일 크기/라벨 (선택)</label>
           <input type="text" id="dm-size" placeholder="예: 2.4 MB, Google Slides">
         </div>
-        <p class="dm-msg" id="dm-msg" style="color:var(--blue);"></p>
+        <p class="dm-msg" id="dm-msg"></p>
         <div class="dm-actions">
           <button class="dm-cancel" id="dm-cancel-btn">취소</button>
           <button class="dm-submit" id="dm-submit-btn">올리기</button>
@@ -825,53 +847,105 @@
 
     loadResources();
 
-    // 로그인 회원 업로드 버튼
-    let _sess = null;
-    try { _sess = JSON.parse(sessionStorage.getItem('rise_session')); } catch(e) {}
-    if (_sess) document.getElementById('data-upload-bar').style.display = 'flex';
+    // 관리자 전용 업로드 버튼
+    if (sessionStorage.getItem('rise_admin') === '1')
+      document.getElementById('data-upload-bar').style.display = 'flex';
 
+    // 모달 열기/닫기
+    const _dmo = document.getElementById('data-modal-overlay');
     document.getElementById('data-upload-open-btn').addEventListener('click', () => {
-      document.getElementById('data-modal-overlay').classList.add('open');
+      _dmo.classList.add('open');
       document.getElementById('dm-msg').textContent = '';
     });
-    document.getElementById('dm-cancel-btn').addEventListener('click', () => {
-      document.getElementById('data-modal-overlay').classList.remove('open');
-    });
-    document.getElementById('data-modal-overlay').addEventListener('click', (e) => {
-      if (e.target === document.getElementById('data-modal-overlay'))
-        document.getElementById('data-modal-overlay').classList.remove('open');
-    });
+    document.getElementById('dm-cancel-btn').addEventListener('click', () => _dmo.classList.remove('open'));
+    _dmo.addEventListener('click', e => { if (e.target === _dmo) _dmo.classList.remove('open'); });
 
+    // 파일 선택 영역
+    const _dmfa = document.getElementById('dm-file-area');
+    const _dmfi = document.getElementById('dm-file');
+    let _dmSelectedFile = null;
+
+    function setDmFile(file) {
+      if (!file || !file.type.startsWith('image/')) return;
+      _dmSelectedFile = file;
+      document.getElementById('dm-file-placeholder').style.display = 'none';
+      const chosen = document.getElementById('dm-file-chosen');
+      chosen.style.display = '';
+      chosen.textContent = '✅ ' + file.name + ' (' + (file.size / 1024).toFixed(0) + ' KB)';
+    }
+    _dmfa.addEventListener('click', e => { if (e.target !== _dmfi) _dmfi.click(); });
+    _dmfa.addEventListener('dragover', e => { e.preventDefault(); _dmfa.classList.add('dragover'); });
+    _dmfa.addEventListener('dragleave', () => _dmfa.classList.remove('dragover'));
+    _dmfa.addEventListener('drop', e => {
+      e.preventDefault(); _dmfa.classList.remove('dragover');
+      setDmFile(e.dataTransfer.files[0]);
+    });
+    _dmfi.addEventListener('change', () => setDmFile(_dmfi.files[0]));
+
+    // 제출
     document.getElementById('dm-submit-btn').addEventListener('click', async () => {
-      let session = null;
-      try { session = JSON.parse(sessionStorage.getItem('rise_session')); } catch(e) {}
-      if (!session) { alert('로그인 후 이용할 수 있습니다.'); return; }
-
       const title = document.getElementById('dm-title').value.trim();
       const desc  = document.getElementById('dm-desc').value.trim();
       const type  = document.getElementById('dm-type').value;
       const url   = document.getElementById('dm-url').value.trim();
       const size  = document.getElementById('dm-size').value.trim();
       const msg   = document.getElementById('dm-msg');
+      const btn   = document.getElementById('dm-submit-btn');
+      const prog  = document.getElementById('dm-progress');
+      const progBar = document.getElementById('dm-progress-bar');
 
       if (!title) { msg.style.color = '#ef4444'; msg.textContent = '제목을 입력해 주세요.'; return; }
-      if (!url)   { msg.style.color = '#ef4444'; msg.textContent = '파일 URL을 입력해 주세요.'; return; }
+      if (!_dmSelectedFile && !url) { msg.style.color = '#ef4444'; msg.textContent = '이미지를 선택하거나 URL을 입력해 주세요.'; return; }
+      if (_dmSelectedFile && _dmSelectedFile.size > 5 * 1024 * 1024) { msg.style.color = '#ef4444'; msg.textContent = '파일이 5MB를 초과합니다.'; return; }
 
-      const btn = document.getElementById('dm-submit-btn');
-      btn.disabled = true; msg.style.color = 'var(--blue)'; msg.textContent = '업로드 중…';
+      btn.disabled = true;
 
-      const { error } = await sb.from('resources').insert({ title, description: desc || null, file_type: type, file_url: url, file_size_label: size || null });
-      btn.disabled = false;
-      if (error) {
-        msg.style.color = '#ef4444'; msg.textContent = '업로드 실패: ' + (error.message || '다시 시도해 주세요.');
+      async function saveResource(fileUrl) {
+        const { error } = await sb.from('resources').insert({
+          title, description: desc || null, file_type: type,
+          file_url: fileUrl || null, file_size_label: size || null
+        });
+        btn.disabled = false;
+        if (prog) prog.style.display = 'none';
+        if (error) {
+          msg.style.color = '#ef4444'; msg.textContent = '등록 실패: ' + (error.message || '다시 시도해 주세요.');
+        } else {
+          msg.style.color = '#16a34a'; msg.textContent = '✅ 등록 완료!';
+          ['dm-title','dm-desc','dm-url','dm-size'].forEach(id => { document.getElementById(id).value = ''; });
+          _dmSelectedFile = null; _dmfi.value = '';
+          document.getElementById('dm-file-placeholder').style.display = '';
+          document.getElementById('dm-file-chosen').style.display = 'none';
+          await loadResources();
+          setTimeout(() => _dmo.classList.remove('open'), 1200);
+        }
+      }
+
+      if (_dmSelectedFile) {
+        msg.style.color = 'var(--blue)'; msg.textContent = '이미지 업로드 중…';
+        if (prog) { prog.style.display = 'block'; progBar.style.width = '20%'; }
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          if (progBar) progBar.style.width = '50%';
+          const fd = new FormData();
+          fd.append('key', '24c845003a65d5989a1828e9370df70e');
+          fd.append('image', e.target.result.split(',')[1]);
+          fetch('https://api.imgbb.com/1/upload', { method: 'POST', body: fd })
+            .then(r => r.json())
+            .then(data => {
+              if (progBar) progBar.style.width = '100%';
+              if (data.success) saveResource(data.data.display_url);
+              else throw new Error();
+            })
+            .catch(() => {
+              btn.disabled = false;
+              if (prog) prog.style.display = 'none';
+              msg.style.color = '#ef4444'; msg.textContent = '이미지 업로드 실패. 다시 시도해 주세요.';
+            });
+        };
+        reader.readAsDataURL(_dmSelectedFile);
       } else {
-        msg.style.color = '#16a34a'; msg.textContent = '✅ 업로드 완료!';
-        document.getElementById('dm-title').value = '';
-        document.getElementById('dm-desc').value = '';
-        document.getElementById('dm-url').value = '';
-        document.getElementById('dm-size').value = '';
-        await loadResources();
-        setTimeout(() => { document.getElementById('data-modal-overlay').classList.remove('open'); }, 1200);
+        msg.style.color = 'var(--blue)'; msg.textContent = '등록 중…';
+        await saveResource(url);
       }
     });
   })();

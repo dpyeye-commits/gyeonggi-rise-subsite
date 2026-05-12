@@ -389,144 +389,23 @@
 
     <!-- ── 공지사항 탭 ── -->
     <div class="notice-panel active" id="tab-notice">
+      <div class="board-topbar fade-in" style="margin-bottom:16px;">
+        <div id="notice-count" style="font-size:14px;color:var(--text-soft);">공지 0개</div>
+        <button class="board-write-btn" id="notice-write-btn" style="display:none;">✏️ 공지 작성</button>
+      </div>
       <div class="search-bar fade-in">
         <input class="search-input" type="text" placeholder="제목 또는 내용으로 검색하세요" id="searchInput">
         <button class="search-btn" id="searchBtn">검색</button>
       </div>
 
-      <div class="notice-list fade-in">
+      <div class="notice-list fade-in" id="notice-dyn-list">
 
-        <!-- 고정 공지 -->
-        <div class="notice-row pinned" data-idx="0">
-          <div class="notice-num"><span class="pin-badge">공지</span></div>
-          <div class="notice-title">2026년 자연치유학과 크리에이터 과정 2기 수강생 모집 안내 <span class="new-badge">NEW</span></div>
-          <div class="notice-cat cat-notice">모집</div>
-          <div class="notice-date">2026.08.14</div>
-        </div>
-        <div class="notice-detail" id="detail-0">
-          <div class="notice-detail-body">
-            <strong>2026년 하반기 자연치유학과 건강콘텐츠 크리에이터 과정 2기 수강생을 모집합니다.</strong><br><br>
-            ▸ 모집 과정: 건강콘텐츠 크리에이터 과정 (16주)<br>
-            ▸ 모집 인원: 20명 내외<br>
-            ▸ 신청 기간: 2026. 08. 14 ~ 09. 05 (마감 시 조기 종료)<br>
-            ▸ 교육 시작: 2026. 10. 05 예정<br>
-            ▸ 신청 방법: <a href="signup.html" style="color:var(--blue);">참여 혜택 페이지</a>를 통해 온라인 신청<br><br>
-            자세한 내용은 담당자(chiyu@joongbu.ac.kr)에게 문의하여 주시기 바랍니다.
-          </div>
-          <button class="notice-detail-close" data-close="0">▲ 닫기</button>
-        </div>
+        <div class="board-empty" id="notice-loading">불러오는 중…</div>
 
-        <!-- 고정 공지 2 -->
-        <div class="notice-row pinned" data-idx="1">
-          <div class="notice-num"><span class="pin-badge">공지</span></div>
-          <div class="notice-title">자연치유학과 크리에이터 과정 공식 홈페이지 오픈 안내</div>
-          <div class="notice-cat cat-notice">안내</div>
-          <div class="notice-date">2026.03.01</div>
-        </div>
-        <div class="notice-detail" id="detail-1">
-          <div class="notice-detail-body">
-            중부대학교 자연치유학과 크리에이터 과정 공식 홈페이지가 오픈되었습니다. 앞으로 본 홈페이지를 통해 과정 소개, 커리큘럼, 참여 혜택 등 다양한 정보를 안내해 드리겠습니다. 많은 관심과 이용 부탁드립니다.
-          </div>
-          <button class="notice-detail-close" data-close="1">▲ 닫기</button>
-        </div>
+      </div><!-- /notice-dyn-list -->
 
-        <!-- 일반 공지 -->
-        <div class="notice-row" data-idx="2">
-          <div class="notice-num">5</div>
-          <div class="notice-title">2026년 1기 수료식 개최 결과 <span class="new-badge">NEW</span></div>
-          <div class="notice-cat cat-notice">행사</div>
-          <div class="notice-date">2026.09.02</div>
-        </div>
-        <div class="notice-detail" id="detail-2">
-          <div class="notice-detail-body">
-            지난 8월 28일(금) 중부대학교 자연치유학관에서 크리에이터 과정 1기 수료식을 성황리에 개최하였습니다.<br><br>
-            ▸ 수료생: 18명 (참여 인원 20명 중 18명 수료)<br>
-            ▸ 채널 성과: 평균 구독자 142명, 최고 구독자 1,240명 달성<br>
-            ▸ 취업 연계: 3명 웰니스 기관 취업 확정<br>
-            ▸ 수료증: 중부대학교 자연치유학과 공식 발급<br><br>
-            참여해 주신 모든 1기 수료생 여러분께 진심으로 감사드립니다.
-          </div>
-          <button class="notice-detail-close" data-close="2">▲ 닫기</button>
-        </div>
+      <div class="notice-no-result" id="notice-no-result" style="display:none">검색 결과가 없습니다.</div>
 
-        <div class="notice-row" data-idx="3">
-          <div class="notice-num">4</div>
-          <div class="notice-title">1기 4주차 명상 실습 장소 변경 안내</div>
-          <div class="notice-cat cat-notice">안내</div>
-          <div class="notice-date">2026.04.08</div>
-        </div>
-        <div class="notice-detail" id="detail-3">
-          <div class="notice-detail-body">
-            2026년 1기 4주차 명상·마음챙김 실습 장소가 변경됩니다.<br><br>
-            ▸ 기존: 자연치유학관 301호<br>
-            ▸ 변경: 자연치유학관 야외 명상 공간 (우천 시 305호)<br>
-            ▸ 일시: 2026. 04. 16 (목) 오후 2시 (동일)<br><br>
-            변경된 장소에 대한 문의는 담당 보조강사(chiyu@joongbu.ac.kr)에게 연락 주시기 바랍니다.
-          </div>
-          <button class="notice-detail-close" data-close="3">▲ 닫기</button>
-        </div>
-
-        <div class="notice-row" data-idx="4">
-          <div class="notice-num">3</div>
-          <div class="notice-title">1기 게스트 특강 — 건강 유튜버 초청 안내</div>
-          <div class="notice-cat cat-notice">행사</div>
-          <div class="notice-date">2026.05.20</div>
-        </div>
-        <div class="notice-detail" id="detail-4">
-          <div class="notice-detail-body">
-            5월 특강으로 구독자 15만 건강 유튜버 '자연치유맘'님을 초청합니다.<br><br>
-            ▸ 일시: 2026. 05. 28 (목) 오후 3시<br>
-            ▸ 장소: 자연치유학관 세미나실<br>
-            ▸ 내용: 유튜브 알고리즘 실전 경험, 협찬 계약 노하우, Q&A<br>
-            ▸ 참석 대상: 크리에이터 과정 1기 수강생 전원<br><br>
-            질문이 있으신 분은 사전에 담당 교수에게 제출해 주시면 반영하겠습니다.
-          </div>
-          <button class="notice-detail-close" data-close="4">▲ 닫기</button>
-        </div>
-
-        <div class="notice-row" data-idx="5">
-          <div class="notice-num">2</div>
-          <div class="notice-title">자연치유학과 크리에이터 과정 설명회 개최 안내</div>
-          <div class="notice-cat cat-notice">행사</div>
-          <div class="notice-date">2026.02.12</div>
-        </div>
-        <div class="notice-detail" id="detail-5">
-          <div class="notice-detail-body">
-            크리에이터 과정 지원을 고려하시는 분들을 위한 온라인 설명회를 개최합니다.<br><br>
-            ▸ 일시: 2026. 02. 20 (금) 오후 7시<br>
-            ▸ 방식: Zoom 온라인 (링크는 신청자에게 개별 발송)<br>
-            ▸ 내용: 커리큘럼 안내, 혜택 소개, Q&A<br>
-            ▸ 신청: chiyu@joongbu.ac.kr 로 이름·연락처 발송
-          </div>
-          <button class="notice-detail-close" data-close="5">▲ 닫기</button>
-        </div>
-
-        <div class="notice-row" data-idx="6">
-          <div class="notice-num">1</div>
-          <div class="notice-title">2026년 자연치유학과 크리에이터 과정 운영 계획 공고</div>
-          <div class="notice-cat cat-notice">안내</div>
-          <div class="notice-date">2026.01.10</div>
-        </div>
-        <div class="notice-detail" id="detail-6">
-          <div class="notice-detail-body">
-            2026년도 자연치유학과 크리에이터 과정 전체 운영 계획이 확정되어 공고합니다. 교육 일정, 강사진 구성, 모집 일정 등이 포함된 세부 계획서는 자료실에서 다운로드 하실 수 있습니다.
-          </div>
-          <button class="notice-detail-close" data-close="6">▲ 닫기</button>
-        </div>
-
-      </div><!-- /notice-list -->
-
-      <div class="notice-no-result" id="notice-no-result" style="display:none">
-        검색 결과가 없습니다.
-      </div>
-
-      <div class="pagination fade-in">
-        <button class="page-btn arrow">‹</button>
-        <button class="page-btn active">1</button>
-        <button class="page-btn">2</button>
-        <button class="page-btn">3</button>
-        <button class="page-btn arrow">›</button>
-      </div>
     </div><!-- /tab-notice -->
 
     <!-- ── 보도자료 탭 ── -->
@@ -621,6 +500,20 @@
     <div class="bmodal-field">
       <label>내용</label>
       <textarea id="bmodal-body" placeholder="내용을 입력하세요"></textarea>
+    </div>
+    <div class="bmodal-field" id="bmodal-cat-field" style="display:none;">
+      <label>카테고리</label>
+      <select id="bmodal-cat" style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:var(--r-sm);font-size:14px;font-family:'Paperlogy','Noto Sans KR',sans-serif;outline:none;">
+        <option value="안내">안내</option>
+        <option value="모집">모집</option>
+        <option value="행사">행사</option>
+        <option value="일반">일반</option>
+      </select>
+    </div>
+    <div class="bmodal-field" id="bmodal-pin-field" style="display:none;">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;">
+        <input type="checkbox" id="bmodal-pin"> 상단 고정 공지
+      </label>
     </div>
     <div class="bmodal-btns">
       <button class="bmodal-cancel" id="bmodal-cancel">취소</button>
@@ -730,54 +623,7 @@
     });
   });
 
-  // 닫기 버튼
-  document.querySelectorAll('.notice-detail-close').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      document.getElementById('detail-' + btn.dataset.close).classList.remove('open');
-    });
-  });
-
-  // 공지사항 검색
-  (function() {
-    const searchInput = document.getElementById('searchInput');
-    const searchBtn   = document.getElementById('searchBtn');
-    const noResult    = document.getElementById('notice-no-result');
-    const pagination  = document.querySelector('#tab-notice .pagination');
-
-    function doSearch() {
-      const q = searchInput.value.trim().toLowerCase();
-      const rows = document.querySelectorAll('#tab-notice .notice-row');
-      let found = 0;
-      rows.forEach(row => {
-        const idx    = row.dataset.idx;
-        const detail = document.getElementById('detail-' + idx);
-        const title  = (row.querySelector('.notice-title')?.textContent || '').toLowerCase();
-        const body   = (detail?.querySelector('.notice-detail-body')?.textContent || '').toLowerCase();
-        const match  = !q || title.includes(q) || body.includes(q);
-        row.style.display    = match ? '' : 'none';
-        if (detail) detail.style.display = match ? '' : 'none';
-        if (match) found++;
-      });
-      const hasQuery = q.length > 0;
-      noResult.style.display   = (hasQuery && found === 0) ? '' : 'none';
-      if (pagination) pagination.style.display = hasQuery ? 'none' : '';
-    }
-
-    searchBtn.addEventListener('click', doSearch);
-    searchInput.addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
-    searchInput.addEventListener('input', () => { if (!searchInput.value.trim()) doSearch(); });
-  })();
-
-  // 페이지네이션 버튼 active 토글
-  document.querySelectorAll('.page-btn:not(.arrow)').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.page-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-    });
-  });
-
-  // ── 자유게시판 ──
+  // ── 공지사항 + 자유게시판 ──
   (function() {
     const { createClient } = window.supabase;
     const sb = createClient(
@@ -786,7 +632,9 @@
     );
 
     let _posts = [];
+    let _notices = [];
     let _editId = null;
+    let _modalTable = 'posts';
 
     function getSession() {
       try { return JSON.parse(sessionStorage.getItem('rise_session')); } catch { return null; }
@@ -987,11 +835,14 @@
 
     // 글쓰기 버튼
     document.getElementById('board-write-btn').addEventListener('click', () => {
+      _modalTable = 'posts';
       _editId = null;
       document.getElementById('bmodal-title').textContent = '글쓰기';
       document.getElementById('bmodal-ttl').value = '';
       document.getElementById('bmodal-body').value = '';
       document.getElementById('bmodal-submit').textContent = '등록';
+      document.getElementById('bmodal-cat-field').style.display = 'none';
+      document.getElementById('bmodal-pin-field').style.display = 'none';
       document.getElementById('bmodal-bg').classList.add('open');
     });
 
@@ -1015,47 +866,215 @@
       submitBtn.disabled = true;
       submitBtn.textContent = '처리 중…';
 
-      if (_editId) {
-        const { error } = await sb.from('posts').update({
-          title, content, updated_at: new Date().toISOString()
-        }).eq('id', _editId);
-        if (error) {
-          alert('수정에 실패했습니다: ' + error.message);
-          submitBtn.disabled = false;
-          submitBtn.textContent = '수정 완료';
-          return;
+      if (_modalTable === 'notices') {
+        const category = document.getElementById('bmodal-cat').value;
+        const pinned = document.getElementById('bmodal-pin').checked;
+        if (_editId) {
+          const { error } = await sb.from('notices').update({
+            title, content, category, pinned, updated_at: new Date().toISOString()
+          }).eq('id', _editId);
+          if (error) {
+            alert('수정에 실패했습니다: ' + error.message);
+            submitBtn.disabled = false; submitBtn.textContent = '수정 완료'; return;
+          }
+        } else {
+          const { error } = await sb.from('notices').insert({
+            id: uid(), author_name: '관리자', title, content, category, pinned
+          });
+          if (error) {
+            alert('공지 등록에 실패했습니다: ' + error.message);
+            submitBtn.disabled = false; submitBtn.textContent = '등록'; return;
+          }
         }
+        submitBtn.disabled = false;
+        submitBtn.textContent = _editId ? '수정 완료' : '등록';
+        document.getElementById('bmodal-bg').classList.remove('open');
+        await loadNotices();
       } else {
-        const session = getSession();
-        if (!session) {
-          alert('로그인이 필요합니다.');
-          submitBtn.disabled = false;
-          submitBtn.textContent = '등록';
-          return;
+        if (_editId) {
+          const { error } = await sb.from('posts').update({
+            title, content, updated_at: new Date().toISOString()
+          }).eq('id', _editId);
+          if (error) {
+            alert('수정에 실패했습니다: ' + error.message);
+            submitBtn.disabled = false; submitBtn.textContent = '수정 완료'; return;
+          }
+        } else {
+          const session = getSession();
+          if (!session) {
+            alert('로그인이 필요합니다.');
+            submitBtn.disabled = false; submitBtn.textContent = '등록'; return;
+          }
+          const { error } = await sb.from('posts').insert({
+            id: uid(), author_name: session.name,
+            author_id: String(session.id), title, content
+          });
+          if (error) {
+            alert('글 등록에 실패했습니다: ' + error.message);
+            submitBtn.disabled = false; submitBtn.textContent = '등록'; return;
+          }
         }
-        const { error } = await sb.from('posts').insert({
-          id: uid(),
-          author_name: session.name,
-          author_id: String(session.id),
-          title,
-          content
-        });
-        if (error) {
-          alert('글 등록에 실패했습니다: ' + error.message);
-          submitBtn.disabled = false;
-          submitBtn.textContent = '등록';
-          return;
-        }
+        submitBtn.disabled = false;
+        submitBtn.textContent = _editId ? '수정 완료' : '등록';
+        document.getElementById('bmodal-bg').classList.remove('open');
+        await loadPosts();
       }
-
-      submitBtn.disabled = false;
-      submitBtn.textContent = _editId ? '수정 완료' : '등록';
-      document.getElementById('bmodal-bg').classList.remove('open');
-      await loadPosts();
     });
 
-    // 페이지 로드 시 게시글 불러오기
+    // ── 공지사항 로드 & 렌더링 ──
+    async function loadNotices() {
+      const el = document.getElementById('notice-loading');
+      if (el) el.textContent = '불러오는 중…';
+      const { data, error } = await sb.from('notices').select('*')
+        .order('pinned', { ascending: false })
+        .order('created_at', { ascending: false });
+      _notices = error ? [] : (data || []);
+      renderNotices(_notices);
+    }
+
+    function renderNotices(list) {
+      const container = document.getElementById('notice-dyn-list');
+      const admin = isAdmin();
+
+      document.getElementById('notice-write-btn').style.display = admin ? '' : 'none';
+      document.getElementById('notice-count').textContent = `공지 ${_notices.length}개`;
+
+      if (list.length === 0) {
+        container.innerHTML = '<div class="board-empty">등록된 공지가 없습니다.</div>';
+        return;
+      }
+
+      const nowMs = Date.now();
+      let seq = 0;
+
+      container.innerHTML = list.map(n => {
+        const isNew = nowMs - new Date(n.created_at).getTime() < 7 * 24 * 60 * 60 * 1000;
+        const numHtml = n.pinned
+          ? '<span class="pin-badge">공지</span>'
+          : String(++seq);
+        const catClass = { '안내': 'cat-notice', '모집': 'cat-data', '행사': 'cat-media' }[n.category] || '';
+        const adminBtns = admin
+          ? `<div style="display:flex;gap:6px;margin-top:16px;">
+               <button class="board-admin-btn edit" data-nedit="${escHtml(n.id)}">수정</button>
+               <button class="board-admin-btn del" data-ndel="${escHtml(n.id)}">삭제</button>
+             </div>`
+          : '';
+        return `
+          <div class="notice-row${n.pinned ? ' pinned' : ''}" data-nid="${escHtml(n.id)}">
+            <div class="notice-num">${numHtml}</div>
+            <div class="notice-title">
+              ${escHtml(n.title)}${isNew ? ' <span class="new-badge">NEW</span>' : ''}
+            </div>
+            <span class="notice-cat ${catClass}">${escHtml(n.category || '안내')}</span>
+            <div class="notice-date">${fmtDate(n.created_at)}</div>
+          </div>
+          <div class="board-detail" id="nd-${escHtml(n.id)}">
+            <div class="board-detail-header">
+              <div>
+                <div style="font-size:17px;font-weight:800;color:var(--navy);margin-bottom:4px;">${escHtml(n.title)}</div>
+                <div class="board-detail-meta">관리자 · ${fmtDate(n.created_at)}</div>
+              </div>
+            </div>
+            <div class="board-detail-body">${escHtml(n.content)}</div>
+            ${adminBtns}
+            <button class="board-detail-close" data-nclose="${escHtml(n.id)}" style="margin-top:16px;">▲ 닫기</button>
+          </div>
+        `;
+      }).join('');
+
+      // 행 클릭 → 인라인 펼치기
+      container.querySelectorAll('.notice-row').forEach(row => {
+        row.addEventListener('click', () => {
+          const nid = row.dataset.nid;
+          const detail = document.getElementById('nd-' + nid);
+          const isOpen = detail.classList.contains('open');
+          container.querySelectorAll('.board-detail').forEach(d => d.classList.remove('open'));
+          if (!isOpen) detail.classList.add('open');
+        });
+      });
+
+      // 닫기 버튼
+      container.querySelectorAll('[data-nclose]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          document.getElementById('nd-' + btn.dataset.nclose).classList.remove('open');
+        });
+      });
+
+      // 관리자 수정
+      container.querySelectorAll('[data-nedit]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const n = _notices.find(x => x.id === btn.dataset.nedit);
+          if (!n) return;
+          _modalTable = 'notices';
+          _editId = n.id;
+          document.getElementById('bmodal-title').textContent = '공지 수정';
+          document.getElementById('bmodal-ttl').value = n.title;
+          document.getElementById('bmodal-body').value = n.content;
+          document.getElementById('bmodal-cat').value = n.category || '안내';
+          document.getElementById('bmodal-pin').checked = !!n.pinned;
+          document.getElementById('bmodal-cat-field').style.display = '';
+          document.getElementById('bmodal-pin-field').style.display = '';
+          document.getElementById('bmodal-submit').textContent = '수정 완료';
+          document.getElementById('bmodal-bg').classList.add('open');
+        });
+      });
+
+      // 관리자 삭제
+      container.querySelectorAll('[data-ndel]').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          if (!confirm('이 공지를 삭제하시겠습니까?')) return;
+          await sb.from('notices').delete().eq('id', btn.dataset.ndel);
+          await loadNotices();
+        });
+      });
+    }
+
+    // 공지 작성 버튼 (관리자 전용)
+    document.getElementById('notice-write-btn').addEventListener('click', () => {
+      _modalTable = 'notices';
+      _editId = null;
+      document.getElementById('bmodal-title').textContent = '공지 작성';
+      document.getElementById('bmodal-ttl').value = '';
+      document.getElementById('bmodal-body').value = '';
+      document.getElementById('bmodal-cat').value = '안내';
+      document.getElementById('bmodal-pin').checked = false;
+      document.getElementById('bmodal-cat-field').style.display = '';
+      document.getElementById('bmodal-pin-field').style.display = '';
+      document.getElementById('bmodal-submit').textContent = '등록';
+      document.getElementById('bmodal-bg').classList.add('open');
+    });
+
+    // 공지 검색
+    function searchNotices() {
+      const q = document.getElementById('searchInput').value.trim().toLowerCase();
+      const noResult = document.getElementById('notice-no-result');
+      if (!q) {
+        renderNotices(_notices);
+        noResult.style.display = 'none';
+        return;
+      }
+      const filtered = _notices.filter(n =>
+        n.title.toLowerCase().includes(q) || (n.content || '').toLowerCase().includes(q)
+      );
+      if (filtered.length === 0) {
+        document.getElementById('notice-dyn-list').innerHTML = '';
+        noResult.style.display = '';
+      } else {
+        renderNotices(filtered);
+        noResult.style.display = 'none';
+      }
+    }
+    document.getElementById('searchBtn').addEventListener('click', searchNotices);
+    document.getElementById('searchInput').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') searchNotices();
+    });
+
+    // 페이지 로드 시 게시글 + 공지 불러오기
     loadPosts();
+    loadNotices();
   })();
 
 

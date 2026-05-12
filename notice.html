@@ -2039,12 +2039,13 @@
       }
     });
 
-    // 탭 전환 시 갤러리 로드
-    document.querySelectorAll('.ntab').forEach(btn => {
-      btn.addEventListener('click', () => {
-        if (btn.dataset.ntab === 'tab-gallery') loadGallery();
-      });
+    // 탭 전환 시 갤러리 새로고침
+    document.querySelectorAll('.ntab[data-ntab="tab-gallery"]').forEach(btn => {
+      btn.addEventListener('click', loadGallery);
     });
+
+    // 페이지 로드 시 백그라운드 선로드 (탭 클릭 전에도 준비)
+    loadGallery();
   })();
 </script>
 </body>

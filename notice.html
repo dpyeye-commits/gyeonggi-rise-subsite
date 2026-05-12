@@ -1377,7 +1377,10 @@
       document.querySelectorAll('.ntab').forEach(b => b.classList.remove('active'));
       document.querySelectorAll('.notice-panel').forEach(p => p.classList.remove('active'));
       btn.classList.add('active');
-      document.getElementById(btn.dataset.ntab).classList.add('active');
+      const panel = document.getElementById(btn.dataset.ntab);
+      panel.classList.add('active');
+      // display:none 패널 안 fade-in 요소는 IntersectionObserver가 감지 못하므로 강제 표시
+      panel.querySelectorAll('.fade-in').forEach(el => el.classList.add('visible'));
     });
   });
 

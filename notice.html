@@ -930,7 +930,13 @@
       const { data, error } = await sb.from('notices').select('*')
         .order('pinned', { ascending: false })
         .order('created_at', { ascending: false });
-      _notices = error ? [] : (data || []);
+      if (error) {
+        document.getElementById('notice-dyn-list').innerHTML =
+          `<div class="board-empty" style="color:#c0392b;font-size:13px;">❌ DB 오류: ${error.message || error.code || JSON.stringify(error)}</div>`;
+        _notices = [];
+        return;
+      }
+      _notices = data || [];
       renderNotices(_notices);
     }
 
@@ -1060,7 +1066,13 @@
       if (el) el.textContent = '불러오는 중…';
       const { data, error } = await sb.from('press_releases').select('*')
         .order('created_at', { ascending: false });
-      _press = error ? [] : (data || []);
+      if (error) {
+        document.getElementById('media-dyn-grid').innerHTML =
+          `<div class="board-empty" style="grid-column:1/-1;color:#c0392b;font-size:13px;">❌ DB 오류: ${error.message || error.code || JSON.stringify(error)}</div>`;
+        _press = [];
+        return;
+      }
+      _press = data || [];
       renderPress(_press);
     }
 

@@ -1220,14 +1220,14 @@
 
     </div><!-- /tab-board -->
 
-    <!-- ── 포포갤러리 탭 ── -->
+    <!-- ── 활동갤러리 탭 ── -->
     <div class="notice-panel" id="tab-gallery">
 
-      <div class="gallery-topbar fade-in">
-        <div class="gallery-topbar-info" id="gallery-count">불러오는 중…</div>
+      <div class="gallery-topbar">
+        <div class="gallery-topbar-info" id="gallery-count"></div>
         <button class="gallery-write-btn" id="gallery-write-btn">📸 사진·이야기 올리기</button>
       </div>
-      <div class="gallery-grid fade-in" id="gallery-grid">
+      <div class="gallery-grid" id="gallery-grid">
         <div class="gallery-empty">
           <div class="g-empty-icon">📷</div>
           <p>불러오는 중…</p>
@@ -1881,174 +1881,151 @@
     });
   })();
 
-  // ── 포포갤러리 ──
-  (function() {
-    const { createClient } = window.supabase;
-    const sb = createClient(
-      'https://mvbxcrxykyyshdwtuedl.supabase.co',
-      'sb_publishable_xyA4rNrKXrOK0Yy_qPgL5w_8UbP7Vaa'
-    );
+  // ── 활동갤러리 ──
+  (function initGallery() {
+    var SB_URL  = 'https://mvbxcrxykyyshdwtuedl.supabase.co';
+    var SB_KEY  = 'sb_publishable_xyA4rNrKXrOK0Yy_qPgL5w_8UbP7Vaa';
+    var grid    = document.getElementById('gallery-grid');
+    var countEl = document.getElementById('gallery-count');
+    var _items  = [];
 
-    const grid   = document.getElementById('gallery-grid');
-    const countEl = document.getElementById('gallery-count');
-
-    function escHtml(s) {
-      return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    function esc(s) {
+      return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
-    function fmtDate(s) {
+    function fmt(s) {
       if (!s) return '';
-      const d = new Date(s);
-      return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+      var d = new Date(s);
+      return d.getFullYear()+'.'+(d.getMonth()+1+'').padStart(2,'0')+'.'+(''+d.getDate()).padStart(2,'0');
     }
 
-    // ── 목록 렌더 ──
-    function renderGallery(items) {
-      countEl.textContent = `총 ${items.length}개`;
+    function render(items) {
+      _items = items;
+      if (countEl) countEl.textContent = '총 '+items.length+'개';
+      if (!grid) return;
       if (items.length === 0) {
-        grid.innerHTML = `
-          <div class="gallery-empty">
-            <div class="g-empty-icon">📷</div>
-            <p style="font-size:14px;">아직 올라온 사진이 없습니다. 첫 번째로 올려보세요!</p>
-          </div>`;
+        grid.innerHTML = '<div class="gallery-empty" style="grid-column:1/-1"><div class="g-empty-icon">📷</div><p style="font-size:14px;margin-top:8px;">아직 올라온 사진이 없습니다. 첫 번째로 올려보세요!</p></div>';
         return;
       }
-      grid.innerHTML = items.map(item => {
-        const imgHtml = item.image_url
-          ? `<img class="gcard-img" src="${escHtml(item.image_url)}" alt="${escHtml(item.title)}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-             <div class="gcard-img-placeholder" style="display:none;">📷</div>`
-          : `<div class="gcard-img-placeholder">📷</div>`;
-        return `
-          <div class="gcard" data-id="${escHtml(item.id)}">
-            ${imgHtml}
-            <div class="gcard-body">
-              <div class="gcard-title">${escHtml(item.title)}</div>
-              ${item.story ? `<div class="gcard-story">${escHtml(item.story)}</div>` : ''}
-              <div class="gcard-meta">${escHtml(item.author_name || '익명')} · ${fmtDate(item.created_at)}</div>
-            </div>
-          </div>`;
+      grid.innerHTML = items.map(function(r) {
+        var img = r.image_url
+          ? '<img class="gcard-img" src="'+esc(r.image_url)+'" loading="lazy" onerror="this.style.display=\'none\'">'
+          : '<div class="gcard-img-placeholder">📷</div>';
+        return '<div class="gcard" data-id="'+esc(r.id)+'">'+img
+          +'<div class="gcard-body">'
+          +'<div class="gcard-title">'+esc(r.title)+'</div>'
+          +(r.story ? '<div class="gcard-story">'+esc(r.story)+'</div>' : '')
+          +'<div class="gcard-meta">'+esc(r.author_name||'익명')+' · '+fmt(r.created_at)+'</div>'
+          +'</div></div>';
       }).join('');
-
-      // 카드 클릭 → 상세 모달
-      grid.querySelectorAll('.gcard').forEach(card => {
-        card.addEventListener('click', () => {
-          const item = items.find(i => i.id === card.dataset.id);
-          if (!item) return;
-          openDetail(item);
+      grid.querySelectorAll('.gcard').forEach(function(card) {
+        card.addEventListener('click', function() {
+          var it = _items.find(function(i){ return i.id === card.dataset.id; });
+          if (it) openDetail(it);
         });
       });
     }
 
-    async function loadGallery() {
-      const { data, error } = await sb
-        .from('gallery')
-        .select('*')
-        .order('created_at', { ascending: false });
-      if (error) {
-        grid.innerHTML = `<div class="gallery-empty"><p>불러오기 실패: ${escHtml(error.message)}</p></div>`;
-        return;
-      }
-      renderGallery(data || []);
+    function loadGallery() {
+      if (grid) grid.innerHTML = '<div class="gallery-empty" style="grid-column:1/-1"><p>불러오는 중…</p></div>';
+      fetch(SB_URL+'/rest/v1/gallery?select=*&order=created_at.desc', {
+        headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer '+SB_KEY }
+      })
+      .then(function(r){ return r.json(); })
+      .then(function(data){ render(Array.isArray(data) ? data : []); })
+      .catch(function(e){ if(grid) grid.innerHTML = '<div class="gallery-empty" style="grid-column:1/-1"><p>불러오기 실패</p></div>'; });
     }
 
-    // ── 상세 모달 ──
+    // 탭 클릭 시 로드
+    document.querySelectorAll('.ntab').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        if (btn.dataset.ntab === 'tab-gallery') loadGallery();
+      });
+    });
+
+    // 상세 모달
     function openDetail(item) {
-      const imgWrap = document.getElementById('gdetail-img-wrap');
-      imgWrap.innerHTML = item.image_url
-        ? `<img class="gdetail-img" src="${escHtml(item.image_url)}" alt="${escHtml(item.title)}">`
-        : `<div class="gdetail-img-placeholder">📷</div>`;
-      document.getElementById('gdetail-title').textContent = item.title;
-      document.getElementById('gdetail-meta').textContent =
-        `${item.author_name || '익명'} · ${fmtDate(item.created_at)}`;
-      document.getElementById('gdetail-story').textContent = item.story || '';
-      document.getElementById('gdetail-overlay').classList.add('open');
+      var wrap = document.getElementById('gdetail-img-wrap');
+      if (wrap) wrap.innerHTML = item.image_url
+        ? '<img class="gdetail-img" src="'+esc(item.image_url)+'">'
+        : '<div class="gdetail-img-placeholder">📷</div>';
+      var t = document.getElementById('gdetail-title');
+      var m = document.getElementById('gdetail-meta');
+      var s = document.getElementById('gdetail-story');
+      var o = document.getElementById('gdetail-overlay');
+      if(t) t.textContent = item.title;
+      if(m) m.textContent = (item.author_name||'익명')+' · '+fmt(item.created_at);
+      if(s) s.textContent = item.story||'';
+      if(o) o.classList.add('open');
     }
-    document.getElementById('gdetail-close').addEventListener('click', () => {
-      document.getElementById('gdetail-overlay').classList.remove('open');
-    });
-    document.getElementById('gdetail-overlay').addEventListener('click', e => {
-      if (e.target === document.getElementById('gdetail-overlay'))
-        document.getElementById('gdetail-overlay').classList.remove('open');
-    });
+    var dc = document.getElementById('gdetail-close');
+    var do_ = document.getElementById('gdetail-overlay');
+    if(dc) dc.addEventListener('click', function(){ do_.classList.remove('open'); });
+    if(do_) do_.addEventListener('click', function(e){ if(e.target===do_) do_.classList.remove('open'); });
 
-    // ── 로그인 회원에게 글쓰기 버튼 표시 ──
-    function showWriteBtn() {
-      try {
-        const s = JSON.parse(sessionStorage.getItem('rise_session'));
-        if (s) document.getElementById('gallery-write-btn').classList.add('visible');
-      } catch {}
-    }
-    showWriteBtn();
+    // 로그인 회원 글쓰기 버튼
+    try {
+      var sess = JSON.parse(sessionStorage.getItem('rise_session'));
+      if (sess) {
+        var wb = document.getElementById('gallery-write-btn');
+        if(wb) wb.classList.add('visible');
+      }
+    } catch(e) {}
 
-    // ── 작성 모달 열기/닫기 ──
-    document.getElementById('gallery-write-btn').addEventListener('click', () => {
-      document.getElementById('gwrite-overlay').classList.add('open');
-      document.getElementById('gw-msg').textContent = '';
+    // 작성 모달
+    var wo = document.getElementById('gwrite-overlay');
+    var gwb = document.getElementById('gallery-write-btn');
+    var gwc = document.getElementById('gw-cancel');
+    if(gwb) gwb.addEventListener('click', function(){
+      if(wo) wo.classList.add('open');
+      var msg = document.getElementById('gw-msg');
+      if(msg) msg.textContent = '';
     });
-    document.getElementById('gw-cancel').addEventListener('click', () => {
-      document.getElementById('gwrite-overlay').classList.remove('open');
-    });
-    document.getElementById('gwrite-overlay').addEventListener('click', e => {
-      if (e.target === document.getElementById('gwrite-overlay'))
-        document.getElementById('gwrite-overlay').classList.remove('open');
-    });
+    if(gwc) gwc.addEventListener('click', function(){ if(wo) wo.classList.remove('open'); });
+    if(wo) wo.addEventListener('click', function(e){ if(e.target===wo) wo.classList.remove('open'); });
 
-    // 이미지 URL 미리보기
-    document.getElementById('gw-imgurl').addEventListener('input', () => {
-      const url = document.getElementById('gw-imgurl').value.trim();
-      const prev = document.getElementById('gw-preview');
-      if (url) { prev.src = url; prev.style.display = 'block'; }
+    // 이미지 미리보기
+    var gu = document.getElementById('gw-imgurl');
+    if(gu) gu.addEventListener('input', function(){
+      var prev = document.getElementById('gw-preview');
+      if(!prev) return;
+      var url = gu.value.trim();
+      if(url) { prev.src = url; prev.style.display = 'block'; }
       else { prev.style.display = 'none'; }
     });
 
-    // ── 갤러리 올리기 ──
-    document.getElementById('gw-submit').addEventListener('click', async () => {
-      let session;
-      try { session = JSON.parse(sessionStorage.getItem('rise_session')); } catch {}
+    // 올리기 제출
+    var gsub = document.getElementById('gw-submit');
+    if(gsub) gsub.addEventListener('click', function() {
+      var session;
+      try { session = JSON.parse(sessionStorage.getItem('rise_session')); } catch(e){}
       if (!session) { alert('로그인 후 이용할 수 있습니다.'); return; }
-
-      const title   = document.getElementById('gw-title').value.trim();
-      const story   = document.getElementById('gw-story').value.trim();
-      const imgUrl  = document.getElementById('gw-imgurl').value.trim();
-      const msg     = document.getElementById('gw-msg');
-
-      if (!title) { msg.style.color = '#ef4444'; msg.textContent = '제목을 입력해 주세요.'; return; }
-
-      const btn = document.getElementById('gw-submit');
-      btn.disabled = true;
-      msg.style.color = 'var(--blue)';
-      msg.textContent = '올리는 중…';
-
-      const { error } = await sb.from('gallery').insert({
-        title,
-        story:       story   || null,
-        image_url:   imgUrl  || null,
-        author_name: session.name || session.email || '익명',
-        author_id:   String(session.id),
-      });
-
-      btn.disabled = false;
-      if (error) {
-        msg.style.color = '#ef4444';
-        msg.textContent = '실패: ' + (error.message || '다시 시도해 주세요.');
-      } else {
-        msg.style.color = '#16a34a';
-        msg.textContent = '✅ 올리기 완료!';
-        document.getElementById('gw-title').value   = '';
-        document.getElementById('gw-story').value   = '';
-        document.getElementById('gw-imgurl').value  = '';
-        document.getElementById('gw-preview').style.display = 'none';
-        await loadGallery();
-        setTimeout(() => document.getElementById('gwrite-overlay').classList.remove('open'), 1200);
-      }
+      var title  = (document.getElementById('gw-title')||{}).value||'';
+      var story  = (document.getElementById('gw-story')||{}).value||'';
+      var imgUrl = (document.getElementById('gw-imgurl')||{}).value||'';
+      var msg    = document.getElementById('gw-msg');
+      title = title.trim(); story = story.trim(); imgUrl = imgUrl.trim();
+      if (!title) { if(msg){msg.style.color='#ef4444';msg.textContent='제목을 입력해 주세요.';} return; }
+      gsub.disabled = true;
+      if(msg){msg.style.color='var(--blue)';msg.textContent='올리는 중…';}
+      fetch(SB_URL+'/rest/v1/gallery', {
+        method: 'POST',
+        headers: { 'apikey':SB_KEY, 'Authorization':'Bearer '+SB_KEY, 'Content-Type':'application/json', 'Prefer':'return=minimal' },
+        body: JSON.stringify({ title:title, story:story||null, image_url:imgUrl||null, author_name:session.name||session.email||'익명', author_id:String(session.id) })
+      })
+      .then(function(r){
+        gsub.disabled = false;
+        if (r.ok) {
+          if(msg){msg.style.color='#16a34a';msg.textContent='✅ 올리기 완료!';}
+          var tf=document.getElementById('gw-title'), sf=document.getElementById('gw-story'), uf=document.getElementById('gw-imgurl'), pf=document.getElementById('gw-preview');
+          if(tf)tf.value=''; if(sf)sf.value=''; if(uf)uf.value=''; if(pf)pf.style.display='none';
+          loadGallery();
+          setTimeout(function(){ if(wo) wo.classList.remove('open'); }, 1200);
+        } else {
+          if(msg){msg.style.color='#ef4444';msg.textContent='올리기 실패. 다시 시도해 주세요.';}
+        }
+      })
+      .catch(function(){ gsub.disabled=false; if(msg){msg.style.color='#ef4444';msg.textContent='네트워크 오류';} });
     });
-
-    // 탭 전환 시 갤러리 새로고침
-    document.querySelectorAll('.ntab[data-ntab="tab-gallery"]').forEach(btn => {
-      btn.addEventListener('click', loadGallery);
-    });
-
-    // 페이지 로드 시 백그라운드 선로드 (탭 클릭 전에도 준비)
-    loadGallery();
   })();
 </script>
 </body>

@@ -216,6 +216,15 @@
     .gcard-meta { font-size: 11px; color: #bbb; margin-top: 8px; }
     .gallery-empty { text-align: center; padding: 60px 0; color: #aaa; grid-column: 1/-1; }
     .gallery-empty .g-empty-icon { font-size: 40px; margin-bottom: 12px; }
+    .gcard { position: relative; }
+    .gcard-photo-count { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,.55); color: #fff; font-size: 11px; font-weight: 700; padding: 3px 7px; border-radius: 20px; }
+    .gw-preview-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .gw-preview-thumb { width: 76px; height: 76px; object-fit: cover; border-radius: 6px; border: 1px solid #e2e8f0; }
+    .gdetail-img-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 8px; margin-bottom: 4px; }
+    .gdetail-img-grid img { width: 100%; aspect-ratio: 4/3; object-fit: cover; border-radius: 8px; cursor: pointer; transition: opacity .15s; }
+    .gdetail-img-grid img:hover { opacity: .88; }
+    .gdetail-img-fullscreen { position: fixed; inset: 0; background: rgba(0,0,0,.92); z-index: 9999; display: flex; align-items: center; justify-content: center; cursor: zoom-out; }
+    .gdetail-img-fullscreen img { max-width: 92vw; max-height: 92vh; object-fit: contain; border-radius: 4px; }
 
     /* 갤러리 상세 모달 */
     .gdetail-overlay {
@@ -646,14 +655,14 @@
     <div class="gwrite-field">
       <label>사진 (선택)</label>
       <div class="gw-file-area" id="gw-file-area">
-        <input type="file" id="gw-file" accept="image/*" style="display:none">
+        <input type="file" id="gw-file" accept="image/*" multiple style="display:none">
         <div class="gw-file-placeholder" id="gw-file-placeholder">📷 클릭하거나 사진을 여기에 끌어다 놓으세요</div>
-        <img class="gwrite-preview" id="gw-preview" alt="미리보기">
+        <div class="gw-preview-grid" id="gw-preview-grid"></div>
       </div>
       <div class="gw-file-progress" id="gw-file-progress">
         <div class="gw-file-progress-bar" id="gw-file-progress-bar"></div>
       </div>
-      <p class="gwrite-hint">JPG, PNG, GIF, WebP · 최대 5MB</p>
+      <p class="gwrite-hint">JPG, PNG, GIF, WebP · 파일당 최대 5MB · 여러 장 선택 가능</p>
     </div>
     <p class="gwrite-msg" id="gw-msg"></p>
     <div class="gwrite-btns">
@@ -890,8 +899,12 @@
         return;
       }
       grid.innerHTML = items.map(function(r) {
-        var img = r.image_url ? '<img class="gcard-img" src="'+esc(r.image_url)+'" loading="lazy" onerror="this.style.display=\'none\'">' : '<div class="gcard-img-placeholder">📷</div>';
-        return '<div class="gcard" data-id="'+esc(r.id)+'">'+img+'<div class="gcard-body"><div class="gcard-title">'+esc(r.title)+'</div>'+(r.story?'<div class="gcard-story">'+esc(r.story)+'</div>':'')+'<div class="gcard-meta">'+esc(r.author_name||'익명')+' · '+fmt(r.created_at)+'</div></div></div>';
+        var imgs = getImages(r);
+        var thumb = imgs.length > 0
+          ? '<img class="gcard-img" src="'+esc(imgs[0])+'" loading="lazy" onerror="this.style.display=\'none\'">'
+          : '<div class="gcard-img-placeholder">📷</div>';
+        var badge = imgs.length > 1 ? '<span class="gcard-photo-count">📷 '+imgs.length+'</span>' : '';
+        return '<div class="gcard" data-id="'+esc(r.id)+'">'+thumb+badge+'<div class="gcard-body"><div class="gcard-title">'+esc(r.title)+'</div>'+(r.story?'<div class="gcard-story">'+esc(r.story)+'</div>':'')+'<div class="gcard-meta">'+esc(r.author_name||'익명')+' · '+fmt(r.created_at)+'</div></div></div>';
       }).join('');
       grid.querySelectorAll('.gcard').forEach(function(card) {
         card.addEventListener('click', function() {
@@ -910,10 +923,38 @@
         .catch(function(){ if(grid) grid.innerHTML = '<div class="gallery-empty" style="grid-column:1/-1"><p>불러오기 실패</p></div>'; });
     };
 
+    function getImages(item) {
+      if (!item.image_url) return [];
+      if (item.image_url.charAt(0) === '[') {
+        try { return JSON.parse(item.image_url); } catch(e) {}
+      }
+      return [item.image_url];
+    }
+
     function openDetail(item) {
       _curItem = item;
       var wrap = document.getElementById('gdetail-img-wrap');
-      if (wrap) wrap.innerHTML = item.image_url ? '<img class="gdetail-img" src="'+esc(item.image_url)+'">' : '<div class="gdetail-img-placeholder">📷</div>';
+      if (wrap) {
+        var imgs = getImages(item);
+        if (imgs.length > 1) {
+          wrap.innerHTML = '<div class="gdetail-img-grid">'+imgs.map(function(u){
+            return '<img src="'+esc(u)+'" alt="">';
+          }).join('')+'</div>';
+          wrap.querySelectorAll('.gdetail-img-grid img').forEach(function(img) {
+            img.addEventListener('click', function() {
+              var fs = document.createElement('div');
+              fs.className = 'gdetail-img-fullscreen';
+              fs.innerHTML = '<img src="'+img.src+'" alt="">';
+              fs.addEventListener('click', function(){ document.body.removeChild(fs); });
+              document.body.appendChild(fs);
+            });
+          });
+        } else if (imgs.length === 1) {
+          wrap.innerHTML = '<img class="gdetail-img" src="'+esc(imgs[0])+'">';
+        } else {
+          wrap.innerHTML = '<div class="gdetail-img-placeholder">📷</div>';
+        }
+      }
       var t=document.getElementById('gdetail-title'), m=document.getElementById('gdetail-meta'), s=document.getElementById('gdetail-story'), o=document.getElementById('gdetail-overlay');
       if(t) t.textContent = item.title;
       if(m) m.textContent = (item.author_name||'익명')+' · '+fmt(item.created_at);
@@ -980,55 +1021,78 @@
   if(_gwc) _gwc.addEventListener('click', function(){ if(_wo) _wo.classList.remove('open'); });
   if(_wo) _wo.addEventListener('click', function(e){ if(e.target===_wo) _wo.classList.remove('open'); });
 
-  // 파일 선택 영역
-  var _gfa = document.getElementById('gw-file-area');
-  var _gfi = document.getElementById('gw-file');
+  // 파일 선택 영역 (다중)
+  var _gfa  = document.getElementById('gw-file-area');
+  var _gfi  = document.getElementById('gw-file');
   var _gfph = document.getElementById('gw-file-placeholder');
-  var _gprev = document.getElementById('gw-preview');
+  var _selectedFiles = [];
 
-  function setFilePreview(file) {
-    if (!file) return;
-    var reader = new FileReader();
-    reader.onload = function(e) {
-      if (_gprev) { _gprev.src = e.target.result; _gprev.style.display = 'block'; }
-      if (_gfph) _gfph.style.display = 'none';
-    };
-    reader.readAsDataURL(file);
+  function renderFilePreviews(files) {
+    var grid = document.getElementById('gw-preview-grid');
+    if (!grid) return;
+    if (!files.length) {
+      grid.innerHTML = '';
+      if (_gfph) _gfph.style.display = '';
+      return;
+    }
+    if (_gfph) _gfph.style.display = 'none';
+    grid.innerHTML = '';
+    files.forEach(function(file) {
+      var img = document.createElement('img');
+      img.className = 'gw-preview-thumb';
+      var fr = new FileReader();
+      fr.onload = function(e) { img.src = e.target.result; };
+      fr.readAsDataURL(file);
+      grid.appendChild(img);
+    });
   }
 
   if (_gfa) {
-    _gfa.addEventListener('click', function(e) { if(e.target !== _gfi) _gfi.click(); });
+    _gfa.addEventListener('click', function(e) { if (e.target !== _gfi) _gfi.click(); });
     _gfa.addEventListener('dragover', function(e) { e.preventDefault(); _gfa.classList.add('dragover'); });
     _gfa.addEventListener('dragleave', function() { _gfa.classList.remove('dragover'); });
     _gfa.addEventListener('drop', function(e) {
       e.preventDefault(); _gfa.classList.remove('dragover');
-      var f = e.dataTransfer.files[0];
-      if (f && f.type.startsWith('image/')) { _gfi.files; setFilePreview(f); _gfi._droppedFile = f; }
+      _selectedFiles = Array.from(e.dataTransfer.files).filter(function(f){ return f.type.startsWith('image/'); });
+      renderFilePreviews(_selectedFiles);
     });
   }
   if (_gfi) {
     _gfi.addEventListener('change', function() {
-      _gfi._droppedFile = null;
-      if (_gfi.files[0]) setFilePreview(_gfi.files[0]);
+      _selectedFiles = Array.from(_gfi.files);
+      renderFilePreviews(_selectedFiles);
     });
   }
 
   // 올리기 제출
   var _gsub = document.getElementById('gw-submit');
-  if(_gsub) _gsub.addEventListener('click', function() {
+  if (_gsub) _gsub.addEventListener('click', function() {
     var SB_URL = 'https://mvbxcrxykyyshdwtuedl.supabase.co';
     var SB_KEY = 'sb_publishable_xyA4rNrKXrOK0Yy_qPgL5w_8UbP7Vaa';
-    var session; try { session = JSON.parse(sessionStorage.getItem('rise_session')); } catch(e){}
+    var session; try { session = JSON.parse(sessionStorage.getItem('rise_session')); } catch(e) {}
     if (!session) { alert('로그인 후 이용할 수 있습니다.'); return; }
+
     var title = ((document.getElementById('gw-title')||{}).value||'').trim();
     var story = ((document.getElementById('gw-story')||{}).value||'').trim();
     var msg   = document.getElementById('gw-msg');
-    var file  = (_gfi && _gfi._droppedFile) ? _gfi._droppedFile : (_gfi && _gfi.files[0] ? _gfi.files[0] : null);
 
     if (!title) { if(msg){msg.style.color='#ef4444';msg.textContent='제목을 입력해 주세요.';} return; }
-    if (file && file.size > 5 * 1024 * 1024) { if(msg){msg.style.color='#ef4444';msg.textContent='파일이 5MB를 초과합니다.';} return; }
+
+    var oversized = _selectedFiles.find(function(f){ return f.size > 5*1024*1024; });
+    if (oversized) { if(msg){msg.style.color='#ef4444';msg.textContent='파일이 5MB를 초과합니다: '+oversized.name;} return; }
 
     _gsub.disabled = true;
+    var prog    = document.getElementById('gw-file-progress');
+    var progBar = document.getElementById('gw-file-progress-bar');
+
+    function resetForm() {
+      var tf=document.getElementById('gw-title'), sf=document.getElementById('gw-story');
+      if(tf)tf.value=''; if(sf)sf.value='';
+      _selectedFiles = [];
+      if(_gfi) _gfi.value='';
+      renderFilePreviews([]);
+      if(prog) prog.style.display='none';
+    }
 
     function saveRecord(imageUrl) {
       fetch(SB_URL+'/rest/v1/gallery', {
@@ -1038,17 +1102,11 @@
       })
       .then(function(r) {
         _gsub.disabled = false;
-        var prog = document.getElementById('gw-file-progress');
-        if (prog) prog.style.display = 'none';
         if (r.ok) {
           if(msg){msg.style.color='#16a34a';msg.textContent='✅ 올리기 완료!';}
-          var tf=document.getElementById('gw-title'),sf=document.getElementById('gw-story'),pf=document.getElementById('gw-preview');
-          if(tf)tf.value=''; if(sf)sf.value='';
-          if(pf){pf.src='';pf.style.display='none';}
-          if(_gfi){_gfi.value='';_gfi._droppedFile=null;}
-          if(_gfph)_gfph.style.display='';
+          resetForm();
           loadGallery();
-          setTimeout(function(){ if(_wo) _wo.classList.remove('open'); },1200);
+          setTimeout(function(){ if(_wo) _wo.classList.remove('open'); }, 1200);
         } else {
           r.json().then(function(body){
             var errMsg = '올리기 실패. 다시 시도해 주세요.';
@@ -1060,40 +1118,53 @@
       .catch(function(){ _gsub.disabled=false; if(msg){msg.style.color='#ef4444';msg.textContent='네트워크 오류. 연결을 확인해 주세요.';} });
     }
 
-    if (file) {
-      if(msg){msg.style.color='var(--blue)';msg.textContent='사진 올리는 중…';}
-      var prog = document.getElementById('gw-file-progress');
-      var progBar = document.getElementById('gw-file-progress-bar');
-      if (prog) prog.style.display = 'block';
-      if (progBar) progBar.style.width = '20%';
-      var reader2 = new FileReader();
-      reader2.onload = function(e) {
-        if (progBar) progBar.style.width = '50%';
-        var base64 = e.target.result.split(',')[1];
-        var formData = new FormData();
-        formData.append('key', '24c845003a65d5989a1828e9370df70e');
-        formData.append('image', base64);
-        fetch('https://api.imgbb.com/1/upload', { method: 'POST', body: formData })
-        .then(function(r) { return r.json(); })
-        .then(function(data) {
-          if (progBar) progBar.style.width = '100%';
-          if (data.success) {
-            saveRecord(data.data.display_url);
-          } else {
-            throw new Error('imgbb_fail');
-          }
-        })
-        .catch(function() {
-          _gsub.disabled = false;
-          if (prog) prog.style.display = 'none';
-          if(msg){msg.style.color='#ef4444';msg.textContent='사진 업로드 실패. 다시 시도해 주세요.';}
-        });
-      };
-      reader2.readAsDataURL(file);
-    } else {
+    function uploadOne(file) {
+      return new Promise(function(resolve, reject) {
+        var fr = new FileReader();
+        fr.onload = function(e) {
+          var fd = new FormData();
+          fd.append('key', '24c845003a65d5989a1828e9370df70e');
+          fd.append('image', e.target.result.split(',')[1]);
+          fetch('https://api.imgbb.com/1/upload', {method:'POST', body:fd})
+            .then(function(r){ return r.json(); })
+            .then(function(d){ d.success ? resolve(d.data.display_url) : reject(); })
+            .catch(reject);
+        };
+        fr.readAsDataURL(file);
+      });
+    }
+
+    if (_selectedFiles.length === 0) {
       if(msg){msg.style.color='var(--blue)';msg.textContent='올리는 중…';}
       saveRecord(null);
+      return;
     }
+
+    if(prog) prog.style.display='block';
+    if(progBar) progBar.style.width='5%';
+    if(msg){msg.style.color='var(--blue)';msg.textContent='사진 업로드 중 (0/'+_selectedFiles.length+')…';}
+
+    var urls = [];
+    var total = _selectedFiles.length;
+
+    function uploadNext(idx) {
+      if (idx >= total) {
+        if(progBar) progBar.style.width='100%';
+        var imageUrl = urls.length === 1 ? urls[0] : JSON.stringify(urls);
+        saveRecord(imageUrl);
+        return;
+      }
+      if(msg){msg.style.color='var(--blue)';msg.textContent='사진 업로드 중 ('+(idx+1)+'/'+total+')…';}
+      if(progBar) progBar.style.width = Math.round(10 + (idx/total)*85)+'%';
+      uploadOne(_selectedFiles[idx])
+        .then(function(url){ urls.push(url); uploadNext(idx+1); })
+        .catch(function(){
+          _gsub.disabled=false;
+          if(prog) prog.style.display='none';
+          if(msg){msg.style.color='#ef4444';msg.textContent='사진 '+(idx+1)+'번째 업로드 실패. 다시 시도해 주세요.';}
+        });
+    }
+    uploadNext(0);
   });
 </script>
 </body>

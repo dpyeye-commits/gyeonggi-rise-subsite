@@ -857,7 +857,7 @@
     }
   };
 
-  // Google Drive URL 자동 변환 함수
+  // Google Drive URL 자동 변환 함수 (저장용 — preview/uc 형식)
   function convertDriveUrl(url) {
     if (!url) return url;
     var m = url.match(/\/d\/([a-zA-Z0-9_-]{20,})/);
@@ -866,6 +866,16 @@
     if (/docs\.google\.com\/presentation/.test(url)) return 'https://docs.google.com/presentation/d/'+id+'/preview';
     if (/docs\.google\.com\/document/.test(url))     return 'https://docs.google.com/document/d/'+id+'/preview';
     if (/drive\.google\.com/.test(url))              return 'https://drive.google.com/uc?export=download&id='+id;
+    return url;
+  }
+
+  // 다운로드용 URL 변환 (preview → export/pdf, 나머지 그대로)
+  function getDownloadUrl(url) {
+    if (!url) return url;
+    var mPres = url.match(/docs\.google\.com\/presentation\/d\/([a-zA-Z0-9_-]{20,})/);
+    if (mPres) return 'https://docs.google.com/presentation/d/'+mPres[1]+'/export/pdf';
+    var mDoc = url.match(/docs\.google\.com\/document\/d\/([a-zA-Z0-9_-]{20,})/);
+    if (mDoc) return 'https://docs.google.com/document/d/'+mDoc[1]+'/export/pdf';
     return url;
   }
 
@@ -948,7 +958,7 @@
           ${r.file_size_label ? `<div class="data-size">${r.file_size_label}</div>` : ''}
           <div style="display:flex;gap:6px;align-items:center;flex-shrink:0;">
             ${adminBtns}
-            <a class="data-dl" href="${r.file_url}" target="_blank" rel="noopener">⬇ 다운로드</a>
+            <a class="data-dl" href="${getDownloadUrl(r.file_url)}" target="_blank" rel="noopener">⬇ 다운로드</a>
           </div>
         </div>`;
       }).join('');

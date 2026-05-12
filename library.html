@@ -477,8 +477,14 @@
         <div class="dm-section-divider"><span>또는</span></div>
         <div class="dm-field">
           <label>외부 파일 URL (선택)</label>
-          <input type="url" id="dm-url" placeholder="https://drive.google.com/...">
+          <input type="url" id="dm-url" placeholder="https://drive.google.com/..." oninput="checkDriveUrl(this.value)">
           <p class="dm-hint">Google Drive · Dropbox · 직접 링크 등. 이미지를 올린 경우 비워도 됩니다.</p>
+          <div id="dm-drive-warn" style="display:none;margin-top:8px;padding:10px 14px;background:#fff8e1;border:1px solid #f59e0b;border-radius:8px;font-size:12px;color:#92400e;line-height:1.6;">
+            ⚠️ <b>Google Drive / Slides 링크 감지</b><br>
+            회원이 열 수 없을 수 있습니다. Google Drive에서 해당 파일을 열고<br>
+            <b>공유 → 링크가 있는 모든 사람 → 뷰어</b> 로 설정 후 링크를 붙여넣으세요.<br>
+            <span id="dm-drive-converted" style="color:#065f46;font-weight:700;"></span>
+          </div>
         </div>
         <div class="dm-field">
           <label>파일 크기/라벨 (선택)</label>
@@ -827,6 +833,42 @@
   window.gfsOpen = function(imgs, idx) { _gfsImgs = imgs; _gfsCur = idx; gfsShow(); };
   function gfsClose() { _gfsEl.style.display = 'none'; _gfsImg.src = ''; }
 
+  // Google Drive URL 감지 및 변환
+  window.checkDriveUrl = function(val) {
+    var warn = document.getElementById('dm-drive-warn');
+    var conv = document.getElementById('dm-drive-converted');
+    if (!val) { warn.style.display = 'none'; return; }
+    var isDrive = /drive\.google\.com|docs\.google\.com/.test(val);
+    if (!isDrive) { warn.style.display = 'none'; return; }
+    warn.style.display = 'block';
+    // Google Drive 파일 직접 다운로드 링크 변환
+    var m = val.match(/\/d\/([a-zA-Z0-9_-]{20,})/);
+    if (m) {
+      var id = m[1];
+      if (/docs\.google\.com\/presentation/.test(val)) {
+        conv.textContent = '→ 슬라이드 미리보기 링크로 자동 변환됩니다: https://docs.google.com/presentation/d/'+id+'/preview';
+      } else if (/docs\.google\.com\/document/.test(val)) {
+        conv.textContent = '→ 문서 미리보기 링크로 자동 변환됩니다: https://docs.google.com/document/d/'+id+'/preview';
+      } else {
+        conv.textContent = '→ 다운로드 링크로 자동 변환됩니다: https://drive.google.com/uc?export=download&id='+id;
+      }
+    } else {
+      conv.textContent = '';
+    }
+  };
+
+  // Google Drive URL 자동 변환 함수
+  function convertDriveUrl(url) {
+    if (!url) return url;
+    var m = url.match(/\/d\/([a-zA-Z0-9_-]{20,})/);
+    if (!m) return url;
+    var id = m[1];
+    if (/docs\.google\.com\/presentation/.test(url)) return 'https://docs.google.com/presentation/d/'+id+'/preview';
+    if (/docs\.google\.com\/document/.test(url))     return 'https://docs.google.com/document/d/'+id+'/preview';
+    if (/drive\.google\.com/.test(url))              return 'https://drive.google.com/uc?export=download&id='+id;
+    return url;
+  }
+
   _gfsClose.addEventListener('click', gfsClose);
   _gfsPrev.addEventListener('click', function() { _gfsCur = (_gfsCur - 1 + _gfsImgs.length) % _gfsImgs.length; gfsShow(); });
   _gfsNext.addEventListener('click', function() { _gfsCur = (_gfsCur + 1) % _gfsImgs.length; gfsShow(); });
@@ -961,7 +1003,7 @@
       const title = document.getElementById('dm-title').value.trim();
       const desc  = document.getElementById('dm-desc').value.trim();
       const type  = document.getElementById('dm-type').value;
-      const url   = document.getElementById('dm-url').value.trim();
+      const url   = convertDriveUrl(document.getElementById('dm-url').value.trim());
       const size  = document.getElementById('dm-size').value.trim();
       const msg   = document.getElementById('dm-msg');
       const btn   = document.getElementById('dm-submit-btn');

@@ -608,9 +608,9 @@
     let _modalTable = 'posts';
 
     function getSession() {
-      try { return JSON.parse(sessionStorage.getItem('rise_session')); } catch { return null; }
+      try { return JSON.parse(localStorage.getItem('rise_session')); } catch { return null; }
     }
-    function isAdmin() { return sessionStorage.getItem('rise_admin') === '1'; }
+    function isAdmin() { return localStorage.getItem('rise_admin') === '1'; }
 
     function fmtDate(iso) {
       if (!iso) return '';

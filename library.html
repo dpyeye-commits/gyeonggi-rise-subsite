@@ -416,7 +416,7 @@
         <input class="search-input" type="text" id="data-search-input" placeholder="자료명으로 검색하세요">
         <button class="search-btn" id="data-search-btn">검색</button>
       </div>
-      <div class="data-upload-bar fade-in" id="data-upload-bar" style="display:none;">
+      <div class="data-upload-bar" id="data-upload-bar">
         <button class="data-upload-btn" id="data-upload-open-btn">＋ 자료 올리기</button>
       </div>
       <div class="data-list fade-in" id="data-list">
@@ -847,13 +847,12 @@
 
     loadResources();
 
-    // 로그인 회원(일반/관리자) 업로드 버튼
-    if (sessionStorage.getItem('rise_session') || sessionStorage.getItem('rise_admin') === '1')
-      document.getElementById('data-upload-bar').style.display = 'flex';
-
-    // 모달 열기/닫기
+    // 모달 열기/닫기 — 클릭 시 로그인 확인
     const _dmo = document.getElementById('data-modal-overlay');
     document.getElementById('data-upload-open-btn').addEventListener('click', () => {
+      const hasLogin = localStorage.getItem('rise_session') || sessionStorage.getItem('rise_session')
+                    || localStorage.getItem('rise_admin') === '1' || sessionStorage.getItem('rise_admin') === '1';
+      if (!hasLogin) { alert('로그인 후 이용할 수 있습니다.'); return; }
       _dmo.classList.add('open');
       document.getElementById('dm-msg').textContent = '';
     });
@@ -959,8 +958,8 @@
 
     function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
     function fmt(s) { if (!s) return ''; var d = new Date(s); return d.getFullYear()+'.'+(d.getMonth()+1+'').padStart(2,'0')+'.'+(''+d.getDate()).padStart(2,'0'); }
-    function getSession() { try { return JSON.parse(sessionStorage.getItem('rise_session')); } catch(e){ return null; } }
-    function isAdmin() { return sessionStorage.getItem('rise_admin') === '1'; }
+    function getSession() { try { return JSON.parse(localStorage.getItem('rise_session')); } catch(e){ return null; } }
+    function isAdmin() { return localStorage.getItem('rise_admin') === '1'; }
 
     function render(items) {
       _items = items;
@@ -1077,7 +1076,7 @@
   // 로그인 여부에 따라 글쓰기 버튼 또는 로그인 안내 표시
   (function() {
     var sess = null;
-    try { sess = JSON.parse(sessionStorage.getItem('rise_session')); } catch(e) {}
+    try { sess = JSON.parse(localStorage.getItem('rise_session')); } catch(e) {}
     if (sess) {
       var wb = document.getElementById('gallery-write-btn');
       if (wb) wb.classList.add('visible');
@@ -1143,7 +1142,7 @@
   if (_gsub) _gsub.addEventListener('click', function() {
     var SB_URL = 'https://mvbxcrxykyyshdwtuedl.supabase.co';
     var SB_KEY = 'sb_publishable_xyA4rNrKXrOK0Yy_qPgL5w_8UbP7Vaa';
-    var session; try { session = JSON.parse(sessionStorage.getItem('rise_session')); } catch(e) {}
+    var session; try { session = JSON.parse(localStorage.getItem('rise_session')); } catch(e) {}
     if (!session) { alert('로그인 후 이용할 수 있습니다.'); return; }
 
     var title = ((document.getElementById('gw-title')||{}).value||'').trim();

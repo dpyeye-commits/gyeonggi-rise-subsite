@@ -588,7 +588,7 @@ async function updateAdminPw(newPw) {
 const gateEl = document.getElementById('gate-overlay');
 const appEl  = document.getElementById('app');
 
-if (sessionStorage.getItem('rise_admin') === '1') { unlock(); }
+if (localStorage.getItem('rise_admin') === '1') { unlock(); }
 
 async function unlock() {
   gateEl.style.display = 'none';
@@ -600,7 +600,7 @@ async function tryLogin() {
   const inputPw  = document.getElementById('gate-pw').value;
   const adminPw  = await getAdminPw();
   if (inputPw === adminPw) {
-    sessionStorage.setItem('rise_admin', '1');
+    localStorage.setItem('rise_admin', '1');
     unlock();
   } else {
     document.getElementById('gate-error').textContent = '비밀번호가 올바르지 않습니다.';
@@ -612,7 +612,7 @@ async function tryLogin() {
 document.getElementById('gate-btn').addEventListener('click', tryLogin);
 document.getElementById('gate-pw').addEventListener('keydown', e => { if (e.key === 'Enter') tryLogin(); });
 document.getElementById('adm-logout').addEventListener('click', () => {
-  sessionStorage.removeItem('rise_admin');
+  localStorage.removeItem('rise_admin');
   location.reload();
 });
 

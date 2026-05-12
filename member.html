@@ -565,12 +565,12 @@ const sb = createClient(
 const SESSION_KEY = 'rise_session';
 
 function getSession() {
-  try { return JSON.parse(sessionStorage.getItem(SESSION_KEY)); } catch { return null; }
+  try { return JSON.parse(localStorage.getItem(SESSION_KEY)); } catch { return null; }
 }
 function setSession(m) {
-  sessionStorage.setItem(SESSION_KEY, JSON.stringify({ id: m.id, name: m.name, email: m.email }));
+  localStorage.setItem(SESSION_KEY, JSON.stringify({ id: m.id, name: m.name, email: m.email }));
 }
-function clearSession() { sessionStorage.removeItem(SESSION_KEY); }
+function clearSession() { localStorage.removeItem(SESSION_KEY); }
 
 function fmtDateShort(iso) {
   if (!iso) return '';

@@ -936,15 +936,51 @@
         list.innerHTML = `<div style="text-align:center;padding:48px 0;color:#aaa;"><div style="font-size:32px;margin-bottom:12px;">📂</div><p style="font-size:14px;">등록된 자료가 없습니다.</p></div>`;
         return;
       }
+      const admin = localStorage.getItem('rise_admin') === '1' || sessionStorage.getItem('rise_admin') === '1';
       list.innerHTML = items.map(r => {
         const ic = ICON_MAP[r.file_type] || ICON_MAP.etc;
-        return `<div class="data-item">
+        const adminBtns = admin ? `
+          <button class="res-edit-btn" data-id="${r.id}" style="padding:7px 12px;border:1px solid #1E6FE0;color:#1E6FE0;background:#fff;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;">✏️ 수정</button>
+          <button class="res-del-btn" data-id="${r.id}" style="padding:7px 12px;border:1px solid #ef4444;color:#ef4444;background:#fff;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;">🗑 삭제</button>` : '';
+        return `<div class="data-item" data-id="${r.id}">
           <div class="data-icon ${ic.cls}">${ic.emoji}</div>
           <div class="data-meta"><h4>${r.title}</h4>${r.description ? `<p>${r.description}</p>` : ''}</div>
           ${r.file_size_label ? `<div class="data-size">${r.file_size_label}</div>` : ''}
-          <a class="data-dl" href="${r.file_url}" target="_blank" rel="noopener" download>⬇ 다운로드</a>
+          <div style="display:flex;gap:6px;align-items:center;flex-shrink:0;">
+            ${adminBtns}
+            <a class="data-dl" href="${r.file_url}" target="_blank" rel="noopener">⬇ 다운로드</a>
+          </div>
         </div>`;
       }).join('');
+
+      // 수정 버튼
+      list.querySelectorAll('.res-edit-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const r = _allResources.find(x => x.id == btn.dataset.id);
+          if (!r) return;
+          const newTitle = prompt('제목', r.title);
+          if (newTitle === null) return;
+          const newUrl = prompt('파일 URL', r.file_url);
+          if (newUrl === null) return;
+          const newDesc = prompt('설명 (선택)', r.description || '');
+          fetch(`${SB_URL}/rest/v1/resources?id=eq.${r.id}`, {
+            method: 'PATCH',
+            headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer '+SB_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
+            body: JSON.stringify({ title: newTitle.trim(), file_url: convertDriveUrl(newUrl.trim()), description: newDesc.trim() })
+          }).then(res => { if (res.ok) { alert('수정됐습니다.'); loadResources(); } else { alert('수정 실패'); } });
+        });
+      });
+
+      // 삭제 버튼
+      list.querySelectorAll('.res-del-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          if (!confirm('이 자료를 삭제하시겠습니까?')) return;
+          fetch(`${SB_URL}/rest/v1/resources?id=eq.${btn.dataset.id}`, {
+            method: 'DELETE',
+            headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer '+SB_KEY }
+          }).then(res => { if (res.ok || res.status === 204) loadResources(); else alert('삭제 실패'); });
+        });
+      });
     }
 
     async function loadResources() {

@@ -937,7 +937,6 @@
         return;
       }
       _notices = data || [];
-      document.getElementById('notice-count').textContent = `공지 ${_notices.length}개 (DB: ${(data||[]).length}건)`;
       renderNotices(_notices);
     }
 

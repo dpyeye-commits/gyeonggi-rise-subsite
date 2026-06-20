@@ -168,7 +168,8 @@
     }
     .board-row:hover { background: var(--cream); }
     .board-num { font-size: 13px; color: var(--text-soft); text-align: center; font-weight: 600; }
-    .board-title { font-size: 15px; font-weight: 600; color: var(--text); }
+    .board-title { font-size: 15px; font-weight: 600; color: var(--text); display: inline-flex; align-items: center; gap: 6px; }
+    .board-comment-count { font-size: 13px; font-weight: 700; color: var(--blue); }
     .board-author { font-size: 13px; color: var(--text-soft); white-space: nowrap; }
     .board-date { font-size: 13px; color: var(--text-soft); white-space: nowrap; }
     .board-detail {
@@ -295,6 +296,28 @@
     }
     .bmodal-submit:hover { background: var(--navy-mid); }
     .bmodal-submit:disabled { opacity: .6; cursor: not-allowed; }
+
+    /* ── 사진 첨부 ── */
+    .attach-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .attach-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 9px 16px; border: 1.5px dashed var(--blue); border-radius: var(--r-md);
+      background: var(--sky); color: var(--blue);
+      font-size: 13px; font-weight: 700; cursor: pointer;
+      font-family: 'Paperlogy', 'Noto Sans KR', sans-serif; transition: all .15s;
+    }
+    .attach-btn:hover { background: var(--blue); color: #fff; }
+    .attach-hint { font-size: 12px; color: var(--text-soft); font-weight: 400; }
+    .attach-previews { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+    .attach-thumb { position: relative; width: 92px; height: 92px; border-radius: 8px; overflow: hidden; border: 1.5px solid var(--border); }
+    .attach-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .attach-thumb-del {
+      position: absolute; top: 4px; right: 4px; width: 22px; height: 22px;
+      border: none; border-radius: 50%; background: rgba(0,0,0,.65); color: #fff;
+      font-size: 14px; line-height: 1; cursor: pointer; display: flex;
+      align-items: center; justify-content: center; padding: 0;
+    }
+    .attach-thumb-del:hover { background: #e03131; }
 
     /* ── 보도자료 카드 확장 ── */
     .media-card-expandable { cursor: pointer; }
@@ -502,6 +525,15 @@
       <label id="bmodal-body-label">내용 <span style="font-weight:400;color:var(--blue);font-size:12px;">— HTML 직접 입력 가능</span></label>
       <textarea id="bmodal-body" placeholder="내용을 입력하세요 (HTML 사용 가능)&#10;예) &lt;p&gt;안녕하세요&lt;/p&gt;&#10;&lt;img src=&quot;이미지URL&quot;&gt;"></textarea>
     </div>
+    <div class="bmodal-field">
+      <label>사진 첨부 <span style="font-weight:400;color:var(--text-soft);font-size:12px;">— 여러 장 선택 가능, 본문 하단에 자동 삽입됩니다</span></label>
+      <div class="attach-row">
+        <label class="attach-btn" for="bmodal-files">🖼 사진 선택</label>
+        <input type="file" id="bmodal-files" accept="image/*" multiple style="display:none;">
+        <span class="attach-hint">JPG · PNG · GIF · WebP</span>
+      </div>
+      <div class="attach-previews" id="bmodal-previews"></div>
+    </div>
     <div class="bmodal-field" id="bmodal-source-field" style="display:none;">
       <label>매체명</label>
       <input type="text" id="bmodal-source" placeholder="예: 연합뉴스, 헬스조선" maxlength="100">
@@ -649,6 +681,65 @@
     let _press = [];
     let _editId = null;
     let _modalTable = 'posts';
+    let _attachImages = [];   // 첨부된 사진 base64 data URL 목록
+
+    // 이미지 파일을 최대 1200px JPEG base64로 리사이즈
+    function fileToResizedDataURL(file, maxW = 1200, quality = 0.82) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onerror = () => reject(new Error('파일 읽기 실패'));
+        reader.onload = () => {
+          const img = new Image();
+          img.onerror = () => reject(new Error('이미지 로드 실패'));
+          img.onload = () => {
+            const scale = Math.min(1, maxW / img.width);
+            const w = Math.round(img.width * scale);
+            const h = Math.round(img.height * scale);
+            const canvas = document.createElement('canvas');
+            canvas.width = w; canvas.height = h;
+            canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+            // GIF/PNG 투명도 보존이 필요하면 PNG, 그 외엔 용량 작은 JPEG
+            const isPng = /image\/(png|gif|webp)/.test(file.type);
+            resolve(canvas.toDataURL(isPng ? 'image/png' : 'image/jpeg', quality));
+          };
+          img.src = reader.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function renderAttachPreviews() {
+      const box = document.getElementById('bmodal-previews');
+      box.innerHTML = _attachImages.map((src, i) => `
+        <div class="attach-thumb">
+          <img src="${src}" alt="첨부 이미지 ${i+1}">
+          <button type="button" class="attach-thumb-del" data-aidx="${i}" title="삭제">×</button>
+        </div>
+      `).join('');
+      box.querySelectorAll('.attach-thumb-del').forEach(btn => {
+        btn.addEventListener('click', () => {
+          _attachImages.splice(Number(btn.dataset.aidx), 1);
+          renderAttachPreviews();
+        });
+      });
+    }
+
+    function resetAttach() {
+      _attachImages = [];
+      const box = document.getElementById('bmodal-previews');
+      if (box) box.innerHTML = '';
+      const input = document.getElementById('bmodal-files');
+      if (input) input.value = '';
+    }
+
+    // 본문 끝에 첨부 이미지 <img> 태그를 덧붙여 반환
+    function appendAttachImages(content) {
+      if (!_attachImages.length) return content;
+      const imgs = _attachImages
+        .map(src => `<img src="${src}" alt="첨부 이미지" style="max-width:100%;height:auto;border-radius:8px;margin:8px 0;display:block;">`)
+        .join('\n');
+      return (content ? content + '\n' : '') + imgs;
+    }
 
     function getSession() {
       try { return JSON.parse(localStorage.getItem('rise_session')); } catch { return null; }
@@ -711,7 +802,7 @@
 
     async function loadPosts() {
       document.getElementById('board-loading') && (document.getElementById('board-loading').textContent = '불러오는 중…');
-      const { data, error } = await sb.from('posts').select('*').order('created_at', { ascending: false });
+      const { data, error } = await sb.from('posts').select('*, comments(count)').order('created_at', { ascending: false });
       _posts = error ? [] : (data || []);
       renderBoard();
     }
@@ -746,10 +837,15 @@
                <button class="board-admin-btn del" data-del="${escHtml(p.id)}">🗑 삭제</button>
              </div>`
           : '<div></div>';
+        const commentCount = p.comments?.[0]?.count || 0;
+        const commentBadge = commentCount > 0 ? `<span class="board-comment-count">[${commentCount}]</span>` : '';
         return `
           <div class="board-row" data-bid="${escHtml(p.id)}">
             <div class="board-num">${_posts.length - i}</div>
-            <div class="board-title">${escHtml(p.title)}</div>
+            <div class="board-title">
+              <span>${escHtml(p.title)}</span>
+              ${commentBadge}
+            </div>
             <div class="board-author">${escHtml(p.author_name)}</div>
             <div class="board-date">${fmtDate(p.created_at)}</div>
           </div>
@@ -876,24 +972,50 @@
       document.getElementById('bmodal-source-field').style.display = 'none';
       document.getElementById('bmodal-url-field').style.display = 'none';
       document.getElementById('bmodal-emoji-field').style.display = 'none';
+      resetAttach();
       document.getElementById('bmodal-bg').classList.add('open');
+    });
+
+    // 사진 선택 → 리사이즈 후 미리보기
+    document.getElementById('bmodal-files').addEventListener('change', async (e) => {
+      const files = Array.from(e.target.files || []);
+      const label = document.querySelector('.attach-btn');
+      const orig = label ? label.textContent : '';
+      if (label) { label.textContent = '처리 중…'; }
+      for (const file of files) {
+        if (!file.type.startsWith('image/')) continue;
+        try {
+          _attachImages.push(await fileToResizedDataURL(file));
+        } catch (err) {
+          alert(`"${file.name}" 처리에 실패했습니다.`);
+        }
+      }
+      if (label) { label.textContent = orig; }
+      e.target.value = '';   // 같은 파일 다시 선택 가능하도록 초기화
+      renderAttachPreviews();
     });
 
     // 모달 닫기
     document.getElementById('bmodal-cancel').addEventListener('click', () => {
       document.getElementById('bmodal-bg').classList.remove('open');
+      resetAttach();
     });
     document.getElementById('bmodal-bg').addEventListener('click', (e) => {
-      if (e.target === document.getElementById('bmodal-bg'))
+      if (e.target === document.getElementById('bmodal-bg')) {
         document.getElementById('bmodal-bg').classList.remove('open');
+        resetAttach();
+      }
     });
 
     // 모달 제출 (등록 or 수정)
     document.getElementById('bmodal-submit').addEventListener('click', async () => {
       const title = document.getElementById('bmodal-ttl').value.trim();
-      const content = document.getElementById('bmodal-body').value.trim();
+      const rawContent = document.getElementById('bmodal-body').value.trim();
       if (!title) { alert('제목을 입력하세요.'); return; }
-      if (!content) { alert('내용을 입력하세요.'); return; }
+      if (!rawContent && !_attachImages.length) { alert('내용을 입력하거나 사진을 첨부하세요.'); return; }
+
+      // 첨부 사진을 본문 끝에 <img> 태그로 삽입
+      const content = appendAttachImages(rawContent);
 
       const submitBtn = document.getElementById('bmodal-submit');
       submitBtn.disabled = true;
@@ -922,6 +1044,7 @@
         submitBtn.disabled = false;
         submitBtn.textContent = _editId ? '수정 완료' : '등록';
         document.getElementById('bmodal-bg').classList.remove('open');
+        resetAttach();
         await loadNotices();
       } else if (_modalTable === 'press') {
         const source = document.getElementById('bmodal-source').value.trim();
@@ -948,6 +1071,7 @@
         submitBtn.disabled = false;
         submitBtn.textContent = _editId ? '수정 완료' : '등록';
         document.getElementById('bmodal-bg').classList.remove('open');
+        resetAttach();
         await loadPress();
       } else {
         if (_editId) {
@@ -976,6 +1100,7 @@
         submitBtn.disabled = false;
         submitBtn.textContent = _editId ? '수정 완료' : '등록';
         document.getElementById('bmodal-bg').classList.remove('open');
+        resetAttach();
         await loadPosts();
       }
     });
@@ -1114,6 +1239,7 @@
       document.getElementById('bmodal-url-field').style.display = 'none';
       document.getElementById('bmodal-emoji-field').style.display = 'none';
       document.getElementById('bmodal-submit').textContent = '등록';
+      resetAttach();
       document.getElementById('bmodal-bg').classList.add('open');
     });
 
@@ -1273,6 +1399,7 @@
       document.getElementById('bmodal-url-field').style.display = '';
       document.getElementById('bmodal-emoji-field').style.display = '';
       document.getElementById('bmodal-submit').textContent = '등록';
+      resetAttach();
       document.getElementById('bmodal-bg').classList.add('open');
     });
 

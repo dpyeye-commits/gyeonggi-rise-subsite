@@ -214,6 +214,45 @@
     }
     .btn-sec:hover { background: #e0e0e0; }
 
+    /* ── 홈페이지 CMS 편집 ── */
+    .cms-section { margin-top: 40px; }
+    .cms-section-title {
+      font-size: 17px; font-weight: 800; color: #1a1a2e;
+      margin-bottom: 18px; display: flex; align-items: center; gap: 10px;
+    }
+    .cms-intro-card {
+      background: linear-gradient(135deg, #17422e 0%, #1e5c3c 100%);
+      border-radius: 16px; padding: 22px 24px;
+      display: flex; align-items: center; justify-content: space-between; gap: 20px;
+      box-shadow: 0 4px 16px rgba(23,66,46,.25); margin-bottom: 16px;
+    }
+    .cms-intro-text h3 { font-size: 16px; font-weight: 800; color: #fff; margin-bottom: 4px; }
+    .cms-intro-text p  { font-size: 13px; color: rgba(255,255,255,.7); line-height: 1.6; }
+    .cms-open-btn {
+      flex-shrink: 0; padding: 12px 24px;
+      background: #fff; color: #17422e;
+      border: none; border-radius: 10px;
+      font-size: 14px; font-weight: 800; cursor: pointer; font-family: inherit;
+      white-space: nowrap; text-decoration: none; display: inline-block;
+      transition: transform .15s, box-shadow .15s;
+      box-shadow: 0 2px 12px rgba(0,0,0,.12);
+    }
+    .cms-open-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(0,0,0,.18); }
+    .cms-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+    }
+    .cms-card {
+      background: #fff; border-radius: 12px; padding: 18px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.06);
+      border: 2px solid transparent;
+      transition: border-color .15s, transform .15s;
+    }
+    .cms-card:hover { border-color: #17422e; transform: translateY(-2px); }
+    .cms-card-icon { font-size: 22px; margin-bottom: 8px; }
+    .cms-card-name { font-size: 13px; font-weight: 800; color: #1a1a2e; margin-bottom: 4px; }
+    .cms-card-desc { font-size: 11px; color: #888; line-height: 1.5; }
+    @media (max-width: 760px) { .cms-grid { grid-template-columns: repeat(2, 1fr); } }
+
     /* ── 자료실 관리 ── */
     .res-section { margin-top: 40px; }
     .res-section-title {
@@ -423,6 +462,61 @@
         <div class="ei">📭</div>
         <p>아직 신청자가 없습니다</p>
         <small>회원가입 링크를 공유하면 여기에 신청 목록이 나타납니다</small>
+      </div>
+    </div>
+
+    <!-- ── 홈페이지 CMS 편집 ── -->
+    <div class="cms-section">
+      <div class="cms-section-title">🖊️ 홈페이지 콘텐츠 편집</div>
+      <div class="cms-intro-card">
+        <div class="cms-intro-text">
+          <h3>홈페이지 직접 편집</h3>
+          <p>홈페이지를 열면 우측 하단 <strong style="color:#A8D8B3;">✏️ 편집 모드</strong> 버튼이 표시됩니다.<br>
+             각 섹션을 클릭해 텍스트·배너·통계·절차를 바로 수정하고 저장할 수 있습니다.</p>
+        </div>
+        <a href="index.html" target="_blank" class="cms-open-btn">🌐 홈페이지 편집 열기</a>
+      </div>
+      <div class="cms-grid">
+        <div class="cms-card">
+          <div class="cms-card-icon">🌟</div>
+          <div class="cms-card-name">히어로</div>
+          <div class="cms-card-desc">메인 배너 제목·설명·버튼·핵심 혜택 카드</div>
+        </div>
+        <div class="cms-card">
+          <div class="cms-card-icon">📊</div>
+          <div class="cms-card-name">통계 바</div>
+          <div class="cms-card-desc">100%·16주·1:1·무료 등 숫자 항목 편집</div>
+        </div>
+        <div class="cms-card">
+          <div class="cms-card-icon">✨</div>
+          <div class="cms-card-name">과정 특징</div>
+          <div class="cms-card-desc">섹션 제목·부제 텍스트</div>
+        </div>
+        <div class="cms-card">
+          <div class="cms-card-icon">🏛</div>
+          <div class="cms-card-name">RISE 지원</div>
+          <div class="cms-card-desc">지원 내용 카드 목록 (아이콘·제목·설명)</div>
+        </div>
+        <div class="cms-card">
+          <div class="cms-card-icon">📚</div>
+          <div class="cms-card-name">커리큘럼 헤더</div>
+          <div class="cms-card-desc">16주 커리큘럼 섹션 제목·설명</div>
+        </div>
+        <div class="cms-card">
+          <div class="cms-card-icon">📋</div>
+          <div class="cms-card-name">신청 절차</div>
+          <div class="cms-card-desc">절차 단계 아이콘·이름·설명·상태</div>
+        </div>
+        <div class="cms-card">
+          <div class="cms-card-icon">📢</div>
+          <div class="cms-card-name">CTA 배너</div>
+          <div class="cms-card-desc">하단 신청 유도 배너 문구·버튼</div>
+        </div>
+        <div class="cms-card">
+          <div class="cms-card-icon">🔻</div>
+          <div class="cms-card-name">푸터</div>
+          <div class="cms-card-desc">주소·전화·이메일·저작권 텍스트</div>
+        </div>
       </div>
     </div>
 

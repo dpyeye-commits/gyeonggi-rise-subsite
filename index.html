@@ -311,6 +311,100 @@
       padding: 3px 10px;
     }
 
+    /* ── 커뮤니티 활동 위젯 ── */
+    .activity-widget {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+    .activity-card {
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-lg);
+      padding: 28px;
+      box-shadow: var(--sh-card);
+    }
+    .activity-card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 20px; padding-bottom: 16px;
+      border-bottom: 1.5px solid var(--border);
+    }
+    .activity-card-header h3 {
+      font-size: 17px; font-weight: 900; color: var(--forest);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .activity-card-header .ac-count {
+      font-size: 12px; font-weight: 700;
+      background: var(--mint); color: var(--forest);
+      padding: 3px 10px; border-radius: 100px;
+    }
+    .activity-more {
+      font-size: 13px; font-weight: 700; color: var(--sage);
+      text-decoration: none; transition: color .15s;
+    }
+    .activity-more:hover { color: var(--forest); }
+    .activity-list { list-style: none; display: flex; flex-direction: column; gap: 0; }
+    .activity-item {
+      display: flex; align-items: center; gap: 14px;
+      padding: 13px 0;
+      border-bottom: 1px solid var(--border);
+      transition: background .1s;
+    }
+    .activity-item:last-child { border-bottom: none; }
+    .activity-item:hover { background: var(--cream); margin: 0 -12px; padding: 13px 12px; border-radius: var(--r-sm); }
+    .activity-num {
+      width: 28px; height: 28px; border-radius: var(--r-sm);
+      background: var(--cream); color: var(--text-soft);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 800; flex-shrink: 0;
+    }
+    .activity-title {
+      flex: 1; font-size: 14px; font-weight: 600; color: var(--text);
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .activity-comment-badge {
+      font-size: 12px; font-weight: 800; color: #1e6fe0;
+      flex-shrink: 0;
+    }
+    .activity-meta {
+      font-size: 12px; color: var(--text-soft); white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .activity-empty {
+      padding: 32px 0; text-align: center;
+      font-size: 14px; color: var(--text-soft);
+    }
+    .activity-loading {
+      padding: 32px 0; text-align: center;
+      font-size: 14px; color: var(--text-soft);
+    }
+    /* 최근 댓글 카드 */
+    .comment-activity-item {
+      display: flex; flex-direction: column; gap: 4px;
+      padding: 13px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .comment-activity-item:last-child { border-bottom: none; }
+    .comment-activity-item:hover { background: var(--cream); margin: 0 -12px; padding: 13px 12px; border-radius: var(--r-sm); }
+    .ca-top {
+      display: flex; align-items: center; gap: 8px;
+    }
+    .ca-author {
+      font-size: 13px; font-weight: 700; color: var(--forest);
+    }
+    .ca-date {
+      font-size: 11px; color: var(--text-soft);
+    }
+    .ca-body {
+      font-size: 13px; color: var(--text-mid); line-height: 1.55;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .ca-post {
+      font-size: 11px; color: var(--sage); font-weight: 600;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+
     /* ── 반응형 ── */
     @media (max-width: 960px) {
       .hero-inner { grid-template-columns: 1fr; }
@@ -321,6 +415,7 @@
       .track-panel.active { grid-template-columns: 1fr; }
       .steps-grid { grid-template-columns: repeat(3, 1fr); gap: 24px; }
       .steps-grid::before { display: none; }
+      .activity-widget { grid-template-columns: 1fr; }
     }
     @media (max-width: 600px) {
       .feature-grid { grid-template-columns: 1fr; }
@@ -375,26 +470,26 @@
 </header>
 
 <!-- 히어로 -->
-<section class="hero">
+<section class="hero" data-cms-section="hero">
   <div class="hero-inner">
     <div class="hero-text">
       <div style="margin-bottom:8px;">
-        <span class="hero-main-badge">🌿 중부대학교 자연치유학과 공식 과정</span>
-        <span class="hero-rise-badge">경기 RISE 지원</span>
+        <span class="hero-main-badge" data-cms-field="hero.main_badge">🌿 중부대학교 자연치유학과 공식 과정</span>
+        <span class="hero-rise-badge" data-cms-field="hero.rise_badge">경기 RISE 지원</span>
       </div>
-      <h1>자연치유 지식을<br><em>건강콘텐츠</em>로<br>세상에 전하다</h1>
-      <p>누구나 시작할 수 있는 실전 중심 교육 — 영상 제작부터 SNS 운영, 개인 브랜드 상표 등록까지 체계적으로 지원합니다.</p>
+      <h1><span data-cms-field="hero.h1_line1">자연치유 지식을</span><br><em data-cms-field="hero.h1_em">건강콘텐츠</em>로<br><span data-cms-field="hero.h1_line3">세상에 전하다</span></h1>
+      <p data-cms-field="hero.description">누구나 시작할 수 있는 실전 중심 교육 — 영상 제작부터 SNS 운영, 개인 브랜드 상표 등록까지 체계적으로 지원합니다.</p>
       <div class="hero-actions">
         <a href="signup.html" class="btn-hero-main">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-          지금 신청하기
+          <span data-cms-field="hero.btn_main">지금 신청하기</span>
         </a>
-        <a href="curriculum.html" class="btn-hero-ghost">교육 과정 보기 →</a>
+        <a href="curriculum.html" class="btn-hero-ghost" data-cms-field="hero.btn_ghost">교육 과정 보기 →</a>
       </div>
     </div>
     <div class="hero-card">
-      <div class="hero-card-title">✦ 핵심 혜택</div>
-      <ul class="hero-card-list">
+      <div class="hero-card-title" data-cms-field="hero.card_title">✦ 핵심 혜택</div>
+      <ul class="hero-card-list" data-cms-list="hero.card_items">
         <li>
           <span class="ico">💰</span>
           <span><strong>교육비 전액 무료</strong><br>경기도 RISE 지원으로 수강료 100% 면제</span>
@@ -419,8 +514,8 @@
 </section>
 
 <!-- 통계 바 -->
-<div class="stat-bar">
-  <div class="stat-bar-inner">
+<div class="stat-bar" data-cms-section="stats">
+  <div class="stat-bar-inner" data-cms-list="stats.items">
     <div class="stat-item">
       <div class="stat-num">100<span>%</span></div>
       <div class="stat-label">교육비 전액 지원</div>
@@ -441,12 +536,12 @@
 </div>
 
 <!-- 과정 특징 -->
-<section class="section fade-in">
+<section class="section fade-in" data-cms-section="features_header">
   <div class="section-inner">
     <div class="section-header">
-      <div class="section-tag">PROGRAM FEATURES</div>
-      <h2>왜 자연치유학과<br>크리에이터 과정인가</h2>
-      <p>건강·치유 분야의 전문 지식과 디지털 콘텐츠 제작 역량을 동시에 키웁니다.</p>
+      <div class="section-tag" data-cms-field="features_header.tag">PROGRAM FEATURES</div>
+      <h2 data-cms-field="features_header.h2">왜 자연치유학과<br>크리에이터 과정인가</h2>
+      <p data-cms-field="features_header.p">건강·치유 분야의 전문 지식과 디지털 콘텐츠 제작 역량을 동시에 키웁니다.</p>
     </div>
     <div class="feature-grid">
 
@@ -605,12 +700,12 @@
 </section>
 
 <!-- RISE 지원 내용 -->
-<section class="section section-bg fade-in">
+<section class="section section-bg fade-in" data-cms-section="rise_support">
   <div class="section-inner">
     <div class="section-header">
-      <div class="section-tag">RISE SUPPORT</div>
-      <h2>경기 RISE 사업단이<br>함께합니다</h2>
-      <p>경기도 대학혁신지원(RISE) 사업의 특별 지원으로 진행되는 과정입니다.</p>
+      <div class="section-tag" data-cms-field="rise_support.tag">RISE SUPPORT</div>
+      <h2 data-cms-field="rise_support.h2">경기 RISE 사업단이<br>함께합니다</h2>
+      <p data-cms-field="rise_support.p">경기도 대학혁신지원(RISE) 사업의 특별 지원으로 진행되는 과정입니다.</p>
     </div>
     <div class="support-wrap">
       <div class="support-img-side">
@@ -619,7 +714,7 @@
           경기도 RISE 사업단<br><span>× 중부대학교 자연치유학과</span>
         </div>
       </div>
-      <ul class="support-list">
+      <ul class="support-list" data-cms-list="rise_support.items">
         <li class="support-item">
           <div class="support-item-icon">💰</div>
           <div>
@@ -654,12 +749,12 @@
 </section>
 
 <!-- 커리큘럼 미리보기 -->
-<section class="section fade-in">
+<section class="section fade-in" data-cms-section="curriculum_header">
   <div class="section-inner">
     <div class="section-header">
-      <div class="section-tag">CURRICULUM</div>
-      <h2>16주 집중 커리큘럼</h2>
-      <p>이론과 실습을 균형 있게 구성한 자연치유 크리에이터 양성 과정입니다.</p>
+      <div class="section-tag" data-cms-field="curriculum_header.tag">CURRICULUM</div>
+      <h2 data-cms-field="curriculum_header.h2">16주 집중 커리큘럼</h2>
+      <p data-cms-field="curriculum_header.p">이론과 실습을 균형 있게 구성한 자연치유 크리에이터 양성 과정입니다.</p>
     </div>
     <div class="track-tabs">
       <button class="track-tab active" data-track="track1">1단계 · 기초 이론</button>
@@ -727,14 +822,14 @@
 </section>
 
 <!-- 신청 절차 -->
-<section class="section section-bg fade-in">
+<section class="section section-bg fade-in" data-cms-section="steps">
   <div class="section-inner">
     <div class="section-header" style="text-align:center;">
       <div class="section-tag" style="margin:0 auto 12px;">HOW TO APPLY</div>
-      <h2 style="margin:0 auto 10px;">간단한 신청 절차</h2>
-      <p style="margin:0 auto;">온라인 신청 후 담당자 확인 → 합격 통보까지 빠르게 진행됩니다.</p>
+      <h2 style="margin:0 auto 10px;" data-cms-field="steps.h2">간단한 신청 절차</h2>
+      <p style="margin:0 auto;" data-cms-field="steps.p">온라인 신청 후 담당자 확인 → 합격 통보까지 빠르게 진행됩니다.</p>
     </div>
-    <div class="steps-grid">
+    <div class="steps-grid" data-cms-list="steps.items">
       <div class="step-item done">
         <div class="step-num">📝</div>
         <div class="step-title">온라인 신청</div>
@@ -818,33 +913,66 @@
   </div>
 </section>
 
+<!-- 커뮤니티 활동 -->
+<section class="section fade-in" id="community-activity">
+  <div class="section-inner">
+    <div class="section-header" style="text-align:center;">
+      <span class="section-tag">COMMUNITY</span>
+      <h2>수강생 활동 현황</h2>
+      <p style="margin:10px auto 0;text-align:center;">자유게시판의 최근 게시글과 댓글을 확인하세요.</p>
+    </div>
+    <div class="activity-widget">
+      <!-- 최근 게시글 -->
+      <div class="activity-card">
+        <div class="activity-card-header">
+          <h3>💬 최근 게시글 <span class="ac-count" id="ac-post-count">0</span></h3>
+          <a href="notice.html" class="activity-more">전체 보기 →</a>
+        </div>
+        <ul class="activity-list" id="ac-post-list">
+          <li class="activity-loading">불러오는 중…</li>
+        </ul>
+      </div>
+      <!-- 최근 댓글 -->
+      <div class="activity-card">
+        <div class="activity-card-header">
+          <h3>🗨️ 최근 댓글 <span class="ac-count" id="ac-comment-count">0</span></h3>
+          <a href="notice.html" class="activity-more">전체 보기 →</a>
+        </div>
+        <ul class="activity-list" id="ac-comment-list">
+          <li class="activity-loading">불러오는 중…</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- CTA 배너 -->
-<section class="section">
+<section class="section" data-cms-section="cta_banner">
   <div class="section-inner">
     <div class="apply-banner fade-in">
       <div class="apply-text">
-        <h2>지금 바로 신청하세요</h2>
-        <p>교육비 전액 무료 · 선착순 모집 · 2026학년도 모집 중</p>
+        <h2 data-cms-field="cta_banner.h2">지금 바로 신청하세요</h2>
+        <p data-cms-field="cta_banner.p">교육비 전액 무료 · 선착순 모집 · 2026학년도 모집 중</p>
       </div>
       <div class="apply-btns">
         <a href="signup.html" class="apply-btn-white">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-          수강 신청
+          <span data-cms-field="cta_banner.btn_main">수강 신청</span>
         </a>
-        <a href="curriculum.html" class="apply-btn-ghost">교육 과정 보기</a>
+        <a href="curriculum.html" class="apply-btn-ghost" data-cms-field="cta_banner.btn_ghost">교육 과정 보기</a>
       </div>
     </div>
   </div>
 </section>
 
 <!-- 푸터 -->
-<footer>
+<footer data-cms-section="footer">
   <div class="footer-inner">
     <div class="footer-top">
       <div class="footer-brand">
         <img src="images/joongbu-logo.png" alt="중부대학교 로고">
         <p>중부대학교 자연치유학과<br>건강콘텐츠 크리에이터 과정<br>경기도 RISE 사업단 연계 교육과정</p>
-        <p style="margin-top:8px;font-size:11px;opacity:.4;">경기도 고양시 덕양구 동헌로 305, 중부대학교 고양캠퍼스<br>T. 031-8075-1000 / chiyu@joongbu.ac.kr</p>
+        <p style="margin-top:8px;font-size:11px;opacity:.4;"><span data-cms-field="footer.address">경기도 고양시 덕양구 동헌로 305, 중부대학교 고양캠퍼스</span><br>T. <span data-cms-field="footer.phone">031-8075-1000</span> / <span data-cms-field="footer.email">chiyu@joongbu.ac.kr</span></p>
       </div>
       <div class="footer-col">
         <h4>과정 안내</h4>
@@ -872,7 +1000,7 @@
       </div>
     </div>
     <div class="footer-bottom">
-      <span>© 2025 중부대학교 자연치유학과. 경기도 RISE 사업단 연계 교육과정.</span>
+      <span data-cms-field="footer.copyright">© 2025 중부대학교 자연치유학과. 경기도 RISE 사업단 연계 교육과정.</span>
       <div class="footer-bottom-links">
         <a href="#">개인정보처리방침</a>
         <a href="#">이용약관</a>
@@ -909,6 +1037,90 @@
     entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } });
   }, { threshold: 0.1 });
   document.querySelectorAll('.fade-in').forEach(el => io.observe(el));
+  /* ── 커뮤니티 활동 위젯: Supabase 실시간 로드 ── */
+  (function() {
+    const SB_URL = 'https://mvbxcrxykyyshdwtuedl.supabase.co';
+    const SB_KEY = 'sb_publishable_xyA4rNrKXrOK0Yy_qPgL5w_8UbP7Vaa';
+    const hdrs = { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY };
+
+    function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+    function fmtDate(iso) {
+      if (!iso) return '';
+      const d = new Date(iso);
+      return d.getFullYear()+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+String(d.getDate()).padStart(2,'0');
+    }
+
+    // 최근 게시글 + 댓글 수
+    async function loadRecentPosts() {
+      const el = document.getElementById('ac-post-list');
+      try {
+        const res = await fetch(SB_URL + '/rest/v1/posts?select=id,title,author_name,created_at,comments(count)&order=created_at.desc&limit=6', { headers: hdrs });
+        if (!res.ok) throw new Error(res.status);
+        const posts = await res.json();
+        document.getElementById('ac-post-count').textContent = posts.length;
+        if (posts.length === 0) {
+          el.innerHTML = '<li class="activity-empty">아직 게시글이 없습니다.</li>';
+          return;
+        }
+        el.innerHTML = posts.map((p, i) => {
+          const cnt = p.comments?.[0]?.count || 0;
+          const badge = cnt > 0 ? `<span class="activity-comment-badge">[${cnt}]</span>` : '';
+          return `<li class="activity-item">
+            <span class="activity-num">${i+1}</span>
+            <span class="activity-title"><span>${esc(p.title)}</span>${badge}</span>
+            <span class="activity-meta">${esc(p.author_name)} · ${fmtDate(p.created_at)}</span>
+          </li>`;
+        }).join('');
+      } catch(e) {
+        el.innerHTML = '<li class="activity-empty">게시글을 불러올 수 없습니다.</li>';
+      }
+    }
+
+    // 최근 댓글
+    async function loadRecentComments() {
+      const el = document.getElementById('ac-comment-list');
+      try {
+        const res = await fetch(SB_URL + '/rest/v1/comments?select=id,content,author_name,created_at,post_id&order=created_at.desc&limit=6', { headers: hdrs });
+        if (!res.ok) throw new Error(res.status);
+        const comments = await res.json();
+        document.getElementById('ac-comment-count').textContent = comments.length;
+        if (comments.length === 0) {
+          el.innerHTML = '<li class="activity-empty">아직 댓글이 없습니다.</li>';
+          return;
+        }
+        // 게시글 제목 매핑을 위해 post_id 목록으로 게시글 조회
+        const postIds = [...new Set(comments.map(c => c.post_id))];
+        const postQuery = postIds.map(id => `id.eq.${id}`).join(',');
+        const pRes = await fetch(SB_URL + '/rest/v1/posts?select=id,title&or=(' + postQuery + ')', { headers: hdrs });
+        const postMap = {};
+        if (pRes.ok) {
+          (await pRes.json()).forEach(p => { postMap[p.id] = p.title; });
+        }
+        el.innerHTML = comments.map(c => {
+          const postTitle = postMap[c.post_id] || '';
+          const bodyPreview = esc(c.content).substring(0, 60) + (c.content.length > 60 ? '…' : '');
+          return `<li class="comment-activity-item">
+            <div class="ca-top">
+              <span class="ca-author">${esc(c.author_name)}</span>
+              <span class="ca-date">${fmtDate(c.created_at)}</span>
+            </div>
+            <div class="ca-body">${bodyPreview}</div>
+            ${postTitle ? `<div class="ca-post">📌 ${esc(postTitle)}</div>` : ''}
+          </li>`;
+        }).join('');
+      } catch(e) {
+        el.innerHTML = '<li class="activity-empty">댓글을 불러올 수 없습니다.</li>';
+      }
+    }
+
+    // 페이지 로드 시 실행
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => { loadRecentPosts(); loadRecentComments(); });
+    } else {
+      loadRecentPosts(); loadRecentComments();
+    }
+  })();
 </script>
+<script src="cms.js"></script>
 </body>
 </html>

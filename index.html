@@ -421,46 +421,24 @@
       .feature-grid { grid-template-columns: 1fr; }
       .steps-grid { grid-template-columns: 1fr 1fr; }
     }
-    /* ── 쿠팡파트너스 플로팅 버튼 ── */
-    .coupang-float {
-      position: fixed;
-      right: 20px;
-      bottom: 88px;
-      z-index: 900;
-      display: flex;
-      flex-direction: column;
+    /* ── 쿠팡파트너스 헤더 버튼 ── */
+    .btn-coupang {
+      display: inline-flex;
       align-items: center;
       gap: 6px;
-      text-decoration: none;
-    }
-    .coupang-float-btn {
-      width: 56px;
-      height: 56px;
-      border-radius: 50%;
       background: #E2302D;
-      box-shadow: 0 4px 16px rgba(226,48,45,.4);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: transform .15s, box-shadow .15s;
-    }
-    .coupang-float-btn svg { width: 28px; height: 28px; }
-    .coupang-float:hover .coupang-float-btn {
-      transform: translateY(-3px);
-      box-shadow: 0 8px 24px rgba(226,48,45,.5);
-    }
-    .coupang-float-label {
-      font-size: 10px;
+      color: #fff;
+      font-size: 13px;
       font-weight: 700;
-      color: #E2302D;
-      letter-spacing: .2px;
+      padding: 8px 16px;
+      border-radius: var(--r-md);
+      text-decoration: none;
       white-space: nowrap;
+      transition: background .15s, transform .15s;
     }
-    @media (max-width: 520px) {
-      .coupang-float { right: 14px; bottom: 76px; }
-      .coupang-float-btn { width: 48px; height: 48px; }
-      .coupang-float-btn svg { width: 24px; height: 24px; }
-    }
+    .btn-coupang:hover { background: #c0201e; transform: translateY(-1px); }
+    .btn-coupang svg { width: 15px; height: 15px; flex-shrink: 0; }
+    @media (max-width: 768px) { .btn-coupang { display: none; } }
   </style>
 </head>
 <body>
@@ -499,6 +477,10 @@
       <a href="library.html">자료실</a>
       <a href="member.html" class="nav-member">회원홈페이지</a>
     </nav>
+    <a href="https://link.coupang.com/a/fna1tQSdpY" target="_blank" rel="noopener sponsored" class="btn-coupang">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+      쿠팡파트너스
+    </a>
     <a href="member.html" class="btn-apply">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
       로그인
@@ -1163,17 +1145,6 @@
 </script>
 <script src="cms.js"></script>
 
-<!-- 쿠팡파트너스 플로팅 버튼 -->
-<a class="coupang-float" href="https://link.coupang.com/a/fna1tQSdpY" target="_blank" rel="noopener sponsored" aria-label="쿠팡파트너스 바로가기">
-  <div class="coupang-float-btn">
-    <!-- 장바구니 아이콘 -->
-    <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
-      <line x1="3" y1="6" x2="21" y2="6"/>
-      <path d="M16 10a4 4 0 0 1-8 0"/>
-    </svg>
-  </div>
-  <span class="coupang-float-label">쿠팡</span>
-</a>
+
 </body>
 </html>
